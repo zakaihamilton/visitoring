@@ -6,6 +6,27 @@ import styles from "./developers.module.css";
 export const metadata: Metadata = {
   title: "Developers — Visitoring",
   description: "Add Visitoring analytics to your website in a few simple steps.",
+  openGraph: {
+    type: "website",
+    siteName: "Visitoring",
+    url: "/developers",
+    title: "Developers — Visitoring",
+    description: "Add Visitoring analytics to your website in a few simple steps.",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Visitoring — know your traffic, keep it simple.",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Developers — Visitoring",
+    description: "Add Visitoring analytics to your website in a few simple steps.",
+    images: ["/og-image.png"],
+  },
 };
 
 const trackerSnippet =
@@ -97,8 +118,8 @@ export default function DevelopersPage() {
                 <code>{eventSnippet}</code>
               </pre>
               <p className={styles.note}>
-                Use this as your signup-success handler and call it only after your app confirms
-                the signup. The tracker uses <code>defer</code>, so it is available for normal user
+                Use this as your signup-success handler and call it only after your app confirms the
+                signup. The tracker uses <code>defer</code>, so it is available for normal user
                 actions after page parsing finishes. Choose your own event name and details to
                 compare activity later.
               </p>
