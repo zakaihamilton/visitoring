@@ -28,7 +28,7 @@ The Compose database listens on host port `5433` to avoid colliding with a local
 
 Open [http://localhost:3000](http://localhost:3000). The collector accepts local development requests when a site's allowlist includes `localhost:3000`.
 
-The required local variable is `DATABASE_URL`. Set `AUTH_SECRET` and `RATE_LIMIT_SECRET` to distinct, long random values for deployed environments. Production deployments must set `TRUST_PROXY_HEADERS=true` and expose the app only through a trusted reverse proxy that overwrites `x-real-ip` or `x-forwarded-for` with a single client IP. Without that setting, Visitoring ignores forwarded headers and the ready endpoint returns 503. `GEOIP_DB_PATH` is optional. `SENTRY8_DATABASE_URL` is required only for history import. Do not commit `.env` or a GeoIP database.
+The required local variable is `DATABASE_URL`. Set `AUTH_SECRET` and `RATE_LIMIT_SECRET` to distinct, long random values for deployed environments. Production deployments must set `TRUST_PROXY_HEADERS=true` and expose the app only through a trusted reverse proxy that overwrites `x-real-ip` or `x-forwarded-for` with a single client IP. Without that setting, Visitoring ignores forwarded headers and the ready endpoint returns 503. Vercel deployments also need `CRON_SECRET` for the protected daily retention job. `GEOIP_DB_PATH` is optional. `SENTRY8_DATABASE_URL` is required only for history import. Do not commit `.env` or a GeoIP database.
 
 ## Provision a workspace, admin, user, and site
 
@@ -88,7 +88,7 @@ The importer runs a read-only transaction and selects the existing `telemetry_ev
 
 ## Retention and health
 
-Run the fixed rolling 24-month retention prune command daily using a scheduler. It also removes expired collection and login rate-limit buckets:
+Vercel runs the fixed rolling 24-month retention prune daily at 04:00 UTC through a protected cron route. The `CRON_SECRET` production environment variable protects that endpoint. It also removes expired collection and login rate-limit buckets. To run the same job manually:
 
 ```sh
 npm run retention:prune

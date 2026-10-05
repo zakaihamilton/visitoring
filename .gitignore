@@ -10,3 +10,4 @@ coverage/
 /data/
 *.mmdb
 .neon
+.vercel
