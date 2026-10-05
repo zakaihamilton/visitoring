@@ -17,14 +17,14 @@ export async function createSiteAction(
   const user = await requireAdmin();
   const name = String(formData.get("name") ?? "").trim();
   if (!name || name.length > 120)
-    return { message: "Enter a site name up to 120 characters.", error: true };
+    return { message: "Enter a site name (up to 120 characters).", error: true };
   let domains: string[];
   try {
     domains = parseAllowedDomains(String(formData.get("domains") ?? ""));
   } catch (error) {
     return { message: error instanceof Error ? error.message : "Invalid domains.", error: true };
   }
-  if (domains.length === 0) return { message: "Add at least one allowed domain.", error: true };
+  if (domains.length === 0) return { message: "Add at least one website address.", error: true };
   const key = createSiteKey();
   await db.insert(sites).values({
     workspaceId: user.workspaceId,
@@ -34,7 +34,7 @@ export async function createSiteAction(
     siteKeyPrefix: key.slice(0, 11),
   });
   revalidatePath("/sites");
-  return { message: "Site created. Copy the key now; it is shown only once.", key };
+  return { message: "Site added. Copy your tracking key now; it is shown only once.", key };
 }
 
 export async function updateDomainsAction(formData: FormData): Promise<void> {
@@ -42,7 +42,7 @@ export async function updateDomainsAction(formData: FormData): Promise<void> {
   const siteId = String(formData.get("siteId") ?? "");
   const domains = parseAllowedDomains(String(formData.get("domains") ?? ""));
   if (!siteId || domains.length === 0)
-    throw new Error("A site and at least one domain are required.");
+    throw new Error("Choose a site and add at least one website address.");
   await db
     .update(sites)
     .set({ allowedDomains: domains, updatedAt: new Date() })
@@ -56,7 +56,7 @@ export async function rotateSiteKeyAction(
 ): Promise<SiteActionState> {
   const user = await requireAdmin();
   const siteId = String(formData.get("siteId") ?? "");
-  if (!siteId) return { message: "Choose a site.", error: true };
+  if (!siteId) return { message: "Choose a site to replace its tracking key.", error: true };
   const key = createSiteKey();
   const [updated] = await db
     .update(sites)
@@ -67,7 +67,10 @@ export async function rotateSiteKeyAction(
     })
     .where(and(eq(sites.id, siteId), eq(sites.workspaceId, user.workspaceId)))
     .returning({ id: sites.id });
-  if (!updated) return { message: "Site was not found in your workspace.", error: true };
+  if (!updated) return { message: "We couldn't find that site in your project.", error: true };
   revalidatePath("/sites");
-  return { message: "Key rotated. Update your tracker now; the old key no longer works.", key };
+  return {
+    message: "Tracking key replaced. Update your site now; the old key no longer works.",
+    key,
+  };
 }

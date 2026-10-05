@@ -30,8 +30,11 @@ export function CreateSiteForm() {
         <input name="name" required maxLength={120} placeholder="Marketing site" />
       </label>
       <label>
-        Allowed domains
-        <input name="domains" required placeholder="example.com, docs.example.com" />
+        Website addresses
+        <input name="domains" required placeholder="example.com, www.example.com" />
+        <small>
+          List each address that will use this tracker. Include www if your site uses it.
+        </small>
       </label>
       <button type="submit" className="button buttonPrimary" disabled={pending}>
         {pending ? "Creating…" : "Add site"}
@@ -48,18 +51,20 @@ export function SiteControls({ siteId, domains }: { siteId: string; domains: str
       <form action={updateDomainsAction} className={styles.domainForm}>
         <input type="hidden" name="siteId" value={siteId} />
         <label>
-          Allowed domains
+          Website addresses
           <input name="domains" required defaultValue={domains.join(", ")} />
+          <small>List each address that should be able to send data from this site.</small>
         </label>
         <button type="submit" className="button buttonQuiet">
-          Save domains
+          Save addresses
         </button>
       </form>
       <form action={action}>
         <input type="hidden" name="siteId" value={siteId} />
         <button type="submit" className="button buttonDanger" disabled={pending}>
-          {pending ? "Rotating…" : "Rotate site key"}
+          {pending ? "Replacing…" : "Replace tracking key"}
         </button>
+        <p className={styles.keyWarning}>Replacing the key stops the old tracker from working.</p>
         <KeyNotice state={state} />
       </form>
     </div>

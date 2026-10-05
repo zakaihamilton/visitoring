@@ -27,7 +27,7 @@ export function parseAllowedDomains(input: string): string[] {
     .filter(Boolean)
     .map(normalizeDomain);
   if (domains.some((domain) => domain === null))
-    throw new Error("Enter valid domain names separated by commas.");
+    throw new Error("Enter website addresses like example.com, separated by commas.");
   return [...new Set(domains as string[])];
 }
 

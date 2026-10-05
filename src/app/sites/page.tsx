@@ -27,9 +27,9 @@ export default async function SitesPage() {
       <main className={styles.page}>
         <div className={styles.intro}>
           <div>
-            <div className={styles.eyebrow}>Workspace settings</div>
+            <div className={styles.eyebrow}>Project settings</div>
             <h1>Your sites</h1>
-            <p>Each site has a public collection key and an origin allowlist.</p>
+            <p>Each site has a tracking key that works only on approved website addresses.</p>
           </div>
         </div>
         <section className={styles.createCard}>
@@ -42,6 +42,7 @@ export default async function SitesPage() {
               <section className={styles.siteCard} key={site.id}>
                 <div className={styles.siteHead}>
                   <h2>{site.name}</h2>
+                  <span className={styles.keyLabel}>Tracking key</span>
                   <code>{site.siteKeyPrefix}••••••</code>
                 </div>
                 <div className={styles.domainList}>
@@ -53,23 +54,25 @@ export default async function SitesPage() {
               </section>
             ))
           ) : (
-            <div className={styles.empty}>No sites yet. Add one above to get a tracker key.</div>
+            <div className={styles.empty}>No sites yet. Add one above to get a tracking key.</div>
           )}
         </div>
         <section className={styles.install}>
-          <div className={styles.eyebrow}>Install your tracker</div>
-          <p>
-            Copy the one-time site key shown after site creation or key rotation into this snippet:
-          </p>
+          <div className={styles.eyebrow}>Add Visitoring to your site</div>
+          <p>Use the tracking key shown after you add a site or replace its key.</p>
           <pre>
             <code>
               {
-                '<script defer src="https://YOUR-VISITORING-HOST/tracker.js" data-site-key="vk_YOUR_SITE_KEY"></script>'
+                '<script defer src="https://visitoring.vercel.app/tracker.js" data-site-key="vk_YOUR_SITE_KEY"></script>'
               }
             </code>
           </pre>
           <p>
-            Custom events are available as{" "}
+            Replace <code>vk_YOUR_SITE_KEY</code> with the tracking key shown when you add or
+            replace a key. Change the script address if you use a custom Visitoring domain.
+          </p>
+          <p>
+            To track an action such as a signup, send a custom event with{" "}
             <code>{'window.Visitoring.track("signup", { plan: "starter" })'}</code>.
           </p>
         </section>

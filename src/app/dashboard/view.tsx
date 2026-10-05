@@ -16,7 +16,7 @@ function number(value: number): string {
 function BreakdownList({
   title,
   rows,
-  empty = "No data yet",
+  empty = "No activity yet",
 }: {
   title: string;
   rows: Array<{ label: string; count: number }>;
@@ -70,12 +70,12 @@ export function Dashboard({ sites, siteId, data, filters }: Props) {
     <main className={styles.main}>
       <div className={styles.heading}>
         <div>
-          <div className="eyebrow">Workspace overview</div>
+          <div className="eyebrow">Project overview</div>
           <h1>Traffic, at a glance.</h1>
           <p>One clear view of how people find and use your site.</p>
         </div>
         <div className={styles.updated}>
-          <span className={styles.liveDot} /> Live collection
+          <span className={styles.liveDot} /> Tracking activity
         </div>
       </div>
 
@@ -91,15 +91,15 @@ export function Dashboard({ sites, siteId, data, filters }: Props) {
           </select>
         </label>
         <label>
-          From
+          Start date
           <input type="date" name="from" defaultValue={filters.from} />
         </label>
         <label>
-          To
+          End date
           <input type="date" name="to" defaultValue={filters.to} />
         </label>
         <label>
-          Event
+          Event type
           <select name="event" defaultValue={filters.event}>
             <option value="">All events</option>
             {data.eventNames.map((name) => (
@@ -108,18 +108,18 @@ export function Dashboard({ sites, siteId, data, filters }: Props) {
           </select>
         </label>
         <label>
-          Path
+          Page path
           <input name="path" defaultValue={filters.path} placeholder="/pricing" />
         </label>
         <details className={styles.moreFilters}>
-          <summary>More filters</summary>
+          <summary>More options</summary>
           <div className={styles.moreGrid}>
             <label>
-              Property key
+              Event detail name
               <input name="property" defaultValue={filters.property} placeholder="plan" />
             </label>
             <label>
-              Property value
+              Event detail value
               <input
                 name="propertyValue"
                 defaultValue={filters.propertyValue}
@@ -127,12 +127,20 @@ export function Dashboard({ sites, siteId, data, filters }: Props) {
               />
             </label>
             <label>
-              Visitor ID
-              <input name="visitor" defaultValue={filters.visitor} />
+              Visitor
+              <input
+                name="visitor"
+                defaultValue={filters.visitor}
+                placeholder="Paste visitor code"
+              />
             </label>
             <label>
-              Session ID
-              <input name="session" defaultValue={filters.session} />
+              Session
+              <input
+                name="session"
+                defaultValue={filters.session}
+                placeholder="Paste session code"
+              />
             </label>
           </div>
         </details>
@@ -145,22 +153,22 @@ export function Dashboard({ sites, siteId, data, filters }: Props) {
         <article className={styles.metric}>
           <span>Page views</span>
           <strong>{number(data.pageViews)}</strong>
-          <small>including imported welcome views</small>
+          <small>Includes imported page views</small>
         </article>
         <article className={styles.metric}>
           <span>Visitors</span>
           <strong>{number(data.visitors)}</strong>
-          <small>anonymous visitor IDs</small>
+          <small>People counted without names</small>
         </article>
         <article className={styles.metric}>
           <span>Sessions</span>
           <strong>{number(data.sessions)}</strong>
-          <small>browser sessions</small>
+          <small>Visits within a browser session</small>
         </article>
         <article className={styles.metric}>
           <span>Custom events</span>
           <strong>{number(data.customEvents)}</strong>
-          <small>{number(data.total)} total events</small>
+          <small>{number(data.total)} total, including page views</small>
         </article>
       </div>
 
@@ -169,7 +177,7 @@ export function Dashboard({ sites, siteId, data, filters }: Props) {
           <div className={styles.cardTitle}>
             <div>
               <h2>Activity over time</h2>
-              <p>Events and page views per day, UTC</p>
+              <p>Daily events and page views · UTC</p>
             </div>
             <span>Last {data.trend.length} days</span>
           </div>
@@ -210,7 +218,7 @@ export function Dashboard({ sites, siteId, data, filters }: Props) {
           </div>
         </section>
         <BreakdownList title="Popular pages" rows={data.pages} />
-        <BreakdownList title="Referrers" rows={data.referrers} />
+        <BreakdownList title="Traffic sources" rows={data.referrers} />
       </div>
 
       <div className={styles.breakdownGrid}>
@@ -225,7 +233,7 @@ export function Dashboard({ sites, siteId, data, filters }: Props) {
         <div className={styles.cardTitle}>
           <div>
             <h2>Recent events</h2>
-            <p>Event properties are kept alongside the event.</p>
+            <p>Extra details you sent with each event.</p>
           </div>
           <span>{number(data.total)} matching</span>
         </div>
@@ -236,7 +244,7 @@ export function Dashboard({ sites, siteId, data, filters }: Props) {
                 <tr>
                   <th>Event</th>
                   <th>Page</th>
-                  <th>Properties</th>
+                  <th>Details</th>
                   <th>Visitor</th>
                   <th>Time</th>
                 </tr>
@@ -263,14 +271,14 @@ export function Dashboard({ sites, siteId, data, filters }: Props) {
             </table>
           </div>
         ) : (
-          <div className={styles.tableEmpty}>No events match these filters.</div>
+          <div className={styles.tableEmpty}>No events found. Try changing your filters.</div>
         )}
       </section>
 
       <footer className={styles.footer}>
         <span>
-          Visitoring stores coarse device and location categories. IP addresses and full user-agent
-          strings are never retained.
+          Visitoring uses general device and location details. We never store your IP address or
+          full browser details.
         </span>
         <span>
           IP geolocation by{" "}

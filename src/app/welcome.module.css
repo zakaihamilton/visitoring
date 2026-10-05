@@ -1,0 +1,153 @@
+.page {
+  min-height: 100vh;
+  padding: clamp(18px, 4vw, 48px);
+  background: var(--background);
+}
+
+.shell {
+  width: min(1180px, 100%);
+  margin: 0 auto;
+}
+
+.hero {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  align-items: center;
+  min-height: 470px;
+  overflow: hidden;
+  margin-top: 38px;
+  padding: clamp(34px, 7vw, 82px);
+  border-radius: 28px;
+  color: #f8fbf6;
+  background: #0e292b;
+}
+
+.hero::after {
+  position: absolute;
+  z-index: -1;
+  right: -230px;
+  bottom: -295px;
+  width: 620px;
+  height: 620px;
+  border: 1px solid #e3f2e422;
+  border-radius: 50%;
+  box-shadow:
+    0 0 0 55px #e3f2e410,
+    0 0 0 125px #e3f2e408;
+  content: "";
+}
+
+.heroCopy {
+  position: relative;
+  z-index: 1;
+  max-width: 770px;
+}
+
+.eyebrow {
+  color: #a3d7c0;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.hero h1 {
+  margin: 17px 0 22px;
+  font-size: clamp(3.2rem, 8vw, 6.4rem);
+  font-weight: 650;
+  letter-spacing: -0.07em;
+  line-height: 0.98;
+}
+
+.hero h1 em {
+  color: #a3d7c0;
+  font-family: Georgia, serif;
+  font-weight: 400;
+}
+
+.hero p {
+  max-width: 550px;
+  margin: 0;
+  color: #bed0cb;
+  font-size: clamp(1rem, 1.6vw, 1.12rem);
+  line-height: 1.7;
+}
+
+.topics {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px;
+  margin-top: 30px;
+  padding: 0;
+  list-style: none;
+}
+
+.topics li {
+  padding: 8px 12px;
+  border: 1px solid #e3f2e42b;
+  border-radius: 99px;
+  color: #e4f2e8;
+  font-size: 0.78rem;
+}
+
+.highlights {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  margin-top: 18px;
+}
+
+.highlight {
+  padding: 22px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: #fff;
+}
+
+.highlight h2 {
+  margin: 0 0 8px;
+  font-size: 0.98rem;
+  letter-spacing: -0.02em;
+}
+
+.highlight p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.85rem;
+  line-height: 1.6;
+}
+
+.footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 23px 2px 4px;
+  color: var(--muted);
+  font-size: 0.77rem;
+}
+
+@media (max-width: 700px) {
+  .page {
+    padding: 18px;
+  }
+
+  .hero {
+    min-height: 390px;
+    margin-top: 26px;
+    border-radius: 21px;
+  }
+
+  .hero h1 {
+    font-size: clamp(3rem, 12vw, 4.5rem);
+  }
+
+  .highlights {
+    grid-template-columns: 1fr;
+  }
+
+  .footer {
+    flex-direction: column;
+    gap: 6px;
+  }
+}

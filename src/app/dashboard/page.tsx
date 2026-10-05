@@ -73,13 +73,13 @@ export default async function DashboardPage({ searchParams }: Props) {
         <main className="emptyState">
           <div className="eyebrow">Set up your first site</div>
           <h1>Analytics start with a site.</h1>
-          <p>Create a site and add its tracker snippet to begin collecting events.</p>
+          <p>Add a site and its tracking snippet to start seeing page views and events.</p>
           {user.role === "admin" ? (
             <a className="button buttonPrimary" href="/sites">
-              Open site settings
+              Manage sites
             </a>
           ) : (
-            <p>Ask your workspace administrator to provision a site.</p>
+            <p>Ask your project administrator to add a site.</p>
           )}
         </main>
       )}

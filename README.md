@@ -1,14 +1,14 @@
 # Visitoring
 
-Visitoring is a small, self-hosted, multi-site analytics app. It collects page views and custom events, then reports visitors, sessions, pages, referrers, event properties, device categories, browser/OS families, and country/region. Accounts are provisioned by an operator; there is no public signup.
+Visitoring is lightweight analytics for the websites you run. It collects page views and custom events, then shows visitors, sessions, popular pages, traffic sources, event details, device and browser types, and country or region. An administrator creates accounts; there is no public sign-up.
 
 Visitoring is being built as the future analytics destination for Sentry8. Its collector understands Sentry8's current `welcome_*` event names and payloads. Sentry8 remains unchanged until Visitoring is running and accepted.
 
 ## How records are stored
 
-PostgreSQL is the source of truth. Each event is a row in `site_events`, linked to a workspace and site. Rows retain the anonymous visitor ID, session ID, event name, query-free path, referrer hostname, JSON properties, coarse device/browser/OS categories, country and first-level region, and the event timestamp. Imported records also get a stable `source_id` such as `sentry8:<source-event-id>` so rerunning an import cannot duplicate them.
+Visitoring saves each page view and event in PostgreSQL and associates it with a project and site. A record includes an anonymous visitor code, session code, event name, page path without query details, referring website name, extra event details, general device and browser types, country or region, and the time it happened. Records imported from Sentry8 include a source reference such as `sentry8:<source-event-id>` to prevent duplicates.
 
-Raw IP addresses are looked up transiently for GeoIP and converted to an HMAC hash for a short-lived rate-limit bucket. Full user-agent strings are parsed in memory with Bowser. Neither value is stored. Referrers are reduced to hostnames, and path query strings/fragments are removed before insertion. No browser cookie is used; anonymous visitor and session identifiers are held in localStorage/sessionStorage.
+Visitoring never saves raw IP addresses. It checks an IP briefly for approximate location and may use a temporary one-way code to limit repeated requests. Browser details are reduced to broad categories before saving. Visitoring records only the referring website name and page path, not full addresses or query details. It does not use cookies; anonymous visitor and session codes are kept in the browser.
 
 Records older than the rolling 24-month window should be pruned daily. The import command skips source rows outside that same window. The source Sentry8 database is queried read-only and is never changed.
 
@@ -26,47 +26,49 @@ npm run dev
 
 The Compose database listens on host port `5433` to avoid colliding with a local PostgreSQL server. If using your existing local PostgreSQL instead, set `DATABASE_URL` to that server (commonly port `5432`) and skip `docker compose up -d db`.
 
-Open [http://localhost:3000](http://localhost:3000). The collector accepts local development requests when a site's allowlist includes `localhost:3000`.
+Open [http://localhost:3000](http://localhost:3000). For local testing, add `localhost:3000` to the site's website addresses.
 
 The required local variable is `DATABASE_URL`. Set `AUTH_SECRET` and `RATE_LIMIT_SECRET` to distinct, long random values for deployed environments. Production deployments must set `TRUST_PROXY_HEADERS=true` and expose the app only through a trusted reverse proxy that overwrites `x-real-ip` or `x-forwarded-for` with a single client IP. Without that setting, Visitoring ignores forwarded headers and the ready endpoint returns 503. Vercel deployments also need `CRON_SECRET` for the protected daily retention job. `GEOIP_DB_PATH` is optional. `SENTRY8_DATABASE_URL` is required only for history import. Do not commit `.env` or a GeoIP database.
 
-## Provision a workspace, admin, user, and site
+## Create a project, add accounts, and set up a site
 
-Create the first workspace and administrator after running `db:migrate`:
+Create the first project and administrator after running `db:migrate`:
 
 ```sh
 npm run accounts:provision -- --workspace "Acme" --slug acme --email admin@example.com --password 'a-long-initial-password'
 ```
 
-Additional workspace accounts are provisioned as admins or viewers:
+Add another account as an administrator or viewer:
 
 ```sh
 npm run users:provision -- --workspace-id WORKSPACE_UUID --email analyst@example.com --password 'a-long-password' --role viewer
 ```
 
-Sign in with the workspace slug, email, and password. Login attempts are rate-limited by account and, when a trusted client IP is available, by IP. Admins can create sites and manage domains and keys in **Sites**. A site key is shown only after creation or rotation; copy it then. Add domains as hostnames separated by commas, for example `example.com, docs.example.com`. Only exact hosts are accepted, with ports included for local development.
+Sign in with the short project name entered with `--slug`, your email, and password. For example, a project created with `--slug acme` uses `acme` in the **Project** field. To limit password guessing, repeated sign-in attempts are temporarily restricted. Administrators can add websites and manage their tracking keys from **Sites**. A tracking key appears only when it is created or replaced, so copy it then. Add every website address that will use the tracker, separated by commas, such as `example.com, www.example.com`. Each address must match exactly; include a port for local development, such as `localhost:3000`.
 
-## Install the browser tracker
+## Add Visitoring to a website
 
-Add this script tag to each page, replacing the host with your Visitoring address and the key with the site's one-time key:
+For the visual quick start, visit the public [Developers guide](https://visitoring.vercel.app/developers).
+
+Add this script to each page, replacing the host with your Visitoring address and the key with the site's tracking key:
 
 ```html
 <script defer src="https://analytics.example.com/tracker.js" data-site-key="vk_…"></script>
 ```
 
-The tracker automatically records `page_view` on load, `history.pushState`, and browser back/forward navigation. Query strings are not sent. It provides:
+The tracker records a page view when a page opens or when a web app changes pages without reloading, including back and forward navigation. It leaves out query strings and page fragments. To track an action such as a signup, use:
 
 ```js
 window.Visitoring.track("signup", { plan: "starter" });
 ```
 
-The tracker retains Sentry8's existing localStorage and sessionStorage ID keys so a cutover can preserve browser identifiers. It respects Do Not Track, uses `sendBeacon` with a non-blocking fetch fallback, and sends events to `POST /api/collect`. The collector requires a valid site key and an allowed `Origin`; HTTPS production sites should use HTTPS for Visitoring too.
+The tracker respects Do Not Track and sends data without blocking the page. It keeps anonymous visitor and session codes in the browser, lists the website that brought someone by name rather than full address, and sends events to `POST /api/collect`. The site must have a tracking key and an approved website address. Use HTTPS for Visitoring when your site uses HTTPS.
 
 The collector accepts generic events with `visitorId`, `sessionId`, `eventName`, `path`, optional `referrerHost` and `properties`. It also accepts Sentry8's existing envelope fields (`event`, `anonymousId`, `sessionId`, `path`, `referrerHost`, `properties`). Pass the Visitoring key in `?key=...` (including on preflight) or the `siteKey`/`site_key` field. The five legacy payloads are validated against Sentry8's current contracts.
 
 ## Dashboard
 
-The dashboard is workspace-scoped. It supports date and site filters, event name, path, event property key/value, visitor ID, and session ID. It displays total events, page views, unique visitor IDs, sessions, daily activity, popular pages, referrer hosts, event properties, device/browser/OS groups, and country/region groups. Imported `welcome_view` records remain named `welcome_view` and are included in page-view totals.
+The dashboard shows activity for the selected project and site. Filter by date, event, page, event details, visitor, or session. See page views, visitors, sessions, daily activity, popular pages, traffic sources, event details, device and browser types, and country or region. Imported `welcome_view` records keep that event name and count toward page views.
 
 ## GeoIP attribution
 

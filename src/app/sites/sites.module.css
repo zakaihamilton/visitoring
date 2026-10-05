@@ -55,6 +55,12 @@
   display: grid;
   gap: 7px;
 }
+.createForm label small,
+.domainForm label small {
+  color: #829092;
+  font-size: 0.7rem;
+  line-height: 1.45;
+}
 .createForm input,
 .domainForm input {
   width: 100%;
@@ -71,6 +77,11 @@
 }
 .siteHead h2 {
   margin: 0;
+}
+.keyLabel {
+  margin-left: auto;
+  color: var(--muted);
+  font-size: 0.72rem;
 }
 .siteHead code {
   color: var(--muted);
@@ -94,6 +105,11 @@
   padding-top: 16px;
   display: grid;
   gap: 16px;
+}
+.keyWarning {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.75rem;
 }
 .domainForm {
   display: grid;

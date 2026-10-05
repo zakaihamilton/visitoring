@@ -1,0 +1,37 @@
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--ink);
+  text-decoration: none;
+  font-weight: 750;
+  letter-spacing: -0.03em;
+}
+
+.nav {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+@media (max-width: 420px) {
+  .header {
+    align-items: flex-start;
+  }
+
+  .nav {
+    gap: 5px;
+  }
+
+  .nav :global(.button) {
+    padding: 8px 10px;
+    font-size: 0.72rem;
+  }
+}
