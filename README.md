@@ -56,11 +56,15 @@ Add this script to each page, replacing the host with your Visitoring address an
 <script defer src="https://analytics.example.com/tracker.js" data-site-key="vk_…"></script>
 ```
 
-The tracker records a page view when a page opens or when a web app changes pages without reloading, including back and forward navigation. It leaves out query strings and page fragments. To track an action such as a signup, use:
+The tracker records a page view when a page opens or when a web app changes pages without reloading, including back and forward navigation. It leaves out query strings and page fragments. To track an action such as a signup, call the event API from the success handler after that action completes:
 
 ```js
-window.Visitoring.track("signup", { plan: "starter" });
+function onSignupSuccess() {
+  window.Visitoring.track("signup", { plan: "starter" });
+}
 ```
+
+The tracker script uses `defer`, so call the API after it has loaded; do not call it while the browser is still parsing the page.
 
 The tracker respects Do Not Track and sends data without blocking the page. It keeps anonymous visitor and session codes in the browser, lists the website that brought someone by name rather than full address, and sends events to `POST /api/collect`. The site must have a tracking key and an approved website address. Use HTTPS for Visitoring when your site uses HTTPS.
 

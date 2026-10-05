@@ -10,9 +10,11 @@ export const metadata: Metadata = {
 
 const trackerSnippet =
   '<script defer src="https://visitoring.vercel.app/tracker.js" data-site-key="vk_YOUR_SITE_KEY"></script>';
-const eventSnippet = `window.Visitoring.track("signup", {
-  plan: "starter"
-});`;
+const eventSnippet = `function onSignupSuccess() {
+  window.Visitoring.track("signup", {
+    plan: "starter"
+  });
+}`;
 
 export default function DevelopersPage() {
   return (
@@ -95,7 +97,9 @@ export default function DevelopersPage() {
                 <code>{eventSnippet}</code>
               </pre>
               <p className={styles.note}>
-                The event name is yours to choose. Extra details such as <code>plan</code> help you
+                Use this as your signup-success handler and call it only after your app confirms
+                the signup. The tracker uses <code>defer</code>, so it is available for normal user
+                actions after page parsing finishes. Choose your own event name and details to
                 compare activity later.
               </p>
             </section>

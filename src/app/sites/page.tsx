@@ -72,7 +72,8 @@ export default async function SitesPage() {
             replace a key. Change the script address if you use a custom Visitoring domain.
           </p>
           <p>
-            To track an action such as a signup, send a custom event with{" "}
+            To track an action such as a signup, use this call inside your app's success handler
+            after the action completes:{" "}
             <code>{'window.Visitoring.track("signup", { plan: "starter" })'}</code>.
           </p>
         </section>
