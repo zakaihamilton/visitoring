@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Tooltip } from "@/app/components/Tooltip";
 import { PublicHeader } from "@/app/components/PublicHeader";
 import styles from "./developers.module.css";
 
@@ -162,17 +163,25 @@ export default function DevelopersPage() {
               </div>
               <ol className={styles.steps}>
                 <li>
-                  <strong>Sign in and add a site.</strong> An administrator can open <b>Sites</b>{" "}
-                  and create a site for each website you want to measure.
+                  <strong>Sign in and add a site.</strong> An administrator can open{" "}
+                  <b>Settings → Sites</b> and create a site for each website you want to measure.
                 </li>
                 <li>
                   <strong>Add the website addresses.</strong> Enter each address that should send
                   data, such as <code>example.com</code> and <code>www.example.com</code>. Include
-                  each one; Visitoring checks the exact address.
+                  each one; Visitoring checks the exact address.{" "}
+                  <Tooltip
+                    label="Approved website addresses"
+                    content="Include every host that should send events, including www or a local development port when needed."
+                  />
                 </li>
                 <li>
                   <strong>Copy the tracking key.</strong> It appears only when the site is created
-                  or the key is replaced, so save it before leaving the page.
+                  or the key is replaced, so save it before leaving the page.{" "}
+                  <Tooltip
+                    label="Tracking key"
+                    content="Visitoring stores a hash of the key, so the full value cannot be shown again later."
+                  />
                 </li>
               </ol>
             </section>
@@ -181,7 +190,13 @@ export default function DevelopersPage() {
               <div className={styles.sectionHeading}>
                 <span>02</span>
                 <div>
-                  <h2>Add the tracker</h2>
+                  <div className={styles.sectionTitleRow}>
+                    <h2>Add the tracker</h2>
+                    <Tooltip
+                      label="Tracker script"
+                      content="The deferred script records page views and exposes the custom event API after it loads."
+                    />
+                  </div>
                   <p>Place this snippet on the pages you want to measure.</p>
                 </div>
               </div>
@@ -202,7 +217,13 @@ export default function DevelopersPage() {
               <div className={styles.sectionHeading}>
                 <span>03</span>
                 <div>
-                  <h2>Track an action</h2>
+                  <div className={styles.sectionTitleRow}>
+                    <h2>Track an action</h2>
+                    <Tooltip
+                      label="Custom event"
+                      content="Send a custom event after your app confirms an action such as a signup."
+                    />
+                  </div>
                   <p>Send a custom event when someone completes an important action.</p>
                 </div>
               </div>
@@ -226,7 +247,13 @@ export default function DevelopersPage() {
                 </div>
               </div>
               <ul className={styles.privacyList}>
-                <li>Do Not Track is respected.</li>
+                <li>
+                  Do Not Track is respected.{" "}
+                  <Tooltip
+                    label="Do Not Track"
+                    content="When the browser sends the Do Not Track preference, Visitoring does not collect the event."
+                  />
+                </li>
                 <li>Only the page path is sent; query strings and page fragments are left out.</li>
                 <li>
                   The website that brought someone is shown by name only, not its full address.

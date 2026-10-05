@@ -1,4 +1,5 @@
 import type { getAnalyticsData } from "@/lib/analytics";
+import { Tooltip } from "@/app/components/Tooltip";
 import styles from "./dashboard.module.css";
 
 type Data = Awaited<ReturnType<typeof getAnalyticsData>>;
@@ -11,6 +12,15 @@ type Props = {
 
 function number(value: number): string {
   return new Intl.NumberFormat("en").format(value);
+}
+
+function FilterLabel({ label, htmlFor, help }: { label: string; htmlFor: string; help: string }) {
+  return (
+    <div className={styles.filterLabel}>
+      <label htmlFor={htmlFor}>{label}</label>
+      <Tooltip label={label} content={help} />
+    </div>
+  );
 }
 
 function BreakdownList({
@@ -34,7 +44,14 @@ function BreakdownList({
           {rows.map((row) => (
             <div className={styles.breakdownRow} key={`${row.label}-${row.count}`}>
               <div className={styles.breakdownLabel}>
-                <span title={row.label}>{row.label}</span>
+                <Tooltip
+                  label={`${title} value`}
+                  content={row.label}
+                  targetClassName={styles.truncatedLabel}
+                  targetTabIndex={-1}
+                >
+                  {row.label}
+                </Tooltip>
                 <b>{number(row.count)}</b>
               </div>
               <div className={styles.track}>
@@ -80,68 +97,122 @@ export function Dashboard({ sites, siteId, data, filters }: Props) {
       </div>
 
       <form className={styles.filters} method="get">
-        <label>
-          Site
-          <select name="site" defaultValue={siteId}>
+        <div className={styles.filterField}>
+          <FilterLabel
+            label="Site"
+            htmlFor="filter-site"
+            help="Choose which website’s events to include in the dashboard."
+          />
+          <select id="filter-site" name="site" defaultValue={siteId}>
             {sites.map((site) => (
               <option key={site.id} value={site.id}>
                 {site.name}
               </option>
             ))}
           </select>
-        </label>
-        <label>
-          Start date
-          <input type="date" name="from" defaultValue={filters.from} />
-        </label>
-        <label>
-          End date
-          <input type="date" name="to" defaultValue={filters.to} />
-        </label>
-        <label>
-          Event type
-          <select name="event" defaultValue={filters.event}>
-            <option value="">All events</option>
+        </div>
+        <div className={styles.filterField}>
+          <FilterLabel
+            label="Start date"
+            htmlFor="filter-from"
+            help="Include events from the start of this date in UTC."
+          />
+          <input id="filter-from" type="date" name="from" defaultValue={filters.from} />
+        </div>
+        <div className={styles.filterField}>
+          <FilterLabel
+            label="End date"
+            htmlFor="filter-to"
+            help="Include events through the end of this date in UTC."
+          />
+          <input id="filter-to" type="date" name="to" defaultValue={filters.to} />
+        </div>
+        <div className={styles.filterField}>
+          <FilterLabel
+            label="Event type"
+            htmlFor="filter-event"
+            help="Enter an exact event name to filter results. Clear the field to include all event types."
+          />
+          <input
+            id="filter-event"
+            name="event"
+            list="event-name-options"
+            defaultValue={filters.event}
+            maxLength={128}
+            placeholder="All events"
+          />
+          <datalist id="event-name-options">
             {data.eventNames.map((name) => (
-              <option key={name}>{name}</option>
+              <option key={name} value={name} />
             ))}
-          </select>
-        </label>
-        <label>
-          Page path
-          <input name="path" defaultValue={filters.path} placeholder="/pricing" />
-        </label>
+          </datalist>
+        </div>
+        <div className={styles.filterField}>
+          <FilterLabel
+            label="Page path"
+            htmlFor="filter-path"
+            help="Find page paths containing this text. Matching ignores letter case."
+          />
+          <input id="filter-path" name="path" defaultValue={filters.path} placeholder="/pricing" />
+        </div>
         <details className={styles.moreFilters}>
           <summary>More options</summary>
+          <p className={styles.moreHint}>
+            Narrow results by event details or an exact visitor or session code.
+          </p>
           <div className={styles.moreGrid}>
-            <label>
-              Event detail name
-              <input name="property" defaultValue={filters.property} placeholder="plan" />
-            </label>
-            <label>
-              Event detail value
+            <div className={styles.filterField}>
+              <FilterLabel
+                label="Event detail name"
+                htmlFor="filter-property"
+                help="Enter the exact detail name sent with an event, such as plan."
+              />
               <input
+                id="filter-property"
+                name="property"
+                defaultValue={filters.property}
+                placeholder="plan"
+              />
+            </div>
+            <div className={styles.filterField}>
+              <FilterLabel
+                label="Event detail value"
+                htmlFor="filter-property-value"
+                help="Enter part of the detail value to find matching events. This filter applies when an event detail name is also set."
+              />
+              <input
+                id="filter-property-value"
                 name="propertyValue"
                 defaultValue={filters.propertyValue}
                 placeholder="starter"
               />
-            </label>
-            <label>
-              Visitor
+            </div>
+            <div className={styles.filterField}>
+              <FilterLabel
+                label="Visitor"
+                htmlFor="filter-visitor"
+                help="Match events from one exact anonymous visitor code."
+              />
               <input
+                id="filter-visitor"
                 name="visitor"
                 defaultValue={filters.visitor}
                 placeholder="Paste visitor code"
               />
-            </label>
-            <label>
-              Session
+            </div>
+            <div className={styles.filterField}>
+              <FilterLabel
+                label="Session"
+                htmlFor="filter-session"
+                help="Match events from one exact browser session code."
+              />
               <input
+                id="filter-session"
                 name="session"
                 defaultValue={filters.session}
                 placeholder="Paste session code"
               />
-            </label>
+            </div>
           </div>
         </details>
         <button type="submit" className="button buttonPrimary">
@@ -151,22 +222,46 @@ export function Dashboard({ sites, siteId, data, filters }: Props) {
 
       <div className={styles.metrics}>
         <article className={styles.metric}>
-          <span>Page views</span>
+          <div className={styles.metricLabel}>
+            <span>Page views</span>
+            <Tooltip
+              label="Page views"
+              content="Includes page_view events and imported welcome_view events."
+            />
+          </div>
           <strong>{number(data.pageViews)}</strong>
           <small>Includes imported page views</small>
         </article>
         <article className={styles.metric}>
-          <span>Visitors</span>
+          <div className={styles.metricLabel}>
+            <span>Visitors</span>
+            <Tooltip
+              label="Visitors"
+              content="Count of distinct anonymous visitor codes in the selected results."
+            />
+          </div>
           <strong>{number(data.visitors)}</strong>
           <small>People counted without names</small>
         </article>
         <article className={styles.metric}>
-          <span>Sessions</span>
+          <div className={styles.metricLabel}>
+            <span>Sessions</span>
+            <Tooltip
+              label="Sessions"
+              content="Count of distinct browser session codes in the selected results."
+            />
+          </div>
           <strong>{number(data.sessions)}</strong>
           <small>Visits within a browser session</small>
         </article>
         <article className={styles.metric}>
-          <span>Custom events</span>
+          <div className={styles.metricLabel}>
+            <span>Custom events</span>
+            <Tooltip
+              label="Custom events"
+              content="Events other than page_view and imported welcome_view, such as a signup."
+            />
+          </div>
           <strong>{number(data.customEvents)}</strong>
           <small>{number(data.total)} total, including page views</small>
         </article>
@@ -176,18 +271,28 @@ export function Dashboard({ sites, siteId, data, filters }: Props) {
         <section className={`${styles.card} ${styles.chartCard}`}>
           <div className={styles.cardTitle}>
             <div>
-              <h2>Activity over time</h2>
+              <div className={styles.chartHeading}>
+                <h2>Activity over time</h2>
+                <Tooltip
+                  label="Activity over time"
+                  content="Each bar shows total events and page views for one day. Dates use UTC."
+                />
+              </div>
               <p>Daily events and page views · UTC</p>
             </div>
             <span>Last {data.trend.length} days</span>
           </div>
           {data.total ? (
-            <div className={styles.chart} role="img" aria-label="Daily event volume bar chart">
+            <section className={styles.chart} aria-label="Daily event volume bar chart">
               {data.trend.map((day) => (
-                <div
-                  className={styles.barColumn}
+                <Tooltip
                   key={day.day}
-                  title={`${day.day}: ${day.total} events, ${day.pageViews} page views`}
+                  content={`${day.day}: ${day.total} events, ${day.pageViews} page views`}
+                  label={`Activity on ${day.day}`}
+                  targetElement="div"
+                  targetClassName={styles.barColumn}
+                  targetRole="img"
+                  targetAriaLabel={`Activity on ${day.day}`}
                 >
                   <div
                     className={styles.bar}
@@ -199,9 +304,9 @@ export function Dashboard({ sites, siteId, data, filters }: Props) {
                       style={{ height: `${day.total ? (day.pageViews / day.total) * 100 : 0}%` }}
                     />
                   </div>
-                </div>
+                </Tooltip>
               ))}
-            </div>
+            </section>
           ) : (
             <div className={styles.chartEmpty}>
               <span>✳</span>

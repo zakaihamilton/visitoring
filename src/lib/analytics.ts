@@ -3,6 +3,8 @@ import type { AnyPgColumn } from "drizzle-orm/pg-core";
 import { db } from "@/db";
 import { siteEvents } from "@/db/schema";
 
+const EVENT_NAME_OPTIONS_LIMIT = 100;
+
 type AnalyticsFilters = {
   workspaceId: string;
   siteId: string;
@@ -136,16 +138,20 @@ export async function getAnalyticsData(filters: AnalyticsFilters) {
       .where(
         and(eq(siteEvents.workspaceId, filters.workspaceId), eq(siteEvents.siteId, filters.siteId)),
       )
-      .orderBy(siteEvents.eventName),
+      .orderBy(siteEvents.eventName)
+      .limit(EVENT_NAME_OPTIONS_LIMIT),
   ]);
 
+  const fromDay = new Date(filters.from);
+  fromDay.setUTCHours(0, 0, 0, 0);
+  const toDay = new Date(filters.to);
+  toDay.setUTCHours(0, 0, 0, 0);
   const dayCount = Math.max(
     1,
-    Math.ceil((new Date(filters.to).getTime() - new Date(filters.from).getTime()) / 86_400_000) + 1,
+    Math.floor((toDay.getTime() - fromDay.getTime()) / 86_400_000) + 1,
   );
   const dayLimit = Math.min(dayCount, 90);
-  const start = new Date(filters.to);
-  start.setUTCHours(0, 0, 0, 0);
+  const start = new Date(toDay);
   start.setUTCDate(start.getUTCDate() - (dayLimit - 1));
   const trendMap = new Map(
     trend.map((item) => [item.day, { total: item.total, pageViews: item.pageViews }]),
@@ -157,6 +163,9 @@ export async function getAnalyticsData(filters: AnalyticsFilters) {
     const result = trendMap.get(day) ?? { total: 0, pageViews: 0 };
     return { day, ...result };
   });
+
+  const eventNameOptions = new Set(eventNames.map((row) => row.name));
+  if (filters.event && filters.event.length <= 128) eventNameOptions.add(filters.event);
 
   return {
     total: totals?.total ?? 0,
@@ -173,6 +182,6 @@ export async function getAnalyticsData(filters: AnalyticsFilters) {
     countries,
     regions,
     events: eventRows,
-    eventNames: eventNames.map((row) => row.name),
+    eventNames: [...eventNameOptions].sort((left, right) => left.localeCompare(right)),
   };
 }

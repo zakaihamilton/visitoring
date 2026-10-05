@@ -5,7 +5,7 @@ import { db, pool } from "@/db";
 import { siteEvents, sites } from "@/db/schema";
 import { retentionCutoff } from "@/lib/retention";
 import { parseArgs, requiredArg } from "./args";
-import { toImportedEvent, type SourceTelemetryEvent } from "./import-utils";
+import { toImportedEvent, type SourceTelemetryRow } from "./import-utils";
 
 async function main(): Promise<void> {
   const args = parseArgs(process.argv.slice(2));
@@ -13,6 +13,7 @@ async function main(): Promise<void> {
   const sourceUrl = process.env.SENTRY8_DATABASE_URL;
   if (!sourceUrl)
     throw new Error("Set SENTRY8_DATABASE_URL to a read-only Sentry8 database connection.");
+  const sourceTimeZone = process.env.SENTRY8_TIMESTAMP_TIME_ZONE ?? "UTC";
   const [site] = await db.select().from(sites).where(eq(sites.id, siteId)).limit(1);
   if (!site) throw new Error(`Visitoring site ${siteId} was not found.`);
 
@@ -30,26 +31,32 @@ async function main(): Promise<void> {
   try {
     await source.query("BEGIN READ ONLY");
     const oldCount = await source.query<{ count: string }>(
-      "select count(*)::text as count from telemetry_events where created_at < $1",
-      [cutoff],
+      `select count(*)::text as count from telemetry_events
+       where created_at < timezone($2, $1::timestamptz)`,
+      [cutoff, sourceTimeZone],
     );
     skipped = Number(oldCount.rows[0]?.count ?? 0);
     let lastCreatedAt: string | null = null;
     let lastId: string | null = null;
 
     while (true) {
-      const page: QueryResult<SourceTelemetryEvent> =
+      const page: QueryResult<SourceTelemetryRow> =
         lastCreatedAt && lastId
-          ? await source.query<SourceTelemetryEvent>(
-              `select id::text, anonymous_id, session_id, event_name, path, referrer_host, properties, created_at::text as created_at
-           from telemetry_events where created_at >= $1 and (created_at, id) > ($2, $3)
-           order by created_at asc, id asc limit 1000`,
-              [cutoff, lastCreatedAt, lastId],
+          ? await source.query<SourceTelemetryRow>(
+              `select id::text, anonymous_id, session_id, event_name, path, referrer_host, properties,
+                      to_char(timezone('UTC', timezone($2, created_at)), 'YYYY-MM-DD"T"HH24:MI:SS.US"Z"') as created_at,
+                      created_at::text as cursor_created_at
+           from telemetry_events where created_at >= timezone($2, $1::timestamptz) and (created_at, id) > ($3, $4)
+           order by telemetry_events.created_at asc, telemetry_events.id asc limit 1000`,
+              [cutoff, sourceTimeZone, lastCreatedAt, lastId],
             )
-          : await source.query<SourceTelemetryEvent>(
-              `select id::text, anonymous_id, session_id, event_name, path, referrer_host, properties, created_at::text as created_at
-           from telemetry_events where created_at >= $1 order by created_at asc, id asc limit 1000`,
-              [cutoff],
+          : await source.query<SourceTelemetryRow>(
+              `select id::text, anonymous_id, session_id, event_name, path, referrer_host, properties,
+                      to_char(timezone('UTC', timezone($2, created_at)), 'YYYY-MM-DD"T"HH24:MI:SS.US"Z"') as created_at,
+                      created_at::text as cursor_created_at
+           from telemetry_events where created_at >= timezone($2, $1::timestamptz)
+           order by telemetry_events.created_at asc, telemetry_events.id asc limit 1000`,
+              [cutoff, sourceTimeZone],
             );
       if (page.rows.length === 0) break;
 
@@ -63,9 +70,9 @@ async function main(): Promise<void> {
         .returning({ id: siteEvents.id });
       imported += inserted.length;
       duplicates += rows.length - inserted.length;
-      const last: SourceTelemetryEvent | undefined = page.rows[page.rows.length - 1];
+      const last: SourceTelemetryRow | undefined = page.rows[page.rows.length - 1];
       if (!last) break;
-      lastCreatedAt = last.created_at;
+      lastCreatedAt = last.cursor_created_at;
       lastId = last.id;
     }
     await source.query("COMMIT");

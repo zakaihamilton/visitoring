@@ -62,15 +62,9 @@ summary:focus-visible {
 .brandMark {
   width: 25px;
   height: 25px;
-  display: inline-grid;
-  place-items: center;
-  border-radius: 8px 8px 8px 3px;
-  color: #f4fbf5;
-  background: #35896f;
-  font-family: Georgia, serif;
-  font-size: 1.2rem;
-  font-style: italic;
-  line-height: 1;
+  display: block;
+  flex: 0 0 auto;
+  object-fit: contain;
 }
 .eyebrow {
   color: #40856f;

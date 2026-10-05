@@ -1,0 +1,241 @@
+.page {
+  max-width: 1060px;
+  margin: 0 auto;
+  padding: 39px 28px 76px;
+}
+.intro {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 26px;
+}
+.eyebrow {
+  color: var(--accent);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  font-weight: 700;
+}
+.intro h1 {
+  margin: 7px 0 8px;
+  font-size: clamp(2rem, 4vw, 2.8rem);
+  letter-spacing: -0.05em;
+}
+.intro p {
+  max-width: 650px;
+  color: var(--muted);
+  margin: 0;
+  line-height: 1.55;
+}
+.card,
+.siteCard,
+.setupCard {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 17px;
+  padding: 22px;
+  box-shadow: 0 10px 40px #10252b08;
+}
+.card {
+  margin-bottom: 16px;
+}
+.cardHeading,
+.siteHeading,
+.sectionHeading {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+.cardHeading h2,
+.siteHeading h2,
+.sectionHeading h2 {
+  margin: 0;
+  font-size: 1rem;
+  letter-spacing: -0.02em;
+}
+.formGrid {
+  display: grid;
+  grid-template-columns: minmax(170px, 0.85fr) minmax(280px, 1.5fr) auto;
+  align-items: end;
+  gap: 15px;
+  margin-top: 18px;
+}
+.field {
+  min-width: 0;
+  display: grid;
+  gap: 7px;
+  color: #536365;
+  font-size: 0.79rem;
+}
+.labelRow {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.field input {
+  width: 100%;
+  min-width: 0;
+}
+.hint {
+  color: #829092;
+  font-size: 0.71rem;
+  line-height: 1.45;
+}
+.siteList {
+  display: grid;
+  gap: 14px;
+}
+.siteCard {
+  padding: 21px 22px;
+}
+.siteHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.siteHeading h2 {
+  font-size: 1.05rem;
+}
+.keySummary {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  color: var(--muted);
+  font-size: 0.73rem;
+}
+.keySummary code {
+  color: #526668;
+}
+.domainList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin: 13px 0 17px;
+  padding: 0;
+  list-style: none;
+}
+.domainList li {
+  padding: 5px 9px;
+  border-radius: 99px;
+  color: #536566;
+  background: #f2f6f2;
+  font-size: 0.76rem;
+}
+.siteControls {
+  border-top: 1px solid var(--line);
+  padding-top: 16px;
+  display: grid;
+  gap: 15px;
+}
+.domainForm {
+  display: grid;
+  grid-template-columns: minmax(200px, 1fr) auto;
+  align-items: end;
+  gap: 12px;
+}
+.keyActions {
+  display: grid;
+  justify-items: start;
+  gap: 7px;
+}
+.keyActionLine {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.keyWarning {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.74rem;
+}
+.success,
+.error {
+  grid-column: 1 / -1;
+  border-radius: 10px;
+  padding: 12px;
+  margin-top: 10px;
+  font-size: 0.83rem;
+}
+.success {
+  color: #155f4d;
+  background: #e6f7f1;
+}
+.error {
+  color: #953e39;
+  background: #fff0ee;
+}
+.success p,
+.error p {
+  margin: 0 0 7px;
+}
+.success code {
+  display: block;
+  color: #123e34;
+  overflow-wrap: anywhere;
+}
+.empty {
+  padding: 36px 22px;
+  text-align: center;
+  color: var(--muted);
+  border: 1px dashed var(--line);
+  border-radius: 17px;
+  background: #fbfcfa;
+}
+.setupGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 16px;
+}
+.setupCard {
+  min-width: 0;
+}
+.setupCard p {
+  color: #617171;
+  font-size: 0.84rem;
+  line-height: 1.65;
+}
+.setupCard pre {
+  overflow-x: auto;
+  border-radius: 10px;
+  background: #173638;
+  color: #e6f0e8;
+  padding: 14px 16px;
+  font-size: 0.77rem;
+}
+.setupCard code {
+  font-size: 0.84em;
+}
+.notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  margin-top: 15px;
+  padding: 13px 14px;
+  border: 1px solid #dce9e1;
+  border-radius: 11px;
+  color: #536566;
+  background: #edf3ef;
+  font-size: 0.79rem;
+  line-height: 1.5;
+}
+.notice p {
+  margin: 0;
+}
+@media (max-width: 760px) {
+  .page {
+    padding: 30px 18px 60px;
+  }
+  .formGrid,
+  .domainForm {
+    grid-template-columns: 1fr;
+  }
+  .siteHeader {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .keySummary {
+    margin-left: 0;
+  }
+}

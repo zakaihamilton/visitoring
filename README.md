@@ -44,7 +44,7 @@ Add another account as an administrator or viewer:
 npm run users:provision -- --workspace-id WORKSPACE_UUID --email analyst@example.com --password 'a-long-password' --role viewer
 ```
 
-Sign in with the short project name entered with `--slug`, your email, and password. For example, a project created with `--slug acme` uses `acme` in the **Project** field. To limit password guessing, repeated sign-in attempts are temporarily restricted. Administrators can add websites and manage their tracking keys from **Sites**. A tracking key appears only when it is created or replaced, so copy it then. Add every website address that will use the tracker, separated by commas, such as `example.com, www.example.com`. Each address must match exactly; include a port for local development, such as `localhost:3000`.
+Sign in with the short project name entered with `--slug`, your email, and password. For example, a project created with `--slug acme` uses `acme` in the **Project** field. To limit password guessing, repeated sign-in attempts are temporarily restricted. Administrators can open **Settings → Sites** to add websites and manage their tracking keys, and **Settings → Setup** for tracker instructions. A tracking key appears only when it is created or replaced, so copy it then. Add every website address that will use the tracker, separated by commas, such as `example.com, www.example.com`. Each address must match exactly; include a port for local development, such as `localhost:3000`.
 
 ## Add Visitoring to a website
 
@@ -84,17 +84,17 @@ Bowser is used to reduce user-agent strings to `desktop/mobile/tablet/other`, br
 
 1. Create a Visitoring site with the same website origin in its allowed-domain list.
 2. Create a PostgreSQL role on Sentry8 that can only `SELECT` from `telemetry_events`; use that role in `SENTRY8_DATABASE_URL`.
-3. Set `SENTRY8_DATABASE_URL` in the local environment and run:
+3. Set `SENTRY8_DATABASE_URL` in the local environment. Sentry8 stores `created_at` without a time zone; set `SENTRY8_TIMESTAMP_TIME_ZONE` to the zone those stored timestamps represent (the current Sentry8 database reports GMT, equivalent to UTC). Then run:
 
    ```sh
    npm run import:sentry8 -- --site-id VISITORING_SITE_UUID
    ```
 
-The importer runs a read-only transaction and selects the existing `telemetry_events` columns. It keeps each event name, properties, visitor/session IDs, path, referrer host, and timestamp. `welcome_view` contributes to Visitoring's page-view metric. Imported device and geography values are unknown. The command reports imported, skipped-old, and duplicate counts; its stable source IDs make reruns idempotent.
+The importer runs a read-only transaction and selects the existing `telemetry_events` columns. It keeps each event name, properties, visitor/session IDs, path, referrer host, and interprets the source timestamp using `SENTRY8_TIMESTAMP_TIME_ZONE` before storing it in UTC. It imports the rolling 24-month window; older rows are skipped. `welcome_view` contributes to Visitoring's page-view metric. Imported device and geography values are unknown. The command reports imported, skipped-old, and duplicate counts; its stable source IDs make reruns idempotent for rows previously imported by this command.
 
 ## Retention and health
 
-Vercel runs the fixed rolling 24-month retention prune daily at 04:00 UTC through a protected cron route. The `CRON_SECRET` production environment variable protects that endpoint. It also removes expired collection and login rate-limit buckets. To run the same job manually:
+Vercel runs the fixed rolling 24-month retention prune daily at 04:00 UTC through a protected cron route. The `CRON_SECRET` production environment variable protects that endpoint. It also removes expired authentication sessions and stale collection and login rate-limit buckets. To run the same job manually:
 
 ```sh
 npm run retention:prune
@@ -112,4 +112,6 @@ CI starts PostgreSQL, applies Drizzle migrations, and runs the same health comma
 
 ## Planned Sentry8 cutover (after acceptance)
 
-Keep Sentry8's source untouched until Visitoring is running and accepted. Then configure Sentry8's telemetry client to post its same `welcome_*` envelopes to Visitoring with the new site key, disable Sentry8's automatic welcome page view while Visitoring's tracker emits `page_view`, and update Sentry8's privacy notice to describe the added coarse attribution fields. Confirm production events and dashboard totals, then retire Sentry8's telemetry storage and dashboard. Do not run both automatic page-view collectors at once.
+Sentry8 now has an opt-in client integration, enabled at build time with `NEXT_PUBLIC_VISITORING_URL` and `NEXT_PUBLIC_VISITORING_SITE_KEY`. The public welcome page uses Visitoring's tracker for `page_view`; Sentry8 forwards the remaining `welcome_*` interactions. Configure the Sentry8 site origin in Visitoring's allowed-domain list and update the Sentry8 privacy notice before enabling the settings in production.
+
+Backfill history before the client switch, allow old cached clients to drain, disable Sentry8's old collector, and run the importer again for its final tail. The importer's `sentry8:<event-id>` source references make those two imports idempotent. Do not dual-write the same browser events: source references cannot deduplicate Sentry8 rows against events already received live by Visitoring. Confirm production event delivery and dashboard totals before retiring Sentry8's telemetry storage and dashboard.

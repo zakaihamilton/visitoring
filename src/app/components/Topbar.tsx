@@ -1,14 +1,21 @@
 import Link from "next/link";
 import { logoutAction } from "@/app/login/actions";
 import type { CurrentUser } from "@/lib/auth";
+import { BrandIcon } from "./BrandIcon";
 import styles from "./topbar.module.css";
 
-export function Topbar({ user, section }: { user: CurrentUser; section: "dashboard" | "sites" }) {
+export function Topbar({
+  user,
+  section,
+}: {
+  user: CurrentUser;
+  section: "dashboard" | "settings";
+}) {
   return (
     <header className={styles.header}>
       <div className={styles.left}>
         <Link href="/dashboard" className={styles.brand}>
-          <span className="brandMark">v</span>
+          <BrandIcon />
           <span>Visitoring</span>
         </Link>
         <span className={styles.divider} />
@@ -19,8 +26,8 @@ export function Topbar({ user, section }: { user: CurrentUser; section: "dashboa
           Overview
         </Link>
         {user.role === "admin" ? (
-          <Link href="/sites" aria-current={section === "sites" ? "page" : undefined}>
-            Sites
+          <Link href="/settings/sites" aria-current={section === "settings" ? "page" : undefined}>
+            Settings
           </Link>
         ) : null}
       </nav>
@@ -28,7 +35,7 @@ export function Topbar({ user, section }: { user: CurrentUser; section: "dashboa
         <span className={styles.avatar}>{user.email.charAt(0).toUpperCase()}</span>
         <span className={styles.email}>{user.email}</span>
         <form action={logoutAction}>
-          <button type="submit" className={styles.logout}>
+          <button type="submit" className={`button buttonQuiet ${styles.logout}`}>
             Sign out
           </button>
         </form>

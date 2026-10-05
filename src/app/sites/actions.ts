@@ -33,21 +33,35 @@ export async function createSiteAction(
     siteKeyHash: sha256(key),
     siteKeyPrefix: key.slice(0, 11),
   });
-  revalidatePath("/sites");
+  revalidatePath("/settings/sites");
   return { message: "Site added. Copy your tracking key now; it is shown only once.", key };
 }
 
-export async function updateDomainsAction(formData: FormData): Promise<void> {
+export async function updateDomainsAction(
+  _state: SiteActionState,
+  formData: FormData,
+): Promise<SiteActionState> {
   const user = await requireAdmin();
   const siteId = String(formData.get("siteId") ?? "");
-  const domains = parseAllowedDomains(String(formData.get("domains") ?? ""));
+  let domains: string[];
+  try {
+    domains = parseAllowedDomains(String(formData.get("domains") ?? ""));
+  } catch (error) {
+    return {
+      message: error instanceof Error ? error.message : "Invalid website addresses.",
+      error: true,
+    };
+  }
   if (!siteId || domains.length === 0)
-    throw new Error("Choose a site and add at least one website address.");
-  await db
+    return { message: "Choose a site and add at least one website address.", error: true };
+  const [updated] = await db
     .update(sites)
     .set({ allowedDomains: domains, updatedAt: new Date() })
-    .where(and(eq(sites.id, siteId), eq(sites.workspaceId, user.workspaceId)));
-  revalidatePath("/sites");
+    .where(and(eq(sites.id, siteId), eq(sites.workspaceId, user.workspaceId)))
+    .returning({ id: sites.id });
+  if (!updated) return { message: "We couldn't find that site in your project.", error: true };
+  revalidatePath("/settings/sites");
+  return { message: "Approved website addresses saved." };
 }
 
 export async function rotateSiteKeyAction(
@@ -68,7 +82,7 @@ export async function rotateSiteKeyAction(
     .where(and(eq(sites.id, siteId), eq(sites.workspaceId, user.workspaceId)))
     .returning({ id: sites.id });
   if (!updated) return { message: "We couldn't find that site in your project.", error: true };
-  revalidatePath("/sites");
+  revalidatePath("/settings/sites");
   return {
     message: "Tracking key replaced. Update your site now; the old key no longer works.",
     key,

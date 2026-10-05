@@ -1,0 +1,50 @@
+.helpButton {
+  width: 24px;
+  height: 24px;
+  flex: 0 0 24px;
+  display: inline-grid;
+  place-items: center;
+  padding: 0;
+  border: 1px solid #d7e4dc;
+  border-radius: 50%;
+  color: #376d5a;
+  background: #eff6f1;
+  font: inherit;
+  font-size: 0.68rem;
+  font-weight: 750;
+  line-height: 1;
+  cursor: help;
+  vertical-align: middle;
+}
+.helpButton:hover {
+  color: #174d3d;
+  background: #e2f0e7;
+}
+.helpButton:focus-visible,
+.target:focus-visible {
+  outline: 3px solid #65a88c;
+  outline-offset: 3px;
+}
+.target {
+  min-width: 0;
+}
+.bubble {
+  position: fixed;
+  z-index: 1000;
+  width: max-content;
+  max-width: min(280px, calc(100vw - 24px));
+  max-height: calc(100vh - 16px);
+  overflow: auto;
+  padding: 9px 11px;
+  border: 1px solid #d5e1da;
+  border-radius: 9px;
+  color: #f7fbf7;
+  background: #173638;
+  box-shadow: 0 8px 24px #10252b2b;
+  font-size: 0.74rem;
+  font-weight: 500;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+  pointer-events: auto;
+  cursor: default;
+}

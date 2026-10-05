@@ -54,13 +54,21 @@
   padding: 15px;
   margin-bottom: 18px;
 }
-.filters label,
-.moreGrid label {
+.filterField {
   display: grid;
   gap: 6px;
   font-size: 0.71rem;
   color: #677779;
   font-weight: 600;
+}
+.filterLabel {
+  min-height: 18px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.filterLabel label {
+  cursor: default;
 }
 .filters input,
 .filters select,
@@ -84,6 +92,12 @@
   font-size: 0.78rem;
   font-weight: 650;
   list-style: none;
+}
+.moreHint {
+  margin: 8px 0 0;
+  color: #849191;
+  font-size: 0.72rem;
+  line-height: 1.45;
 }
 .moreFilters summary::after {
   content: "＋";
@@ -118,10 +132,17 @@
   border: 1px solid var(--line);
   border-radius: 16px;
 }
-.metric > span {
+.metricLabel {
+  min-height: 19px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
   color: var(--muted);
   font-size: 0.79rem;
   font-weight: 580;
+}
+.metricLabel span {
+  color: inherit;
 }
 .metric strong {
   margin-top: 13px;
@@ -160,6 +181,16 @@
   margin-bottom: 17px;
 }
 .cardTitle h2 {
+  margin: 0;
+  font-size: 0.95rem;
+  letter-spacing: -0.02em;
+}
+.chartHeading {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.chartHeading h2 {
   margin: 0;
   font-size: 0.95rem;
   letter-spacing: -0.02em;
@@ -272,6 +303,11 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+.breakdownLabel .truncatedLabel {
+  display: block;
+  flex: 1 1 auto;
+  min-width: 0;
 }
 .breakdownLabel b {
   font-weight: 650;

@@ -11,6 +11,10 @@ export type SourceTelemetryEvent = {
   created_at: string;
 };
 
+export type SourceTelemetryRow = SourceTelemetryEvent & {
+  cursor_created_at: string;
+};
+
 export function toImportedEvent(
   event: SourceTelemetryEvent,
   site: { id: string; workspaceId: string },

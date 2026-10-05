@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { BrandIcon } from "./BrandIcon";
 import styles from "./public-header.module.css";
 
 export function PublicHeader({ page }: { page: "welcome" | "developers" }) {
@@ -10,7 +11,7 @@ export function PublicHeader({ page }: { page: "welcome" | "developers" }) {
   return (
     <header className={styles.header}>
       <Link href="/" className={styles.brand} aria-label="Visitoring home">
-        <span className="brandMark">v</span>
+        <BrandIcon />
         <span>Visitoring</span>
       </Link>
       <nav className={styles.nav} aria-label="Main navigation">

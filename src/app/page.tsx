@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Tooltip } from "@/app/components/Tooltip";
 import { PublicHeader } from "@/app/components/PublicHeader";
 import styles from "./welcome.module.css";
 
@@ -166,7 +167,7 @@ export default function HomePage() {
               <span className={styles.cardLabel}>01 / ACTIVITY</span>
               <h3>Know the rhythm of your traffic.</h3>
               <p>See page views, visitors, and sessions alongside daily activity.</p>
-              <div className={styles.metricChips} aria-label="Activity reports">
+              <div className={styles.metricChips}>
                 <span>Page views</span>
                 <span>Visitors</span>
                 <span>Sessions</span>
@@ -253,7 +254,11 @@ export default function HomePage() {
             </li>
             <li>
               <span aria-hidden="true">✓</span>
-              Browser details are reduced to broad categories, and Do Not Track is respected.
+              Browser details are reduced to broad categories, and Do Not Track is respected.{" "}
+              <Tooltip
+                label="Do Not Track"
+                content="Visitoring honors the browser preference by not collecting events when it is enabled."
+              />
             </li>
             <li>
               <span aria-hidden="true">✓</span>

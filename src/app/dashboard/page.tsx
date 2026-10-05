@@ -75,8 +75,8 @@ export default async function DashboardPage({ searchParams }: Props) {
           <h1>Analytics start with a site.</h1>
           <p>Add a site and its tracking snippet to start seeing page views and events.</p>
           {user.role === "admin" ? (
-            <a className="button buttonPrimary" href="/sites">
-              Manage sites
+            <a className="button buttonPrimary" href="/settings/sites">
+              Open settings
             </a>
           ) : (
             <p>Ask your project administrator to add a site.</p>

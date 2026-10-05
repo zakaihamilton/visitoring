@@ -102,6 +102,20 @@
   font-size: 0.8rem;
   color: #536365;
 }
+.field {
+  display: grid;
+  gap: 7px;
+  font-size: 0.8rem;
+  color: #536365;
+}
+.labelRow {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.labelRow label {
+  display: block;
+}
 .form input {
   width: 100%;
 }

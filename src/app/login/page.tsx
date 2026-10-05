@@ -1,4 +1,6 @@
 import { loginAction } from "./actions";
+import { BrandIcon } from "@/app/components/BrandIcon";
+import { Tooltip } from "@/app/components/Tooltip";
 import styles from "./login.module.css";
 
 type Props = { searchParams: Promise<{ error?: string }> };
@@ -9,7 +11,7 @@ export default async function LoginPage({ searchParams }: Props) {
     <main className={styles.page}>
       <section className={styles.panel}>
         <div className={styles.brand}>
-          <span className="brandMark">v</span>
+          <BrandIcon />
           <span>Visitoring</span>
         </div>
         <div className={styles.copy}>
@@ -32,13 +34,26 @@ export default async function LoginPage({ searchParams }: Props) {
           <p className={styles.sub}>
             Use the project name and account provided by your administrator.
           </p>
-          <label>
-            Project
-            <input name="workspace" autoComplete="organization" required placeholder="visitoring" />
-          </label>
+          <div className={styles.field}>
+            <div className={styles.labelRow}>
+              <label htmlFor="workspace">Project</label>
+              <Tooltip
+                label="Project"
+                content="Enter the short project name provided by your administrator, such as acme."
+              />
+            </div>
+            <input
+              id="workspace"
+              name="workspace"
+              autoComplete="organization"
+              required
+              placeholder="visitoring"
+            />
+          </div>
           <label>
             Email
             <input
+              id="email"
               name="email"
               type="email"
               autoComplete="username"
@@ -48,7 +63,13 @@ export default async function LoginPage({ searchParams }: Props) {
           </label>
           <label>
             Password
-            <input name="password" type="password" autoComplete="current-password" required />
+            <input
+              id="password"
+              name="password"
+              type="password"
+              autoComplete="current-password"
+              required
+            />
           </label>
           {error ? (
             <p className={styles.error} role="alert">

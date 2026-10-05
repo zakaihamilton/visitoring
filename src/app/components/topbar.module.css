@@ -66,12 +66,9 @@
   font-weight: 700;
 }
 .logout {
-  border: 0;
-  background: transparent;
-  font: inherit;
-  color: #667475;
-  cursor: pointer;
-  padding: 8px;
+  min-height: 34px;
+  padding: 7px 10px;
+  font-size: 0.75rem;
 }
 .logout:hover {
   color: var(--ink);

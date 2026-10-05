@@ -1,0 +1,65 @@
+.navShell {
+  border-bottom: 1px solid var(--line);
+  background: #fff;
+}
+.navInner {
+  max-width: 1200px;
+  min-height: 55px;
+  margin: 0 auto;
+  padding: 0 28px;
+  display: flex;
+  align-items: center;
+  gap: 28px;
+}
+.navLabel {
+  color: #8a9697;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+.nav {
+  min-height: 55px;
+  display: flex;
+  align-items: stretch;
+  gap: 4px;
+}
+.nav a {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  padding: 0 13px;
+  color: #667475;
+  text-decoration: none;
+  font-size: 0.81rem;
+  font-weight: 620;
+}
+.nav a:hover {
+  color: var(--ink);
+}
+.nav a[aria-current="page"] {
+  color: #1e624f;
+}
+.nav a[aria-current="page"]::after {
+  content: "";
+  position: absolute;
+  right: 10px;
+  bottom: -1px;
+  left: 10px;
+  height: 2px;
+  border-radius: 2px 2px 0 0;
+  background: #348b72;
+}
+@media (max-width: 760px) {
+  .navInner {
+    min-height: 50px;
+    padding: 0 18px;
+    gap: 14px;
+  }
+  .nav {
+    min-height: 50px;
+  }
+  .nav a {
+    padding: 0 10px;
+  }
+}

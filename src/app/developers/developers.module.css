@@ -453,9 +453,11 @@
 .article {
   display: grid;
   gap: 15px;
+  min-width: 0;
 }
 
 .section {
+  min-width: 0;
   padding: clamp(22px, 3vw, 31px);
   border: 1px solid var(--line);
   border-radius: 17px;
@@ -513,6 +515,11 @@
   margin: 2px 0 5px;
   font-size: 1.2rem;
   letter-spacing: -0.04em;
+}
+.sectionTitleRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .sectionHeading p,
@@ -681,7 +688,7 @@
   }
 
   .content {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
     gap: 22px;
     padding-top: 55px;
   }
