@@ -1,0 +1,95 @@
+.header {
+  min-height: 72px;
+  padding: 0 clamp(18px, 5vw, 68px);
+  background: #fff;
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+}
+.left,
+.nav,
+.account {
+  display: flex;
+  align-items: center;
+}
+.left {
+  gap: 16px;
+}
+.brand {
+  color: var(--ink);
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-weight: 740;
+  letter-spacing: -0.03em;
+}
+.divider {
+  height: 22px;
+  border-left: 1px solid var(--line);
+}
+.workspace {
+  font-size: 0.83rem;
+  color: var(--muted);
+}
+.nav {
+  gap: 4px;
+}
+.nav a {
+  text-decoration: none;
+  font-size: 0.83rem;
+  font-weight: 600;
+  padding: 9px 12px;
+  border-radius: 9px;
+  color: #667475;
+}
+.nav a[aria-current="page"] {
+  color: var(--ink);
+  background: #eaf3ef;
+}
+.account {
+  gap: 10px;
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+.avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #d9e9e1;
+  color: #2d6254;
+  display: grid;
+  place-items: center;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+.logout {
+  border: 0;
+  background: transparent;
+  font: inherit;
+  color: #667475;
+  cursor: pointer;
+  padding: 8px;
+}
+.logout:hover {
+  color: var(--ink);
+}
+@media (max-width: 760px) {
+  .header {
+    padding: 12px 16px;
+    flex-wrap: wrap;
+  }
+  .account {
+    margin-left: auto;
+  }
+  .email,
+  .divider {
+    display: none;
+  }
+  .nav {
+    order: 3;
+    width: 100%;
+  }
+}

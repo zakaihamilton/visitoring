@@ -1,0 +1,12 @@
+node_modules/
+.next/
+coverage/
+*.tsbuildinfo
+.env
+.env.*
+!.env.example
+.repnix/
+.repnix-baseline.json
+/data/
+*.mmdb
+.neon

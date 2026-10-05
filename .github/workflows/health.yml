@@ -1,0 +1,34 @@
+name: Visitoring health
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  health:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_DB: visitoring
+          POSTGRES_USER: visitoring
+          POSTGRES_PASSWORD: visitoring
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U visitoring -d visitoring"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgres://visitoring:visitoring@localhost:5432/visitoring
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run db:migrate
+      - run: npm run health

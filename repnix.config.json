@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "severityThreshold": "warning",
+  "execution": { "jobs": 2, "timeoutSeconds": 600 },
+  "categories": {
+    "types": { "mode": "required" },
+    "lint": { "mode": "required" },
+    "format": { "mode": "required" },
+    "tests": { "mode": "required" },
+    "dead-code": { "mode": "required" },
+    "duplication": { "mode": "required" }
+  }
+}

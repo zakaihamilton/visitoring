@@ -1,0 +1,147 @@
+.page {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: minmax(360px, 1.05fr) minmax(390px, 0.95fr);
+}
+.panel {
+  padding: 42px clamp(30px, 7vw, 100px);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  background: #0e292b;
+  color: #f8fbf6;
+  position: relative;
+  overflow: hidden;
+}
+.panel::after {
+  content: "";
+  width: 420px;
+  height: 420px;
+  position: absolute;
+  border: 1px solid #e3f2e422;
+  border-radius: 50%;
+  right: -200px;
+  bottom: 16%;
+  box-shadow:
+    0 0 0 45px #e3f2e410,
+    0 0 0 100px #e3f2e408;
+}
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+.copy {
+  position: relative;
+  z-index: 1;
+  max-width: 510px;
+  padding: 70px 0;
+}
+.copy .eyebrow {
+  color: #a3d7c0;
+}
+.copy h1 {
+  font-size: clamp(3rem, 5vw, 5rem);
+  line-height: 0.98;
+  letter-spacing: -0.065em;
+  margin: 16px 0 22px;
+  font-weight: 650;
+}
+.copy h1 em {
+  font-family: Georgia, serif;
+  font-weight: 400;
+  color: #a3d7c0;
+}
+.copy p {
+  max-width: 400px;
+  line-height: 1.7;
+  color: #bed0cb;
+}
+.mini {
+  position: relative;
+  z-index: 1;
+  color: #bed0cb;
+  font-size: 0.82rem;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+.pulse {
+  width: 8px;
+  height: 8px;
+  background: #8ed4ae;
+  border-radius: 50%;
+  box-shadow: 0 0 0 5px #8ed4ae1e;
+}
+.formSide {
+  display: grid;
+  place-items: center;
+  padding: 34px;
+  background: #f5f7f4;
+}
+.form {
+  width: min(100%, 390px);
+  display: grid;
+  gap: 17px;
+}
+.form h2 {
+  font-size: 1.8rem;
+  letter-spacing: -0.04em;
+  margin: -9px 0 0;
+}
+.sub {
+  color: var(--muted);
+  margin: -12px 0 3px;
+  font-size: 0.9rem;
+}
+.form label {
+  display: grid;
+  gap: 7px;
+  font-size: 0.8rem;
+  color: #536365;
+}
+.form input {
+  width: 100%;
+}
+.form .button {
+  margin-top: 2px;
+  width: 100%;
+  justify-content: space-between;
+}
+.error {
+  background: #fff0ee;
+  color: #953e39;
+  padding: 10px 12px;
+  border-radius: 9px;
+  font-size: 0.84rem;
+  margin: -2px 0;
+}
+.foot {
+  color: #829092;
+  font-size: 0.75rem;
+  line-height: 1.5;
+  margin: 2px 0 0;
+}
+@media (max-width: 760px) {
+  .page {
+    grid-template-columns: 1fr;
+  }
+  .panel {
+    min-height: 300px;
+    padding: 25px 24px;
+  }
+  .copy {
+    padding: 40px 0 30px;
+  }
+  .copy h1 {
+    font-size: 3.3rem;
+  }
+  .mini {
+    display: none;
+  }
+  .formSide {
+    padding: 44px 24px;
+  }
+}
