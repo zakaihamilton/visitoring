@@ -151,6 +151,171 @@ export default function HomePage() {
           </div>
         </section>
 
+        <section className={styles.insights} aria-labelledby="insights-title">
+          <div className={styles.sectionIntro}>
+            <div className={styles.sectionEyebrow}>Useful at a glance</div>
+            <h2 id="insights-title">A clearer picture of what happens on your site.</h2>
+            <p>
+              Follow activity from the first page view to the actions that matter, with the reports
+              you need close at hand.
+            </p>
+          </div>
+
+          <div className={styles.insightGrid}>
+            <article className={styles.insightCard}>
+              <span className={styles.cardLabel}>01 / ACTIVITY</span>
+              <h3>Know the rhythm of your traffic.</h3>
+              <p>See page views, visitors, and sessions alongside daily activity.</p>
+              <div className={styles.metricChips} aria-label="Activity reports">
+                <span>Page views</span>
+                <span>Visitors</span>
+                <span>Sessions</span>
+              </div>
+            </article>
+
+            <article className={styles.insightCard}>
+              <span className={styles.cardLabel}>02 / DISCOVERY</span>
+              <h3>See what brings people in.</h3>
+              <p>Find your popular pages and the referring websites sending visits.</p>
+              <div className={styles.pathPreview} aria-hidden="true">
+                <span>
+                  <i /> Popular pages
+                </span>
+                <span>
+                  <i /> Traffic sources
+                </span>
+              </div>
+            </article>
+
+            <article className={styles.insightCard}>
+              <span className={styles.cardLabel}>03 / CONTEXT</span>
+              <h3>Understand the broad picture.</h3>
+              <p>Explore device, browser, operating system, country, and region summaries.</p>
+              <div className={styles.contextTags} aria-hidden="true">
+                <span>Device</span>
+                <span>Browser</span>
+                <span>Region</span>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <section className={styles.actionsSection} aria-labelledby="actions-title">
+          <div className={styles.actionsCopy}>
+            <div className={styles.sectionEyebrow}>Beyond page views</div>
+            <h2 id="actions-title">Measure the moments that move your work forward.</h2>
+            <p>
+              Track a completed signup or another important action with a custom event. Then use the
+              dashboard to see when and on which pages those events happen.
+            </p>
+            <Link href="/developers#events" className={styles.inlineLink}>
+              Explore custom events <span aria-hidden="true">↗</span>
+            </Link>
+          </div>
+
+          <div className={styles.eventExample}>
+            <div className={styles.eventExampleTop}>
+              <span>
+                <i /> Event example
+              </span>
+              <span>After signup succeeds</span>
+            </div>
+            <pre>
+              <code>
+                <span>window.Visitoring</span>.track(
+                <br />
+                &nbsp;&nbsp;<em>"signup"</em>, &#123; plan: <em>"starter"</em> &#125;
+                <br />
+                );
+              </code>
+            </pre>
+            <p>Choose an event name and include only the details that help you.</p>
+          </div>
+        </section>
+
+        <section className={styles.privacySection} aria-labelledby="privacy-title">
+          <div className={styles.privacyCopy}>
+            <div className={styles.privacyEyebrow}>Privacy by design</div>
+            <h2 id="privacy-title">Useful context. Less personal data.</h2>
+            <p>
+              Get a practical view of your traffic without collecting more detail than the job
+              needs.
+            </p>
+          </div>
+          <ul className={styles.privacyPoints}>
+            <li>
+              <span aria-hidden="true">✓</span>
+              Raw IP addresses are never stored.
+            </li>
+            <li>
+              <span aria-hidden="true">✓</span>
+              No cookies; anonymous visitor and session codes stay in the browser.
+            </li>
+            <li>
+              <span aria-hidden="true">✓</span>
+              Browser details are reduced to broad categories, and Do Not Track is respected.
+            </li>
+            <li>
+              <span aria-hidden="true">✓</span>
+              Page paths and referring website names are recorded without query details.
+            </li>
+          </ul>
+        </section>
+
+        <section className={styles.setupSection} aria-labelledby="setup-title">
+          <div className={styles.sectionIntro}>
+            <div className={styles.sectionEyebrow}>A straightforward start</div>
+            <h2 id="setup-title">One small script gets you going.</h2>
+            <p>
+              Add the deferred tracker to your site. There is no package to install, and custom
+              events are there when you need them.
+            </p>
+            <Link href="/developers" className={styles.inlineLink}>
+              Read the setup guide <span aria-hidden="true">↗</span>
+            </Link>
+          </div>
+
+          <ol className={styles.setupSteps}>
+            <li>
+              <span>01</span>
+              <div>
+                <strong>Create a site</strong>
+                <p>An administrator adds the website and its approved address.</p>
+              </div>
+            </li>
+            <li>
+              <span>02</span>
+              <div>
+                <strong>Add the tracker</strong>
+                <p>Place the script on the pages you want to understand.</p>
+              </div>
+            </li>
+            <li>
+              <span>03</span>
+              <div>
+                <strong>Follow what matters</strong>
+                <p>Review activity or add custom events for key actions.</p>
+              </div>
+            </li>
+          </ol>
+        </section>
+
+        <section className={styles.closingCta} aria-labelledby="cta-title">
+          <div>
+            <div className={styles.ctaEyebrow}>Visitoring</div>
+            <h2 id="cta-title">Make your traffic easier to understand.</h2>
+            <p>Sign in to view your dashboard, or visit the guide to see how setup works.</p>
+          </div>
+          <div className={styles.ctaActions}>
+            <Link href="/login" className={`button ${styles.ctaPrimary}`}>
+              Go to your dashboard <span aria-hidden="true">↗</span>
+            </Link>
+            <Link href="/developers" className={styles.ctaSecondary}>
+              See the developer guide
+            </Link>
+          </div>
+        </section>
+
         <footer className={styles.footer}>
           <span>
             <span className={styles.footerMark}>v</span> Visitoring

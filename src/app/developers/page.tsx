@@ -162,7 +162,7 @@ export default function DevelopersPage() {
               </div>
               <ol className={styles.steps}>
                 <li>
-                  <strong>Sign in and add a site.</strong> An administrator can open <b>Sites</b>
+                  <strong>Sign in and add a site.</strong> An administrator can open <b>Sites</b>{" "}
                   and create a site for each website you want to measure.
                 </li>
                 <li>
@@ -234,8 +234,8 @@ export default function DevelopersPage() {
                 <li>IP addresses and full browser details are not stored.</li>
               </ul>
               <p className={styles.note}>
-                Moving from Sentry8? Visitoring accepts its existing <code>welcome_*</code> events.
-                Keep only one automatic page-view tracker active when you switch.
+                The collector also accepts the legacy <code>welcome_*</code> event format. Keep only
+                one automatic page-view tracker active at a time.
               </p>
             </section>
 
