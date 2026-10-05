@@ -1,0 +1,310 @@
+.createForm {
+  display: grid;
+  grid-template-columns: minmax(180px, 1.1fr) minmax(230px, 1.35fr) minmax(125px, 0.7fr) auto;
+  align-items: start;
+  gap: 14px;
+  margin-top: 18px;
+}
+.field {
+  min-width: 0;
+  display: grid;
+  gap: 7px;
+  color: #536365;
+  font-size: var(--type-compact);
+}
+.field label {
+  min-height: 20px;
+  display: flex;
+  align-items: center;
+}
+.field input,
+.field select {
+  width: 100%;
+  min-width: 0;
+}
+.createForm > button {
+  margin-top: 27px;
+}
+.helpText {
+  color: #829092;
+  font-size: var(--type-compact);
+  line-height: 1.45;
+}
+.formFeedback {
+  grid-column: 1 / -1;
+  min-width: 0;
+}
+.successMessage,
+.errorMessage {
+  margin: 0;
+  border-radius: 9px;
+  padding: 10px 12px;
+  font-size: var(--type-body);
+  line-height: 1.45;
+}
+.successMessage {
+  color: #155f4d;
+  background: #e6f7f1;
+}
+.errorMessage {
+  color: #953e39;
+  background: #fff0ee;
+}
+.usersCard {
+  min-width: 0;
+}
+.introCopy,
+.footerNote {
+  color: #617171;
+  font-size: var(--type-body);
+  line-height: 1.5;
+}
+.introCopy {
+  margin: -5px 0 18px;
+}
+.footerNote {
+  margin: 16px 0 0;
+}
+.userList {
+  min-width: 0;
+}
+.userListHeader,
+.userRow {
+  display: grid;
+  grid-template-columns: minmax(150px, 1.2fr) minmax(180px, 1fr) minmax(85px, 0.6fr) minmax(
+      250px,
+      1.7fr
+    );
+  align-items: center;
+  gap: 12px;
+}
+.userListHeader {
+  padding: 0 12px 9px;
+  color: #8a9697;
+  font-size: var(--type-compact);
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+.userRow {
+  min-width: 0;
+  padding: 13px 12px;
+  border-top: 1px solid var(--line);
+}
+.userIdentity,
+.userRole,
+.userStatus,
+.userActions {
+  min-width: 0;
+}
+.cellLabel {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+.userIdentity {
+  display: flex;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 7px 9px;
+}
+.userIdentity strong {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  font-size: var(--type-body);
+  font-weight: 650;
+}
+.currentUser {
+  align-self: flex-start;
+  border-radius: 99px;
+  padding: 2px 8px;
+  color: #356454;
+  background: #eef5f0;
+  font-size: var(--type-compact);
+}
+.roleForm {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 6px;
+}
+.roleForm select {
+  min-width: 0;
+  width: 100%;
+}
+.roleForm button {
+  min-height: 39px;
+}
+.roleText {
+  font-size: var(--type-body);
+  font-weight: 600;
+}
+.activeStatus,
+.inactiveStatus {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 99px;
+  padding: 5px 10px;
+  font-size: var(--type-compact);
+  font-weight: 650;
+}
+.activeStatus {
+  color: #22644f;
+  background: #e9f5ee;
+}
+.inactiveStatus {
+  color: #746844;
+  background: #f5f1e5;
+}
+.actionList {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+.actionDialogRoot {
+  min-width: 0;
+}
+.actionDialogRoot > button,
+.inlineAction > button {
+  min-height: 36px;
+  padding: 7px 10px;
+}
+.inlineAction {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+.selfNote {
+  color: #829092;
+  font-size: var(--type-compact);
+}
+.confirmDialog {
+  width: min(440px, calc(100vw - 32px));
+  max-height: calc(100vh - 32px);
+  margin: auto;
+  padding: 24px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  color: var(--ink);
+  background: var(--surface);
+  box-shadow: 0 24px 72px #10252b3b;
+}
+.confirmDialog::backdrop {
+  background: #10252b80;
+  backdrop-filter: blur(2px);
+}
+.confirmDialog form {
+  display: grid;
+  gap: 13px;
+}
+.confirmTitle {
+  margin: 0;
+  font-size: var(--type-card-title);
+  letter-spacing: -0.02em;
+}
+.confirmCopy {
+  margin: 0;
+  color: #617171;
+  font-size: var(--type-body);
+  line-height: 1.5;
+}
+.dialogPassword {
+  margin-top: 4px;
+}
+.confirmActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 9px;
+}
+.screenReaderOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (max-width: 980px) {
+  .createForm {
+    grid-template-columns: minmax(160px, 1fr) minmax(190px, 1.2fr) minmax(120px, 0.8fr);
+  }
+  .createForm > button {
+    grid-column: 3;
+    justify-self: end;
+  }
+  .userListHeader,
+  .userRow {
+    grid-template-columns: minmax(140px, 1.1fr) minmax(165px, 1fr) minmax(80px, 0.6fr) minmax(
+        220px,
+        1.4fr
+      );
+    gap: 9px;
+  }
+  .actionList {
+    gap: 6px;
+  }
+}
+
+@media (max-width: 760px) {
+  .createForm {
+    grid-template-columns: 1fr;
+  }
+  .createForm > button {
+    grid-column: auto;
+    justify-self: stretch;
+    margin-top: 0;
+  }
+  .userListHeader {
+    display: none;
+  }
+  .userRow {
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: start;
+    gap: 13px 10px;
+    padding: 15px 0;
+  }
+  .userIdentity {
+    grid-column: 1 / -1;
+  }
+  .cellLabel {
+    position: static;
+    width: auto;
+    height: auto;
+    margin: 0;
+    overflow: visible;
+    clip: auto;
+    color: #8a9697;
+    font-size: var(--type-compact);
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .userIdentity > .cellLabel {
+    flex-basis: 100%;
+  }
+  .userRole,
+  .userStatus {
+    display: grid;
+    align-content: start;
+    gap: 5px;
+  }
+  .userActions {
+    grid-column: 1 / -1;
+    display: grid;
+    gap: 7px;
+  }
+  .actionList {
+    gap: 7px;
+  }
+}

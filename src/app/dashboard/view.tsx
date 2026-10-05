@@ -27,10 +27,12 @@ function BreakdownList({
   title,
   rows,
   empty = "No activity yet",
+  showLabelTooltips = true,
 }: {
   title: string;
   rows: Array<{ label: string; count: number }>;
   empty?: string;
+  showLabelTooltips?: boolean;
 }) {
   const max = Math.max(1, ...rows.map((row) => row.count));
   return (
@@ -44,14 +46,18 @@ function BreakdownList({
           {rows.map((row) => (
             <div className={styles.breakdownRow} key={`${row.label}-${row.count}`}>
               <div className={styles.breakdownLabel}>
-                <Tooltip
-                  label={`${title} value`}
-                  content={row.label}
-                  targetClassName={styles.truncatedLabel}
-                  targetTabIndex={-1}
-                >
-                  {row.label}
-                </Tooltip>
+                {showLabelTooltips ? (
+                  <Tooltip
+                    label={`${title} value`}
+                    content={row.label}
+                    targetClassName={styles.truncatedLabel}
+                    targetTabIndex={-1}
+                  >
+                    {row.label}
+                  </Tooltip>
+                ) : (
+                  <span className={styles.truncatedLabel}>{row.label}</span>
+                )}
                 <b>{number(row.count)}</b>
               </div>
               <div className={styles.track}>
@@ -327,11 +333,11 @@ export function Dashboard({ sites, siteId, data, filters }: Props) {
       </div>
 
       <div className={styles.breakdownGrid}>
-        <BreakdownList title="Devices" rows={data.devices} />
-        <BreakdownList title="Browsers" rows={data.browsers} />
-        <BreakdownList title="Operating systems" rows={data.systems} />
-        <BreakdownList title="Countries" rows={data.countries} />
-        <BreakdownList title="Regions" rows={data.regions} />
+        <BreakdownList title="Devices" rows={data.devices} showLabelTooltips={false} />
+        <BreakdownList title="Browsers" rows={data.browsers} showLabelTooltips={false} />
+        <BreakdownList title="Operating systems" rows={data.systems} showLabelTooltips={false} />
+        <BreakdownList title="Countries" rows={data.countries} showLabelTooltips={false} />
+        <BreakdownList title="Regions" rows={data.regions} showLabelTooltips={false} />
       </div>
 
       <section className={`${styles.card} ${styles.eventCard}`}>

@@ -75,8 +75,14 @@
 .moreGrid input {
   width: 100%;
   min-width: 0;
-  padding: 9px 10px;
   font-size: var(--type-compact);
+}
+.filters input,
+.moreGrid input {
+  padding: 9px 10px;
+}
+.filters select {
+  padding: 9px 44px 9px 10px;
 }
 .moreFilters {
   position: relative;

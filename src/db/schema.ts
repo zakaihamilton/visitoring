@@ -8,6 +8,7 @@ import {
   timestamp,
   uniqueIndex,
   uuid,
+  boolean,
   varchar,
 } from "drizzle-orm/pg-core";
 
@@ -28,6 +29,7 @@ export const users = pgTable(
     email: varchar("email", { length: 254 }).notNull(),
     passwordHash: text("password_hash").notNull(),
     role: varchar("role", { length: 16 }).notNull().default("viewer"),
+    isActive: boolean("is_active").notNull().default(true),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (table) => [uniqueIndex("users_workspace_email_idx").on(table.workspaceId, table.email)],

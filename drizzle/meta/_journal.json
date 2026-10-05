@@ -15,6 +15,13 @@
       "when": 1791202534137,
       "tag": "0001_login_rate_limits",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1791226574411,
+      "tag": "0002_users_active",
+      "breakpoints": true
     }
   ]
 }

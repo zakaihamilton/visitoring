@@ -1,14 +1,11 @@
 "use server";
 
-import { verify } from "@node-rs/argon2";
-import { and, eq } from "drizzle-orm";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
-import { db } from "@/db";
-import { users, workspaces } from "@/db/schema";
 import { createAuthSession, destroyAuthSession, setSessionCookie } from "@/lib/auth";
 import { clientIpFromHeaders } from "@/lib/privacy";
 import { clearLoginAccountAttempts, isLoginRateLimited } from "@/lib/login-rate-limit";
+import { authenticateWorkspaceUser } from "@/lib/user-management";
 
 export async function loginAction(formData: FormData): Promise<void> {
   const email = String(formData.get("email") ?? "")
@@ -24,16 +21,12 @@ export async function loginAction(formData: FormData): Promise<void> {
   const ip = clientIpFromHeaders(await headers());
   if (await isLoginRateLimited({ email, workspaceSlug, ip })) redirect("/login?error=invalid");
 
-  const [user] = await db
-    .select({ id: users.id, passwordHash: users.passwordHash })
-    .from(users)
-    .innerJoin(workspaces, eq(users.workspaceId, workspaces.id))
-    .where(and(eq(users.email, email), eq(workspaces.slug, workspaceSlug)))
-    .limit(1);
-  if (!user || !(await verify(user.passwordHash, password))) redirect("/login?error=invalid");
+  const user = await authenticateWorkspaceUser({ email, workspaceSlug, password });
+  if (!user) redirect("/login?error=invalid");
 
   await clearLoginAccountAttempts({ email, workspaceSlug });
-  const token = await createAuthSession(user.id);
+  const token = await createAuthSession(user.id, user.passwordHash);
+  if (!token) redirect("/login?error=invalid");
   await setSessionCookie(token);
   redirect("/dashboard");
 }

@@ -18,14 +18,28 @@ export type CurrentUser = {
   role: "admin" | "viewer";
 };
 
-export async function createAuthSession(userId: string): Promise<string> {
+export async function createAuthSession(
+  userId: string,
+  expectedPasswordHash: string,
+): Promise<string | null> {
   const token = createToken();
-  await db.insert(authSessions).values({
-    userId,
-    tokenHash: hashSessionToken(token),
-    expiresAt: new Date(Date.now() + SESSION_DURATION_MS),
+  const created = await db.transaction(async (tx) => {
+    const [user] = await tx
+      .select({ id: users.id, passwordHash: users.passwordHash, isActive: users.isActive })
+      .from(users)
+      .where(eq(users.id, userId))
+      .limit(1)
+      .for("update");
+    if (!user || !user.isActive || user.passwordHash !== expectedPasswordHash) return false;
+
+    await tx.insert(authSessions).values({
+      userId,
+      tokenHash: hashSessionToken(token),
+      expiresAt: new Date(Date.now() + SESSION_DURATION_MS),
+    });
+    return true;
   });
-  return token;
+  return created ? token : null;
 }
 
 async function getCurrentUser(): Promise<CurrentUser | null> {
@@ -39,6 +53,7 @@ async function getCurrentUser(): Promise<CurrentUser | null> {
       workspaceSlug: workspaces.slug,
       email: users.email,
       role: users.role,
+      isActive: users.isActive,
       sessionId: authSessions.id,
     })
     .from(authSessions)
@@ -51,7 +66,7 @@ async function getCurrentUser(): Promise<CurrentUser | null> {
       ),
     )
     .limit(1);
-  if (!row || (row.role !== "admin" && row.role !== "viewer")) return null;
+  if (!row || !row.isActive || (row.role !== "admin" && row.role !== "viewer")) return null;
   return {
     id: row.id,
     workspaceId: row.workspaceId,

@@ -15,7 +15,7 @@ type TooltipProps = {
   targetTabIndex?: number;
 };
 
-type Position = { left: number; top: number; width?: number; ready: boolean };
+type Position = { left: number; top: number; width?: number; maxHeight?: number; ready: boolean };
 
 export function Tooltip({
   content,
@@ -95,41 +95,73 @@ export function Tooltip({
     const bubble = bubbleRef.current;
     if (!trigger || !bubble) return;
 
+    let frame = 0;
     const updatePosition = () => {
+      frame = 0;
       const triggerBounds = trigger.getBoundingClientRect();
       const gap = 8;
       const margin = 8;
+      const viewportWidth = window.innerWidth;
+      const viewportHeight = window.innerHeight;
 
-      // Measure the content before positioning it so a previous right-edge
-      // position cannot shrink the bubble's available width.
+      // Measure from a stable position so a previous edge clamp does not affect
+      // the bubble's intrinsic width.
       bubble.style.left = `${margin}px`;
       bubble.style.width = "";
+      bubble.style.maxHeight = `${Math.max(0, viewportHeight - margin * 2)}px`;
       const measuredWidth = bubble.getBoundingClientRect().width;
-      const availableWidth = Math.max(0, window.innerWidth - margin * 2);
+      const availableWidth = Math.max(0, viewportWidth - margin * 2);
       bubble.style.width = `${Math.min(measuredWidth, availableWidth)}px`;
+      const measuredBounds = bubble.getBoundingClientRect();
+
+      const spaceAbove = Math.max(0, triggerBounds.top - gap - margin);
+      const spaceBelow = Math.max(0, viewportHeight - triggerBounds.bottom - gap - margin);
+      const fitsAbove = measuredBounds.height <= spaceAbove;
+      const fitsBelow = measuredBounds.height <= spaceBelow;
+      const placeAbove = fitsAbove || (!fitsBelow && spaceAbove > spaceBelow);
+      const maxHeight = placeAbove ? spaceAbove : spaceBelow;
+      bubble.style.maxHeight = `${maxHeight}px`;
       const bubbleBounds = bubble.getBoundingClientRect();
 
       const centeredLeft = triggerBounds.left + triggerBounds.width / 2 - bubbleBounds.width / 2;
       const left = Math.min(
         Math.max(centeredLeft, margin),
-        Math.max(margin, window.innerWidth - bubbleBounds.width - margin),
+        Math.max(margin, viewportWidth - bubbleBounds.width - margin),
       );
-      const above = triggerBounds.top - bubbleBounds.height - gap;
-      const below = triggerBounds.bottom + gap;
-      const preferredTop = above >= margin ? above : below;
+      const preferredTop = placeAbove
+        ? triggerBounds.top - bubbleBounds.height - gap
+        : triggerBounds.bottom + gap;
       const top = Math.min(
         Math.max(preferredTop, margin),
-        Math.max(margin, window.innerHeight - bubbleBounds.height - margin),
+        Math.max(margin, viewportHeight - bubbleBounds.height - margin),
       );
-      setPosition({ left, top, width: bubbleBounds.width, ready: true });
+      // The measurement above temporarily changes `left` outside React. Restore
+      // the final DOM value here as well: React may skip writing an unchanged
+      // style prop even though the DOM was moved to the measurement margin.
+      bubble.style.left = `${left}px`;
+      setPosition({ left, top, width: bubbleBounds.width, maxHeight, ready: true });
     };
 
     updatePosition();
-    window.addEventListener("resize", updatePosition);
-    window.addEventListener("scroll", updatePosition, true);
+    const scheduleUpdate = () => {
+      if (frame) return;
+      frame = window.requestAnimationFrame(updatePosition);
+    };
+    const resizeObserver =
+      typeof ResizeObserver === "undefined" ? null : new ResizeObserver(scheduleUpdate);
+    resizeObserver?.observe(trigger);
+    resizeObserver?.observe(bubble);
+    window.addEventListener("resize", scheduleUpdate);
+    window.addEventListener("scroll", scheduleUpdate, true);
+    window.visualViewport?.addEventListener("resize", scheduleUpdate);
+    window.visualViewport?.addEventListener("scroll", scheduleUpdate);
     return () => {
-      window.removeEventListener("resize", updatePosition);
-      window.removeEventListener("scroll", updatePosition, true);
+      if (frame) window.cancelAnimationFrame(frame);
+      resizeObserver?.disconnect();
+      window.removeEventListener("resize", scheduleUpdate);
+      window.removeEventListener("scroll", scheduleUpdate, true);
+      window.visualViewport?.removeEventListener("resize", scheduleUpdate);
+      window.visualViewport?.removeEventListener("scroll", scheduleUpdate);
     };
   }, [content, visible]);
 
@@ -166,6 +198,7 @@ export function Tooltip({
               left: position.left,
               top: position.top,
               ...(position.width === undefined ? {} : { width: position.width }),
+              ...(position.maxHeight === undefined ? {} : { maxHeight: position.maxHeight }),
               visibility: position.ready ? "visible" : "hidden",
             }}
           >
@@ -183,6 +216,7 @@ export function Tooltip({
           type="button"
           className={styles.helpButton}
           aria-label={`Help: ${label}`}
+          title={visible && position.ready ? undefined : content}
         >
           <span aria-hidden="true">i</span>
         </button>
