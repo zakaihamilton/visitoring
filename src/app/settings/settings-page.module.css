@@ -12,7 +12,7 @@
 }
 .eyebrow {
   color: var(--accent);
-  font-size: 0.72rem;
+  font-size: var(--type-section-label);
   text-transform: uppercase;
   letter-spacing: 0.15em;
   font-weight: 700;
@@ -51,13 +51,13 @@
 .siteHeading h2,
 .sectionHeading h2 {
   margin: 0;
-  font-size: 1rem;
+  font-size: var(--type-card-title);
   letter-spacing: -0.02em;
 }
 .formGrid {
   display: grid;
   grid-template-columns: minmax(170px, 0.85fr) minmax(280px, 1.5fr) auto;
-  align-items: end;
+  align-items: start;
   gap: 15px;
   margin-top: 18px;
 }
@@ -66,12 +66,17 @@
   display: grid;
   gap: 7px;
   color: #536365;
-  font-size: 0.79rem;
+  font-size: var(--type-compact);
 }
 .labelRow {
   display: flex;
   align-items: center;
+  min-height: 20px;
   gap: 7px;
+}
+.formGrid > button,
+.domainForm > button {
+  margin-top: 27px;
 }
 .field input {
   width: 100%;
@@ -79,7 +84,7 @@
 }
 .hint {
   color: #829092;
-  font-size: 0.71rem;
+  font-size: var(--type-body);
   line-height: 1.45;
 }
 .siteList {
@@ -96,14 +101,14 @@
   gap: 12px;
 }
 .siteHeading h2 {
-  font-size: 1.05rem;
+  font-size: var(--type-card-title);
 }
 .keySummary {
   display: flex;
   align-items: center;
   gap: 9px;
   color: var(--muted);
-  font-size: 0.73rem;
+  font-size: var(--type-compact);
 }
 .keySummary code {
   color: #526668;
@@ -121,7 +126,7 @@
   border-radius: 99px;
   color: #536566;
   background: #f2f6f2;
-  font-size: 0.76rem;
+  font-size: var(--type-compact);
 }
 .siteControls {
   border-top: 1px solid var(--line);
@@ -132,7 +137,7 @@
 .domainForm {
   display: grid;
   grid-template-columns: minmax(200px, 1fr) auto;
-  align-items: end;
+  align-items: start;
   gap: 12px;
 }
 .keyActions {
@@ -145,10 +150,42 @@
   align-items: center;
   gap: 8px;
 }
+.confirmDialog {
+  width: min(440px, calc(100vw - 32px));
+  max-height: calc(100vh - 32px);
+  margin: auto;
+  padding: 24px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  color: var(--ink);
+  background: var(--surface);
+  box-shadow: 0 24px 72px #10252b3b;
+}
+.confirmDialog::backdrop {
+  background: #10252b80;
+  backdrop-filter: blur(2px);
+}
+.confirmTitle {
+  margin: 0 0 10px;
+  font-size: var(--type-card-title);
+  letter-spacing: -0.02em;
+}
+.confirmCopy {
+  margin: 0;
+  color: #617171;
+  font-size: var(--type-body);
+  line-height: 1.5;
+}
+.confirmActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 22px;
+}
 .keyWarning {
   margin: 0;
   color: var(--muted);
-  font-size: 0.74rem;
+  font-size: var(--type-body);
 }
 .success,
 .error {
@@ -156,7 +193,7 @@
   border-radius: 10px;
   padding: 12px;
   margin-top: 10px;
-  font-size: 0.83rem;
+  font-size: var(--type-body);
 }
 .success {
   color: #155f4d;
@@ -193,7 +230,7 @@
 }
 .setupCard p {
   color: #617171;
-  font-size: 0.84rem;
+  font-size: var(--type-body);
   line-height: 1.65;
 }
 .setupCard pre {
@@ -202,10 +239,10 @@
   background: #173638;
   color: #e6f0e8;
   padding: 14px 16px;
-  font-size: 0.77rem;
+  font-size: var(--type-compact);
 }
 .setupCard code {
-  font-size: 0.84em;
+  font-size: 1em;
 }
 .notice {
   display: flex;
@@ -217,7 +254,7 @@
   border-radius: 11px;
   color: #536566;
   background: #edf3ef;
-  font-size: 0.79rem;
+  font-size: var(--type-body);
   line-height: 1.5;
 }
 .notice p {
@@ -230,6 +267,10 @@
   .formGrid,
   .domainForm {
     grid-template-columns: 1fr;
+  }
+  .formGrid > button,
+  .domainForm > button {
+    margin-top: 0;
   }
   .siteHeader {
     align-items: flex-start;

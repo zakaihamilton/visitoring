@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { parseEnvelope } from "@/app/api/collect/route";
+import { parseEnvelope } from "@/lib/collect-envelope";
 
 describe("collector envelope validation", () => {
   it("accepts the Sentry8 shape and preserves the five legacy event payload contracts", () => {

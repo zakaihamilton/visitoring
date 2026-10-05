@@ -19,7 +19,7 @@
 .heading p {
   color: var(--muted);
   margin: 0;
-  font-size: 0.93rem;
+  font-size: var(--type-body);
 }
 .updated {
   display: flex;
@@ -29,7 +29,7 @@
   border-radius: 99px;
   padding: 9px 12px;
   color: var(--muted);
-  font-size: 0.77rem;
+  font-size: var(--type-compact);
   white-space: nowrap;
   background: white;
 }
@@ -57,7 +57,7 @@
 .filterField {
   display: grid;
   gap: 6px;
-  font-size: 0.71rem;
+  font-size: var(--type-compact);
   color: #677779;
   font-weight: 600;
 }
@@ -76,7 +76,7 @@
   width: 100%;
   min-width: 0;
   padding: 9px 10px;
-  font-size: 0.78rem;
+  font-size: var(--type-compact);
 }
 .moreFilters {
   position: relative;
@@ -89,14 +89,14 @@
   cursor: pointer;
   width: max-content;
   color: #526668;
-  font-size: 0.78rem;
+  font-size: var(--type-compact);
   font-weight: 650;
   list-style: none;
 }
 .moreHint {
   margin: 8px 0 0;
   color: #849191;
-  font-size: 0.72rem;
+  font-size: var(--type-body);
   line-height: 1.45;
 }
 .moreFilters summary::after {
@@ -115,7 +115,8 @@
 }
 .filters > button {
   grid-column: -2 / -1;
-  grid-row: 2;
+  grid-row: 1;
+  align-self: end;
 }
 .metrics {
   display: grid;
@@ -138,7 +139,7 @@
   align-items: center;
   gap: 7px;
   color: var(--muted);
-  font-size: 0.79rem;
+  font-size: var(--type-compact);
   font-weight: 580;
 }
 .metricLabel span {
@@ -155,7 +156,7 @@
   margin-top: auto;
   padding-top: 11px;
   color: #8a9697;
-  font-size: 0.72rem;
+  font-size: var(--type-compact);
 }
 .primaryGrid {
   display: grid;
@@ -182,7 +183,7 @@
 }
 .cardTitle h2 {
   margin: 0;
-  font-size: 0.95rem;
+  font-size: var(--type-card-title);
   letter-spacing: -0.02em;
 }
 .chartHeading {
@@ -192,17 +193,17 @@
 }
 .chartHeading h2 {
   margin: 0;
-  font-size: 0.95rem;
+  font-size: var(--type-card-title);
   letter-spacing: -0.02em;
 }
 .cardTitle p {
   color: #849191;
   margin: 5px 0 0;
-  font-size: 0.73rem;
+  font-size: var(--type-compact);
 }
 .cardTitle > span {
   color: #869394;
-  font-size: 0.7rem;
+  font-size: var(--type-compact);
   white-space: nowrap;
 }
 .chart {
@@ -250,7 +251,7 @@
   place-content: center;
   text-align: center;
   color: #889594;
-  font-size: 0.8rem;
+  font-size: var(--type-body);
 }
 .chartEmpty span {
   color: var(--accent);
@@ -265,7 +266,7 @@
   gap: 20px;
   padding-top: 13px;
   color: #788586;
-  font-size: 0.7rem;
+  font-size: var(--type-compact);
 }
 .chartLegend span {
   display: flex;
@@ -296,7 +297,7 @@
   justify-content: space-between;
   gap: 10px;
   color: #687778;
-  font-size: 0.76rem;
+  font-size: var(--type-compact);
   margin-bottom: 6px;
 }
 .breakdownLabel span {
@@ -329,7 +330,7 @@
 .noData {
   margin: 18px 0 5px;
   color: #8a9697;
-  font-size: 0.76rem;
+  font-size: var(--type-body);
 }
 .breakdownGrid {
   display: grid;
@@ -362,7 +363,7 @@
 }
 .eventCard th {
   color: #909b9b;
-  font-size: 0.66rem;
+  font-size: var(--type-compact);
   font-weight: 650;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -378,14 +379,14 @@
   padding: 11px 15px;
   vertical-align: top;
   color: #526264;
-  font-size: 0.74rem;
+  font-size: var(--type-compact);
 }
 .eventPill {
   color: #266b59;
   background: #eaf4ef;
   border-radius: 6px;
   padding: 4px 7px;
-  font-size: 0.69rem;
+  font-size: var(--type-compact);
   font-weight: 650;
   white-space: nowrap;
 }
@@ -412,18 +413,18 @@
 }
 .eventCard code {
   color: #70807e;
-  font-size: 0.68rem;
+  font-size: var(--type-compact);
 }
 .timeCell {
   white-space: nowrap;
   color: #83908f;
-  font-size: 0.68rem;
+  font-size: var(--type-compact);
 }
 .tableEmpty {
   padding: 32px;
   text-align: center;
   color: #849191;
-  font-size: 0.8rem;
+  font-size: var(--type-body);
 }
 .footer {
   display: flex;
@@ -431,7 +432,7 @@
   justify-content: space-between;
   gap: 20px;
   color: #859190;
-  font-size: 0.69rem;
+  font-size: var(--type-compact);
   padding: 20px 4px 0;
 }
 .footer a {
@@ -448,8 +449,9 @@
   }
   .filters > button {
     grid-column: 3;
-    grid-row: 3;
+    grid-row: 2;
     justify-self: end;
+    align-self: end;
   }
   .breakdownGrid {
     grid-template-columns: repeat(3, 1fr);

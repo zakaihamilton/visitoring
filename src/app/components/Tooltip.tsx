@@ -15,7 +15,7 @@ type TooltipProps = {
   targetTabIndex?: number;
 };
 
-type Position = { left: number; top: number; ready: boolean };
+type Position = { left: number; top: number; width?: number; ready: boolean };
 
 export function Tooltip({
   content,
@@ -97,9 +97,18 @@ export function Tooltip({
 
     const updatePosition = () => {
       const triggerBounds = trigger.getBoundingClientRect();
-      const bubbleBounds = bubble.getBoundingClientRect();
       const gap = 8;
       const margin = 8;
+
+      // Measure the content before positioning it so a previous right-edge
+      // position cannot shrink the bubble's available width.
+      bubble.style.left = `${margin}px`;
+      bubble.style.width = "";
+      const measuredWidth = bubble.getBoundingClientRect().width;
+      const availableWidth = Math.max(0, window.innerWidth - margin * 2);
+      bubble.style.width = `${Math.min(measuredWidth, availableWidth)}px`;
+      const bubbleBounds = bubble.getBoundingClientRect();
+
       const centeredLeft = triggerBounds.left + triggerBounds.width / 2 - bubbleBounds.width / 2;
       const left = Math.min(
         Math.max(centeredLeft, margin),
@@ -112,7 +121,7 @@ export function Tooltip({
         Math.max(preferredTop, margin),
         Math.max(margin, window.innerHeight - bubbleBounds.height - margin),
       );
-      setPosition({ left, top, ready: true });
+      setPosition({ left, top, width: bubbleBounds.width, ready: true });
     };
 
     updatePosition();
@@ -122,7 +131,7 @@ export function Tooltip({
       window.removeEventListener("resize", updatePosition);
       window.removeEventListener("scroll", updatePosition, true);
     };
-  }, [visible]);
+  }, [content, visible]);
 
   const sharedHandlers = {
     ref: setTriggerRef,
@@ -156,6 +165,7 @@ export function Tooltip({
             style={{
               left: position.left,
               top: position.top,
+              ...(position.width === undefined ? {} : { width: position.width }),
               visibility: position.ready ? "visible" : "hidden",
             }}
           >

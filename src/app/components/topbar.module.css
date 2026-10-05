@@ -31,7 +31,7 @@
   border-left: 1px solid var(--line);
 }
 .workspace {
-  font-size: 0.83rem;
+  font-size: var(--type-compact);
   color: var(--muted);
 }
 .nav {
@@ -39,7 +39,7 @@
 }
 .nav a {
   text-decoration: none;
-  font-size: 0.83rem;
+  font-size: var(--type-compact);
   font-weight: 600;
   padding: 9px 12px;
   border-radius: 9px;
@@ -51,7 +51,7 @@
 }
 .account {
   gap: 10px;
-  font-size: 0.78rem;
+  font-size: var(--type-compact);
   color: var(--muted);
 }
 .avatar {
@@ -62,13 +62,13 @@
   color: #2d6254;
   display: grid;
   place-items: center;
-  font-size: 0.72rem;
+  font-size: var(--type-compact);
   font-weight: 700;
 }
 .logout {
   min-height: 34px;
   padding: 7px 10px;
-  font-size: 0.75rem;
+  font-size: var(--type-compact);
 }
 .logout:hover {
   color: var(--ink);

@@ -69,7 +69,7 @@
   align-items: center;
   gap: 9px;
   color: #b3dec9;
-  font-size: 0.69rem;
+  font-size: var(--type-section-label);
   font-weight: 700;
   letter-spacing: 0.14em;
   text-transform: uppercase;
@@ -107,7 +107,7 @@
   max-width: 510px;
   margin: 0;
   color: #c4d6d0;
-  font-size: clamp(0.98rem, 1.3vw, 1.08rem);
+  font-size: clamp(var(--type-body), 1.3vw, var(--type-body-large));
   line-height: 1.75;
 }
 
@@ -143,7 +143,7 @@
   align-items: center;
   gap: 8px;
   color: #e2eee8;
-  font-size: 0.81rem;
+  font-size: var(--type-compact);
   font-weight: 650;
   text-decoration: none;
   transition: color 180ms ease;
@@ -167,7 +167,7 @@
   gap: 11px 18px;
   margin-top: 27px;
   color: #bbd0c8;
-  font-size: 0.7rem;
+  font-size: var(--type-compact);
 }
 
 .heroMeta span {
@@ -223,7 +223,7 @@
   border-bottom: 1px solid #ffffff15;
   color: #a9bbb4;
   background: #ffffff06;
-  font-size: 0.64rem;
+  font-size: var(--type-compact);
 }
 
 .editorTop > div {
@@ -247,7 +247,7 @@
 
 .editorLanguage {
   color: #82c2a1;
-  font-size: 0.58rem;
+  font-size: var(--type-compact);
   font-weight: 700;
   letter-spacing: 0.08em;
 }
@@ -259,7 +259,7 @@
 .editorLabel {
   margin-bottom: 19px;
   color: #91afa1;
-  font-size: 0.62rem;
+  font-size: var(--type-compact);
   font-weight: 700;
   letter-spacing: 0.12em;
 }
@@ -276,14 +276,14 @@
 .lineNumber {
   color: #6f8a80;
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-  font-size: 0.63rem;
+  font-size: var(--type-compact);
 }
 
 .editorCode code {
   overflow: hidden;
   color: #e5ede8;
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-  font-size: clamp(0.65rem, 1vw, 0.78rem);
+  font-size: clamp(var(--type-compact), 1vw, var(--type-body));
   text-overflow: ellipsis;
 }
 
@@ -300,7 +300,7 @@
 .editorHint {
   margin: 18px 0 0 37px;
   color: #91aaa0;
-  font-size: 0.67rem;
+  font-size: var(--type-compact);
 }
 
 .editorStatus {
@@ -310,7 +310,7 @@
   padding: 13px 18px;
   border-top: 1px solid #ffffff15;
   color: #a9bbb4;
-  font-size: 0.62rem;
+  font-size: var(--type-compact);
 }
 
 .editorStatus span:first-child {
@@ -351,7 +351,7 @@
   border-radius: 9px;
   color: #28745f;
   background: #eaf3ef;
-  font-size: 0.84rem;
+  font-size: var(--type-compact);
   font-weight: 750;
 }
 
@@ -361,12 +361,12 @@
 }
 
 .editorBadge strong {
-  font-size: 0.67rem;
+  font-size: var(--type-compact);
 }
 
 .editorBadge small {
   color: #788985;
-  font-size: 0.58rem;
+  font-size: var(--type-compact);
 }
 
 .content {
@@ -393,7 +393,7 @@
 .tocLabel {
   padding: 0 9px 10px;
   color: #83928e;
-  font-size: 0.62rem;
+  font-size: var(--type-section-label);
   font-weight: 750;
   letter-spacing: 0.13em;
   text-transform: uppercase;
@@ -406,7 +406,7 @@
   padding: 9px;
   border-radius: 8px;
   color: #5f716c;
-  font-size: 0.76rem;
+  font-size: var(--type-compact);
   text-decoration: none;
   transition:
     color 180ms ease,
@@ -423,7 +423,7 @@
 .toc > a > span {
   color: #91a39a;
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-  font-size: 0.62rem;
+  font-size: var(--type-compact);
 }
 
 .tocHelp {
@@ -436,12 +436,12 @@
 
 .tocHelp > span {
   color: #879590;
-  font-size: 0.64rem;
+  font-size: var(--type-compact);
 }
 
 .tocHelp a {
   color: #28745f;
-  font-size: 0.7rem;
+  font-size: var(--type-compact);
   font-weight: 700;
   text-decoration: none;
 }
@@ -507,13 +507,13 @@
   color: #2c6d59;
   background: #edf6f0;
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-  font-size: 0.69rem;
+  font-size: var(--type-compact);
   font-weight: 750;
 }
 
 .sectionHeading h2 {
   margin: 2px 0 5px;
-  font-size: 1.2rem;
+  font-size: var(--type-card-title);
   letter-spacing: -0.04em;
 }
 .sectionTitleRow {
@@ -526,7 +526,7 @@
 .note {
   margin: 0;
   color: var(--muted);
-  font-size: 0.84rem;
+  font-size: var(--type-body);
   line-height: 1.65;
 }
 
@@ -535,7 +535,7 @@
   margin: 21px 0 0;
   padding-left: 25px;
   color: #526365;
-  font-size: 0.86rem;
+  font-size: var(--type-body);
   line-height: 1.75;
 }
 
@@ -568,7 +568,7 @@
   color: #e6f0e8;
   background: #173638;
   box-shadow: inset 0 1px #ffffff0b;
-  font-size: 0.78rem;
+  font-size: var(--type-compact);
   line-height: 1.7;
   tab-size: 2;
 }
@@ -596,7 +596,7 @@
 .footerCallout p {
   margin: 0;
   color: #3e5d54;
-  font-size: 0.86rem;
+  font-size: var(--type-body);
   line-height: 1.55;
 }
 
@@ -733,7 +733,7 @@
   }
 
   .heroCopy > p {
-    font-size: 0.95rem;
+    font-size: var(--type-body);
   }
 
   .heroActions {
@@ -744,7 +744,7 @@
   .heroMeta {
     gap: 9px 14px;
     margin-top: 23px;
-    font-size: 0.65rem;
+    font-size: var(--type-compact);
   }
 
   .editorCard {
@@ -761,12 +761,12 @@
   }
 
   .editorCode code {
-    font-size: 0.61rem;
+    font-size: var(--type-compact);
   }
 
   .editorHint {
     margin-left: 28px;
-    font-size: 0.61rem;
+    font-size: var(--type-compact);
   }
 
   .editorBadge {
@@ -791,7 +791,7 @@
   .toc > a {
     gap: 7px;
     padding: 8px 6px;
-    font-size: 0.69rem;
+    font-size: var(--type-compact);
   }
 
   .tocHelp {

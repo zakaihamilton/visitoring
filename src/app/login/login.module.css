@@ -63,7 +63,7 @@
   position: relative;
   z-index: 1;
   color: #bed0cb;
-  font-size: 0.82rem;
+  font-size: var(--type-compact);
   display: flex;
   align-items: center;
   gap: 9px;
@@ -94,18 +94,18 @@
 .sub {
   color: var(--muted);
   margin: -12px 0 3px;
-  font-size: 0.9rem;
+  font-size: var(--type-body);
 }
 .form label {
   display: grid;
   gap: 7px;
-  font-size: 0.8rem;
+  font-size: var(--type-compact);
   color: #536365;
 }
 .field {
   display: grid;
   gap: 7px;
-  font-size: 0.8rem;
+  font-size: var(--type-compact);
   color: #536365;
 }
 .labelRow {
@@ -129,12 +129,12 @@
   color: #953e39;
   padding: 10px 12px;
   border-radius: 9px;
-  font-size: 0.84rem;
+  font-size: var(--type-body);
   margin: -2px 0;
 }
 .foot {
   color: #829092;
-  font-size: 0.75rem;
+  font-size: var(--type-compact);
   line-height: 1.5;
   margin: 2px 0 0;
 }

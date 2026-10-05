@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useEffect, useRef, useState } from "react";
 import { Tooltip } from "@/app/components/Tooltip";
 import {
   createSiteAction,
@@ -74,11 +74,22 @@ export function CreateSiteForm() {
 
 export function SiteControls({ siteId, domains }: { siteId: string; domains: string[] }) {
   const [state, action, pending] = useActionState(rotateSiteKeyAction, initialState);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const dialogRef = useRef<HTMLDialogElement>(null);
+  const confirmedRef = useRef(false);
   const [domainState, domainAction, savingDomains] = useActionState(
     updateDomainsAction,
     initialState,
   );
   const domainId = `site-domains-${siteId}`;
+
+  useEffect(() => {
+    const dialog = dialogRef.current;
+    if (!dialog) return;
+    if (confirmOpen && !dialog.open) dialog.showModal();
+    if (!confirmOpen && dialog.open) dialog.close();
+  }, [confirmOpen]);
+
   return (
     <div className={styles.siteControls}>
       <form action={domainAction} className={styles.domainForm}>
@@ -107,7 +118,19 @@ export function SiteControls({ siteId, domains }: { siteId: string; domains: str
         </button>
         <ActionNotice state={domainState} />
       </form>
-      <form action={action} className={styles.keyActions}>
+      <form
+        action={action}
+        className={styles.keyActions}
+        onSubmit={(event) => {
+          if (confirmedRef.current) {
+            confirmedRef.current = false;
+            setConfirmOpen(false);
+            return;
+          }
+          event.preventDefault();
+          setConfirmOpen(true);
+        }}
+      >
         <input type="hidden" name="siteId" value={siteId} />
         <div className={styles.keyActionLine}>
           <button type="submit" className="button buttonDanger" disabled={pending}>
@@ -120,6 +143,45 @@ export function SiteControls({ siteId, domains }: { siteId: string; domains: str
         </div>
         <p className={styles.keyWarning}>The old key stops working as soon as it is replaced.</p>
         <ActionNotice state={state} />
+        <dialog
+          ref={dialogRef}
+          className={styles.confirmDialog}
+          aria-labelledby={`replace-key-title-${siteId}`}
+          aria-describedby={`replace-key-description-${siteId}`}
+          onCancel={(event) => {
+            event.preventDefault();
+            setConfirmOpen(false);
+          }}
+          onClose={() => setConfirmOpen(false)}
+        >
+          <h3 id={`replace-key-title-${siteId}`} className={styles.confirmTitle}>
+            Replace tracking key?
+          </h3>
+          <p id={`replace-key-description-${siteId}`} className={styles.confirmCopy}>
+            The current key will stop working immediately. You’ll need to update the tracker on
+            your site with the new key.
+          </p>
+          <div className={styles.confirmActions}>
+            <button
+              type="button"
+              className="button buttonQuiet"
+              autoFocus
+              onClick={() => setConfirmOpen(false)}
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="button buttonDanger"
+              disabled={pending}
+              onClick={() => {
+                confirmedRef.current = true;
+              }}
+            >
+              Replace key
+            </button>
+          </div>
+        </dialog>
       </form>
     </div>
   );

@@ -33,7 +33,7 @@
 
   .nav :global(.button) {
     padding: 8px 10px;
-    font-size: 0.72rem;
+    font-size: var(--type-compact);
   }
 }
 

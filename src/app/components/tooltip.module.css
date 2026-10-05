@@ -10,7 +10,7 @@
   color: #376d5a;
   background: #eff6f1;
   font: inherit;
-  font-size: 0.68rem;
+  font-size: var(--type-compact);
   font-weight: 750;
   line-height: 1;
   cursor: help;
@@ -31,20 +31,21 @@
 .bubble {
   position: fixed;
   z-index: 1000;
-  width: max-content;
+  width: fit-content;
+  min-width: min(180px, calc(100vw - 24px));
   max-width: min(280px, calc(100vw - 24px));
   max-height: calc(100vh - 16px);
   overflow: auto;
-  padding: 9px 11px;
+  padding: 12px 14px;
   border: 1px solid #d5e1da;
   border-radius: 9px;
   color: #f7fbf7;
   background: #173638;
   box-shadow: 0 8px 24px #10252b2b;
-  font-size: 0.74rem;
+  font-size: var(--type-body);
   font-weight: 500;
-  line-height: 1.5;
-  overflow-wrap: anywhere;
+  line-height: 1.45;
+  overflow-wrap: break-word;
   pointer-events: auto;
   cursor: default;
 }
