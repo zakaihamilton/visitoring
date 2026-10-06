@@ -3,9 +3,11 @@ import { and, eq, sql } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "@/db";
 import { authSessions, users, workspaces } from "@/db/schema";
+import { createToken } from "@/lib/crypto";
 
 const emailSchema = z.string().email().max(254);
 const roleSchema = z.enum(["admin", "viewer"]);
+const dummyPasswordHash = hash(createToken());
 
 export type ManagedUserRole = z.infer<typeof roleSchema>;
 export type UserManagementResult = { message: string; error?: boolean };
@@ -249,6 +251,8 @@ export async function authenticateWorkspaceUser(input: {
       ),
     )
     .limit(1);
-  if (!user || !(await verify(user.passwordHash, input.password))) return null;
+  const passwordHash = user?.passwordHash ?? (await dummyPasswordHash);
+  const passwordMatches = await verify(passwordHash, input.password);
+  if (!user || !passwordMatches) return null;
   return { id: user.id, passwordHash: user.passwordHash };
 }
