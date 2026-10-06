@@ -73,8 +73,25 @@ async function authorizedSite(siteKey: string | null, origin: string | null) {
 export async function OPTIONS(request: Request): Promise<Response> {
   const url = new URL(request.url);
   const origin = request.headers.get("origin");
-  const site = await authorizedSite(url.searchParams.get("key"), origin);
-  if (!site || !origin) return new Response(null, { status: 403 });
+  if (!origin) return new Response(null, { status: 403 });
+
+  // A preflight has no POST body, so a key supplied as siteKey/site_key cannot
+  // be checked here. Check query keys when present; POST always validates the
+  // key and origin before accepting an event.
+  const siteKey = url.searchParams.get("key");
+  if (siteKey !== null) {
+    const site = await authorizedSite(siteKey, origin);
+    if (!site) return new Response(null, { status: 403 });
+  } else {
+    let parsedOrigin: URL;
+    try {
+      parsedOrigin = new URL(origin);
+    } catch {
+      return new Response(null, { status: 403 });
+    }
+    if (parsedOrigin.protocol !== "https:" && parsedOrigin.protocol !== "http:")
+      return new Response(null, { status: 403 });
+  }
   return new Response(null, { status: 204, headers: corsHeaders(origin) });
 }
 

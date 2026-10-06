@@ -44,10 +44,6 @@ export function originIsAllowed(origin: string | null, allowedDomains: string[])
   return allowedDomains.some((allowed) => {
     const candidate = normalizeDomain(allowed);
     if (!candidate) return false;
-    if (candidate === host) return true;
-    return (
-      (parsed.hostname === "localhost" || parsed.hostname === "127.0.0.1") &&
-      candidate === parsed.hostname
-    );
+    return candidate === host;
   });
 }
