@@ -1,6 +1,6 @@
 "use server";
 
-import { headers } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { createAuthSession, destroyAuthSession, setSessionCookie } from "@/lib/auth";
 import { clientIpFromHeaders } from "@/lib/privacy";
@@ -28,6 +28,13 @@ export async function loginAction(formData: FormData): Promise<void> {
   const token = await createAuthSession(user.id, user.passwordHash);
   if (!token) redirect("/login?error=invalid");
   await setSessionCookie(token);
+  (await cookies()).set("visitoring_last_project", workspaceSlug, {
+    httpOnly: true,
+    sameSite: "lax",
+    secure: process.env.NODE_ENV === "production",
+    path: "/login",
+    maxAge: 60 * 60 * 24 * 365,
+  });
   redirect("/dashboard");
 }
 

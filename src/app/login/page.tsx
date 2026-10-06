@@ -1,4 +1,5 @@
 import { loginAction } from "./actions";
+import { cookies } from "next/headers";
 import { BrandIcon } from "@/app/components/BrandIcon";
 import { Tooltip } from "@/app/components/Tooltip";
 import styles from "./login.module.css";
@@ -6,7 +7,8 @@ import styles from "./login.module.css";
 type Props = { searchParams: Promise<{ error?: string }> };
 
 export default async function LoginPage({ searchParams }: Props) {
-  const { error } = await searchParams;
+  const [{ error }, cookieStore] = await Promise.all([searchParams, cookies()]);
+  const lastProject = cookieStore.get("visitoring_last_project")?.value;
   return (
     <main className={styles.page}>
       <section className={styles.panel}>
@@ -48,6 +50,7 @@ export default async function LoginPage({ searchParams }: Props) {
               autoComplete="organization"
               required
               placeholder="visitoring"
+              defaultValue={lastProject}
             />
           </div>
           <label>
