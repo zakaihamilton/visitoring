@@ -10,7 +10,7 @@ export function perministerSsoCookieName(state: string): string | null {
   return `${PERMINISTER_SSO_COOKIE_PREFIX}${state}`;
 }
 
-export type PerministerSsoTransaction = {
+type PerministerSsoTransaction = {
   state: string;
   verifier: string;
   workspaceSlug: string;

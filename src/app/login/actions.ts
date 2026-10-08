@@ -1,10 +1,11 @@
 "use server";
 
-import { cookies, headers } from "next/headers";
+import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { destroyAuthSession, setSessionCookie } from "@/lib/auth";
 import { clientIpFromHeaders } from "@/lib/privacy";
 import { clearLoginAccountAttempts, isLoginRateLimited } from "@/lib/login-rate-limit";
+import { setVisitoringWorkspaceCookies } from "@/lib/workspace-cookies";
 import {
   loginWithPerminister,
   PerministerApiError,
@@ -60,15 +61,7 @@ export async function loginAction(formData: FormData): Promise<void> {
 
   await clearLoginAccountAttempts({ email, workspaceSlug });
   await setSessionCookie(token);
-  const jar = await cookies();
-  const cookieOptions = {
-    httpOnly: true,
-    sameSite: "lax" as const,
-    secure: process.env.NODE_ENV === "production",
-    maxAge: 60 * 60 * 24 * 365,
-  };
-  jar.set("visitoring_last_project", workspaceSlug, { ...cookieOptions, path: "/login" });
-  jar.set("visitoring_workspace", workspaceSlug, { ...cookieOptions, path: "/" });
+  await setVisitoringWorkspaceCookies(workspaceSlug);
   redirect("/dashboard");
 }
 
