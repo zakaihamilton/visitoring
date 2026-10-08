@@ -65,11 +65,11 @@ sign-out, and the 30-day expiry. Public registration remains disabled. The Visit
 continues to ask for a workspace slug and email; Perminister verifies the credentials and Visitoring
 checks the resulting workspace grant before creating its app cookie.
 
-Perminister’s current Spaces-backed auth store requires exactly one active Node.js writer process per
-bucket. Its in-process queues do not coordinate independent Vercel Function instances. Keep production
-cutover blocked until Perminister runs behind a single-writer deployment or moves to a transactional
-shared store; do not treat this Visitoring provider switch as a way to make concurrent Perminister
-writes safe.
+Perminister’s Spaces-backed auth store requires exactly one active Node.js writer process per bucket;
+its in-process queues do not coordinate independent Vercel Function instances. Production uses the
+Railway service as that single writer, while Vercel Functions proxy mutations to Railway. Keep the
+Railway service at one replica and do not run another Perminister writer against the same bucket. Vercel
+reads may continue directly from Spaces using the read-only key.
 
 The local auth tables and code remain available during staging. Before cutover, reverting
 `VISITORING_AUTH_PROVIDER` to `local` restores the previous path. After administrators change roles,
