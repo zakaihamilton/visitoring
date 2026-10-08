@@ -3,7 +3,7 @@ import { config as loadEnv } from "dotenv";
 loadEnv({ path: ".env.local" });
 loadEnv();
 
-const [{ db, pool }, { users }] = await Promise.all([import("@/db"), import("@/db/schema")]);
+let closePool: (() => Promise<void>) | undefined;
 
 type UserRow = {
   id: string;
@@ -83,6 +83,9 @@ async function main(): Promise<void> {
   if (!process.env.DATABASE_URL?.trim())
     throw new Error("Set DATABASE_URL to the Visitoring database.");
 
+  const { db, pool } = await import("@/db");
+  closePool = () => pool.end();
+  const { users } = await import("@/db/schema");
   const rows = (await db.select().from(users)) as UserRow[];
   const selections = credentialSelections();
   const manifest = {
@@ -158,4 +161,6 @@ main()
     console.error(error instanceof Error ? error.message : "Perminister migration failed.");
     process.exitCode = 1;
   })
-  .finally(() => pool.end());
+  .finally(async () => {
+    await closePool?.();
+  });
