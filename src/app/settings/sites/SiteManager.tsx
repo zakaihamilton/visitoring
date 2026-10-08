@@ -8,6 +8,7 @@ import {
   updateDomainsAction,
   type SiteActionState,
 } from "@/app/sites/actions";
+import dialogStyles from "../confirm-dialog.module.css";
 import styles from "../settings-page.module.css";
 
 const initialState: SiteActionState = { message: "" };
@@ -76,6 +77,7 @@ export function SiteControls({ siteId, domains }: { siteId: string; domains: str
   const [state, action, pending] = useActionState(rotateSiteKeyAction, initialState);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const dialogRef = useRef<HTMLDialogElement>(null);
+  const cancelButtonRef = useRef<HTMLButtonElement>(null);
   const confirmedRef = useRef(false);
   const [domainState, domainAction, savingDomains] = useActionState(
     updateDomainsAction,
@@ -86,7 +88,10 @@ export function SiteControls({ siteId, domains }: { siteId: string; domains: str
   useEffect(() => {
     const dialog = dialogRef.current;
     if (!dialog) return;
-    if (confirmOpen && !dialog.open) dialog.showModal();
+    if (confirmOpen && !dialog.open) {
+      dialog.showModal();
+      cancelButtonRef.current?.focus();
+    }
     if (!confirmOpen && dialog.open) dialog.close();
   }, [confirmOpen]);
 
@@ -145,7 +150,7 @@ export function SiteControls({ siteId, domains }: { siteId: string; domains: str
         <ActionNotice state={state} />
         <dialog
           ref={dialogRef}
-          className={styles.confirmDialog}
+          className={dialogStyles.dialog}
           aria-labelledby={`replace-key-title-${siteId}`}
           aria-describedby={`replace-key-description-${siteId}`}
           onCancel={(event) => {
@@ -154,18 +159,21 @@ export function SiteControls({ siteId, domains }: { siteId: string; domains: str
           }}
           onClose={() => setConfirmOpen(false)}
         >
-          <h3 id={`replace-key-title-${siteId}`} className={styles.confirmTitle}>
+          <h3
+            id={`replace-key-title-${siteId}`}
+            className={`${dialogStyles.title} ${styles.confirmTitle}`}
+          >
             Replace tracking key?
           </h3>
-          <p id={`replace-key-description-${siteId}`} className={styles.confirmCopy}>
-            The current key will stop working immediately. You’ll need to update the tracker on
-            your site with the new key.
+          <p id={`replace-key-description-${siteId}`} className={dialogStyles.copy}>
+            The current key will stop working immediately. You’ll need to update the tracker on your
+            site with the new key.
           </p>
-          <div className={styles.confirmActions}>
+          <div className={`${dialogStyles.actions} ${styles.confirmActions}`}>
             <button
               type="button"
               className="button buttonQuiet"
-              autoFocus
+              ref={cancelButtonRef}
               onClick={() => setConfirmOpen(false)}
             >
               Cancel

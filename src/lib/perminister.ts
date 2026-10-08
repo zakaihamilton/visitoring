@@ -5,11 +5,10 @@ import { db } from "@/db";
 import { workspaces } from "@/db/schema";
 
 export const PERMINISTER_SESSION_COOKIE = "visitoring_session";
-export const VISITORING_PRODUCT_ID = "visitoring";
-export const VISITORING_SESSION_LIFETIME_SECONDS = 60 * 60 * 24 * 30;
+const VISITORING_PRODUCT_ID = "visitoring";
 
 export type VisitoringRole = "admin" | "viewer";
-export type VisitoringWorkspaceMember = {
+type VisitoringWorkspaceMember = {
   id: string;
   email: string | null;
   role: VisitoringRole;
@@ -52,7 +51,7 @@ type ConsumerSession = {
   organizations: ConsumerOrganization[];
 };
 
-export type ConsumerLogin = ConsumerSession & { sessionToken: string };
+type ConsumerLogin = ConsumerSession & { sessionToken: string };
 
 export class PerministerApiError extends Error {
   constructor(
@@ -71,7 +70,7 @@ type PerministerRequestOptions = {
   token?: string | null;
 };
 
-export function visitoringAuthProvider(): "local" | "perminister" {
+function visitoringAuthProvider(): "local" | "perminister" {
   const provider = process.env.VISITORING_AUTH_PROVIDER?.trim().toLowerCase() || "local";
   if (provider === "local" || provider === "perminister") return provider;
   throw new Error("VISITORING_AUTH_PROVIDER must be either local or perminister.");

@@ -10,6 +10,7 @@ import {
   reactivateUserAction,
   resetUserPasswordAction,
 } from "./actions";
+import dialogStyles from "../confirm-dialog.module.css";
 import pageStyles from "../settings-page.module.css";
 import styles from "./users.module.css";
 
@@ -213,7 +214,7 @@ function UserActionDialog({
       </button>
       <dialog
         ref={dialogRef}
-        className={styles.confirmDialog}
+        className={dialogStyles.dialog}
         aria-labelledby={`${id}-title`}
         aria-describedby={`${id}-description`}
         onCancel={(event) => {
@@ -222,12 +223,12 @@ function UserActionDialog({
         }}
         onClose={() => setOpen(false)}
       >
-        <form action={formAction} ref={formRef}>
+        <form action={formAction} ref={formRef} className={styles.confirmDialogForm}>
           <input type="hidden" name="userId" value={user.id} />
-          <h3 id={`${id}-title`} className={styles.confirmTitle}>
+          <h3 id={`${id}-title`} className={`${dialogStyles.title} ${styles.confirmTitle}`}>
             {title}
           </h3>
-          <p id={`${id}-description`} className={styles.confirmCopy}>
+          <p id={`${id}-description`} className={dialogStyles.copy}>
             {description}
           </p>
           {password ? (
@@ -249,7 +250,7 @@ function UserActionDialog({
             </div>
           ) : null}
           {open && showFeedback ? <ActionFeedback state={state} /> : null}
-          <div className={styles.confirmActions}>
+          <div className={`${dialogStyles.actions} ${styles.confirmActions}`}>
             <button type="button" className="button buttonQuiet" onClick={closeDialog}>
               Cancel
             </button>

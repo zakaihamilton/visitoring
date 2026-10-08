@@ -10,9 +10,13 @@ const emailSchema = z.string().email().max(254);
 const roleSchema = z.enum(["admin", "viewer"]);
 const dummyPasswordHash = hash(createToken());
 
-export type ManagedUserRole = z.infer<typeof roleSchema>;
 export type UserManagementResult = { message: string; error?: boolean };
 type UserManagementTransaction = Parameters<Parameters<typeof db.transaction>[0]>[0];
+type WorkspaceUserChanges = {
+  role?: "admin" | "viewer";
+  isActive?: boolean;
+  passwordHash?: string;
+};
 
 type UserTarget = { id: string; role: string; isActive: boolean };
 
@@ -54,6 +58,32 @@ async function findWorkspaceUser(
   return target ?? null;
 }
 
+async function lockAndFindWorkspaceUser(
+  tx: UserManagementTransaction,
+  workspaceId: string,
+  userId: string,
+): Promise<UserTarget | null> {
+  await lockWorkspace(tx, workspaceId);
+  return findWorkspaceUser(tx, workspaceId, userId);
+}
+
+async function updateWorkspaceUser(
+  tx: UserManagementTransaction,
+  workspaceId: string,
+  userId: string,
+  changes: WorkspaceUserChanges,
+  expectedActive?: boolean,
+): Promise<{ id: string } | null> {
+  const conditions = [eq(users.id, userId), eq(users.workspaceId, workspaceId)];
+  if (expectedActive !== undefined) conditions.push(eq(users.isActive, expectedActive));
+  const [updated] = await tx
+    .update(users)
+    .set(changes)
+    .where(and(...conditions))
+    .returning({ id: users.id });
+  return updated ?? null;
+}
+
 async function isLastActiveAdmin(
   tx: UserManagementTransaction,
   workspaceId: string,
@@ -93,6 +123,24 @@ function consumerWorkspaceScope(workspaceId: string) {
   };
 }
 
+function perministerMemberPath(userId: string): string {
+  return `/api/auth/consumer/members/${encodeURIComponent(userId)}`;
+}
+
+function runPerministerWorkspaceMemberAction(
+  input: { workspaceId: string; userId: string },
+  method: "PATCH" | "DELETE",
+  changes: Record<string, unknown>,
+  successMessage: string,
+): Promise<UserManagementResult> {
+  return runPerministerMemberAction(
+    perministerMemberPath(input.userId),
+    method,
+    { ...consumerWorkspaceScope(input.workspaceId), ...changes },
+    successMessage,
+  );
+}
+
 async function runPerministerMemberAction(
   path: string,
   method: "POST" | "PATCH" | "DELETE",
@@ -105,6 +153,14 @@ async function runPerministerMemberAction(
   } catch (error) {
     return failure(perminResponseMessage(error));
   }
+}
+
+function setPerministerWorkspaceUserStatus(
+  input: { workspaceId: string; userId: string },
+  status: "active" | "disabled",
+  successMessage: string,
+): Promise<UserManagementResult> {
+  return runPerministerWorkspaceMemberAction(input, "PATCH", { status }, successMessage);
 }
 
 export async function createWorkspaceUser(input: {
@@ -172,27 +228,24 @@ export async function changeWorkspaceUserRole(input: {
   const role = roleSchema.safeParse(input.role);
   if (!role.success) return failure("Choose either the admin or viewer role.");
   if (usesPerministerAuth()) {
-    return runPerministerMemberAction(
-      `/api/auth/consumer/members/${encodeURIComponent(input.userId)}`,
+    return runPerministerWorkspaceMemberAction(
+      input,
       "PATCH",
-      { ...consumerWorkspaceScope(input.workspaceId), role: role.data },
+      { role: role.data },
       "User role updated.",
     );
   }
 
   return db.transaction(async (tx) => {
-    await lockWorkspace(tx, input.workspaceId);
-    const target = await findWorkspaceUser(tx, input.workspaceId, input.userId);
+    const target = await lockAndFindWorkspaceUser(tx, input.workspaceId, input.userId);
     if (!target) return failure("That user is not in your project.");
     if (target.role === role.data) return success("That user already has this role.");
     if (role.data !== "admin" && (await isLastActiveAdmin(tx, input.workspaceId, target)))
       return failure("Your project must have at least one active admin.");
 
-    const [updated] = await tx
-      .update(users)
-      .set({ role: role.data })
-      .where(and(eq(users.id, input.userId), eq(users.workspaceId, input.workspaceId)))
-      .returning({ id: users.id });
+    const updated = await updateWorkspaceUser(tx, input.workspaceId, input.userId, {
+      role: role.data,
+    });
     return updated ? success("User role updated.") : failure("That user is not in your project.");
   });
 }
@@ -208,10 +261,10 @@ export async function resetWorkspaceUserPassword(input: {
   if (usesPerministerAuth()) {
     if (!perminPasswordIsValid(input.password))
       return failure("Use a password between 15 and 256 characters.");
-    return runPerministerMemberAction(
-      `/api/auth/consumer/members/${encodeURIComponent(input.userId)}`,
+    return runPerministerWorkspaceMemberAction(
+      input,
       "PATCH",
-      { ...consumerWorkspaceScope(input.workspaceId), password: input.password },
+      { password: input.password },
       "Password reset. The user must sign in again with the new password.",
     );
   }
@@ -220,11 +273,9 @@ export async function resetWorkspaceUserPassword(input: {
 
   const passwordHash = await hash(input.password);
   return db.transaction(async (tx) => {
-    const [updated] = await tx
-      .update(users)
-      .set({ passwordHash })
-      .where(and(eq(users.id, input.userId), eq(users.workspaceId, input.workspaceId)))
-      .returning({ id: users.id });
+    const updated = await updateWorkspaceUser(tx, input.workspaceId, input.userId, {
+      passwordHash,
+    });
     if (!updated) return failure("That user is not in your project.");
     await tx.delete(authSessions).where(eq(authSessions.userId, input.userId));
     return success("Password reset. The user must sign in again with the new password.");
@@ -239,27 +290,23 @@ export async function deactivateWorkspaceUser(input: {
   if (cannotChangeSelf(input.actorId, input.userId))
     return failure("You cannot deactivate your own account here.");
   if (usesPerministerAuth()) {
-    return runPerministerMemberAction(
-      `/api/auth/consumer/members/${encodeURIComponent(input.userId)}`,
-      "PATCH",
-      { ...consumerWorkspaceScope(input.workspaceId), status: "disabled" },
+    return setPerministerWorkspaceUserStatus(
+      input,
+      "disabled",
       "User removed from this workspace.",
     );
   }
 
   return db.transaction(async (tx) => {
-    await lockWorkspace(tx, input.workspaceId);
-    const target = await findWorkspaceUser(tx, input.workspaceId, input.userId);
+    const target = await lockAndFindWorkspaceUser(tx, input.workspaceId, input.userId);
     if (!target) return failure("That user is not in your project.");
     if (!target.isActive) return success("That user is already inactive.");
     if (await isLastActiveAdmin(tx, input.workspaceId, target))
       return failure("Your project must have at least one active admin.");
 
-    const [updated] = await tx
-      .update(users)
-      .set({ isActive: false })
-      .where(and(eq(users.id, input.userId), eq(users.workspaceId, input.workspaceId)))
-      .returning({ id: users.id });
+    const updated = await updateWorkspaceUser(tx, input.workspaceId, input.userId, {
+      isActive: false,
+    });
     if (!updated) return failure("That user is not in your project.");
     await tx.delete(authSessions).where(eq(authSessions.userId, input.userId));
     return success("User deactivated and signed out.");
@@ -274,27 +321,22 @@ export async function reactivateWorkspaceUser(input: {
   if (cannotChangeSelf(input.actorId, input.userId))
     return failure("You cannot reactivate your own account here.");
   if (usesPerministerAuth()) {
-    return runPerministerMemberAction(
-      `/api/auth/consumer/members/${encodeURIComponent(input.userId)}`,
-      "PATCH",
-      { ...consumerWorkspaceScope(input.workspaceId), status: "active" },
+    return setPerministerWorkspaceUserStatus(
+      input,
+      "active",
       "User reactivated for this workspace.",
     );
   }
 
   return db.transaction(async (tx) => {
     await lockWorkspace(tx, input.workspaceId);
-    const [updated] = await tx
-      .update(users)
-      .set({ isActive: true })
-      .where(
-        and(
-          eq(users.id, input.userId),
-          eq(users.workspaceId, input.workspaceId),
-          eq(users.isActive, false),
-        ),
-      )
-      .returning({ id: users.id });
+    const updated = await updateWorkspaceUser(
+      tx,
+      input.workspaceId,
+      input.userId,
+      { isActive: true },
+      false,
+    );
     return updated
       ? success("User reactivated. They can sign in with their existing password.")
       : failure("That inactive user is not in your project.");
@@ -309,17 +351,16 @@ export async function deleteWorkspaceUser(input: {
   if (cannotChangeSelf(input.actorId, input.userId))
     return failure("You cannot delete your own account here.");
   if (usesPerministerAuth()) {
-    return runPerministerMemberAction(
-      `/api/auth/consumer/members/${encodeURIComponent(input.userId)}`,
+    return runPerministerWorkspaceMemberAction(
+      input,
       "DELETE",
-      consumerWorkspaceScope(input.workspaceId),
+      {},
       "User removed from this workspace.",
     );
   }
 
   return db.transaction(async (tx) => {
-    await lockWorkspace(tx, input.workspaceId);
-    const target = await findWorkspaceUser(tx, input.workspaceId, input.userId);
+    const target = await lockAndFindWorkspaceUser(tx, input.workspaceId, input.userId);
     if (!target) return failure("That user is not in your project.");
     if (await isLastActiveAdmin(tx, input.workspaceId, target))
       return failure("Your project must have at least one active admin.");

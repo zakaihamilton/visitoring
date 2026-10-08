@@ -10,6 +10,15 @@ import { parseAllowedDomains } from "@/lib/domains";
 
 export type SiteActionState = { message: string; key?: string; error?: boolean };
 
+function siteUpdateResult(
+  updated: { id: string } | undefined,
+  result: SiteActionState,
+): SiteActionState {
+  if (!updated) return { message: "We couldn't find that site in your project.", error: true };
+  revalidatePath("/settings/sites");
+  return result;
+}
+
 export async function createSiteAction(
   _state: SiteActionState,
   formData: FormData,
@@ -59,9 +68,7 @@ export async function updateDomainsAction(
     .set({ allowedDomains: domains, updatedAt: new Date() })
     .where(and(eq(sites.id, siteId), eq(sites.workspaceId, user.workspaceId)))
     .returning({ id: sites.id });
-  if (!updated) return { message: "We couldn't find that site in your project.", error: true };
-  revalidatePath("/settings/sites");
-  return { message: "Approved website addresses saved." };
+  return siteUpdateResult(updated, { message: "Approved website addresses saved." });
 }
 
 export async function rotateSiteKeyAction(
@@ -81,10 +88,8 @@ export async function rotateSiteKeyAction(
     })
     .where(and(eq(sites.id, siteId), eq(sites.workspaceId, user.workspaceId)))
     .returning({ id: sites.id });
-  if (!updated) return { message: "We couldn't find that site in your project.", error: true };
-  revalidatePath("/settings/sites");
-  return {
+  return siteUpdateResult(updated, {
     message: "Tracking key replaced. Update your site now; the old key no longer works.",
     key,
-  };
+  });
 }
