@@ -110,9 +110,7 @@ describe("Visitoring Perminister client", () => {
       }),
     );
     vi.stubGlobal("fetch", fetchMock);
-    dbLimit.mockResolvedValueOnce([
-      { organizationId: "11111111-1111-4111-8111-111111111111" },
-    ]);
+    dbLimit.mockResolvedValueOnce([{ organizationId: "11111111-1111-4111-8111-111111111111" }]);
 
     await expect(listPerministerWorkspaceMembers("workspace-id")).resolves.toEqual([
       { id: "subject-id", email: "person@example.com", role: "admin", isActive: true },
@@ -127,12 +125,14 @@ describe("Visitoring Perminister client", () => {
 
   it("maps only a matching active workspace role into Visitoring context", async () => {
     dbLimit
-      .mockResolvedValueOnce([{
-        id: "workspace-id",
-        name: "Acme",
-        slug: "acme",
-        organizationId: "11111111-1111-4111-8111-111111111111",
-      }])
+      .mockResolvedValueOnce([
+        {
+          id: "workspace-id",
+          name: "Acme",
+          slug: "acme",
+          organizationId: "11111111-1111-4111-8111-111111111111",
+        },
+      ])
       .mockResolvedValueOnce([]);
     const auth = {
       authenticated: true as const,

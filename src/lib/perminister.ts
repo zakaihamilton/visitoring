@@ -207,12 +207,7 @@ export async function visitoringUserForWorkspace(
       (item.role === "admin" || item.role === "viewer") &&
       item.actions.includes("visitoring:workspace:read"),
   );
-  if (
-    !organization ||
-    !grant ||
-    (grant.role !== "admin" && grant.role !== "viewer")
-  )
-    return null;
+  if (!organization || !grant || (grant.role !== "admin" && grant.role !== "viewer")) return null;
 
   return {
     id: auth.account.subjectId,
@@ -226,21 +221,25 @@ export async function visitoringUserForWorkspace(
   };
 }
 
-export async function listPerministerWorkspaceMembers(
-  workspaceId: string,
-): Promise<VisitoringWorkspaceMember[]> {
-  configuration();
+export async function consumerWorkspaceScope(workspaceId: string) {
   const [workspace] = await db
     .select({ organizationId: workspaces.organizationId })
     .from(workspaces)
     .where(eq(workspaces.id, workspaceId))
     .limit(1);
   if (!workspace) throw new PerministerApiError(404, "Workspace not found.");
-  const params = new URLSearchParams({
+  return {
     organizationId: workspace.organizationId,
     scopeKind: "workspace",
     resourceId: workspaceId,
-  });
+  };
+}
+
+export async function listPerministerWorkspaceMembers(
+  workspaceId: string,
+): Promise<VisitoringWorkspaceMember[]> {
+  configuration();
+  const params = new URLSearchParams(await consumerWorkspaceScope(workspaceId));
   const result = await requestPerminister<{ members: Array<Record<string, unknown>> }>(
     `/api/auth/consumer/members?${params.toString()}`,
   );

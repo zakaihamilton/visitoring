@@ -1,8 +1,5 @@
-import { eq } from "drizzle-orm";
 import { z } from "zod";
-import { db } from "@/db";
-import { workspaces } from "@/db/schema";
-import { PerministerApiError, requestPerminister } from "@/lib/perminister";
+import { consumerWorkspaceScope, PerministerApiError, requestPerminister } from "@/lib/perminister";
 
 const emailSchema = z.string().email().max(254);
 const roleSchema = z.enum(["admin", "viewer"]);
@@ -38,20 +35,6 @@ function perminResponseMessage(error: unknown): string {
   return "Perminister is temporarily unavailable. Please try again shortly.";
 }
 
-async function consumerWorkspaceScope(workspaceId: string) {
-  const [workspace] = await db
-    .select({ organizationId: workspaces.organizationId })
-    .from(workspaces)
-    .where(eq(workspaces.id, workspaceId))
-    .limit(1);
-  if (!workspace) throw new PerministerApiError(404, "Workspace not found.");
-  return {
-    organizationId: workspace.organizationId,
-    scopeKind: "workspace",
-    resourceId: workspaceId,
-  };
-}
-
 function perministerMemberPath(userId: string): string {
   return `/api/auth/consumer/members/${encodeURIComponent(userId)}`;
 }
@@ -80,7 +63,7 @@ async function runWorkspaceMemberAction(
     return await runPerministerMemberAction(
       perministerMemberPath(input.userId),
       method,
-      { ...await consumerWorkspaceScope(input.workspaceId), ...changes },
+      { ...(await consumerWorkspaceScope(input.workspaceId)), ...changes },
       successMessage,
     );
   } catch (error) {
@@ -116,7 +99,7 @@ export async function createWorkspaceUser(input: {
     }>("/api/auth/consumer/members", {
       method: "POST",
       body: {
-        ...await consumerWorkspaceScope(input.workspaceId),
+        ...(await consumerWorkspaceScope(input.workspaceId)),
         email,
         password: input.password,
         role: role.data,

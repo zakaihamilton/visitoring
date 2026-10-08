@@ -2,15 +2,12 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({
   requestPerminister: vi.fn(),
-  dbSelect: vi.fn(),
-  dbFrom: vi.fn(),
-  dbWhere: vi.fn(),
-  dbLimit: vi.fn(),
+  consumerWorkspaceScope: vi.fn(),
 }));
 
 vi.mock("server-only", () => ({}));
-vi.mock("@/db", () => ({ db: { select: mocks.dbSelect } }));
 vi.mock("@/lib/perminister", () => ({
+  consumerWorkspaceScope: mocks.consumerWorkspaceScope,
   PerministerApiError: class PerministerApiError extends Error {
     constructor(
       readonly status: number,
@@ -42,10 +39,7 @@ const memberPath = "/api/auth/consumer/members";
 const subjectPath = `${memberPath}/22222222-2222-4222-8222-222222222222`;
 
 beforeEach(() => {
-  mocks.dbSelect.mockReturnValue({ from: mocks.dbFrom });
-  mocks.dbFrom.mockReturnValue({ where: mocks.dbWhere });
-  mocks.dbWhere.mockReturnValue({ limit: mocks.dbLimit });
-  mocks.dbLimit.mockResolvedValue([{ organizationId: scope.organizationId }]);
+  mocks.consumerWorkspaceScope.mockResolvedValue(scope);
   mocks.requestPerminister.mockResolvedValue({ accountCreated: true });
 });
 

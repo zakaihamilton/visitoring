@@ -11,13 +11,17 @@ import {
   varchar,
 } from "drizzle-orm/pg-core";
 
-export const workspaces = pgTable("workspaces", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  name: varchar("name", { length: 120 }).notNull(),
-  slug: varchar("slug", { length: 80 }).notNull().unique(),
-  organizationId: uuid("organization_id").notNull(),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-}, (table) => [index("workspaces_organization_idx").on(table.organizationId)]);
+export const workspaces = pgTable(
+  "workspaces",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    name: varchar("name", { length: 120 }).notNull(),
+    slug: varchar("slug", { length: 80 }).notNull().unique(),
+    organizationId: uuid("organization_id").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [index("workspaces_organization_idx").on(table.organizationId)],
+);
 
 export const authRateLimitBuckets = pgTable(
   "auth_rate_limit_buckets",

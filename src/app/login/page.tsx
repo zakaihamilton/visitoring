@@ -34,7 +34,8 @@ export default async function LoginPage({ searchParams }: Props) {
           <div className="eyebrow">Welcome back</div>
           <h2>Sign in to your workspace</h2>
           <p className={styles.sub}>
-            Enter the workspace slug and account provided by your administrator. The workspace selects the organization that owns this data.
+            Enter the workspace slug and account provided by your administrator. The workspace
+            selects the organization that owns this data.
           </p>
           <div className={styles.field}>
             <div className={styles.labelRow}>
