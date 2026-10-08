@@ -16,10 +16,9 @@ export async function pruneExpiredData(cutoff: Date, now = new Date()) {
   const removedEvents = await pool.query("delete from site_events where created_at < $1", [
     cutoff.toISOString(),
   ]);
-  const removedSessions = await pool.query(
-    "delete from auth_sessions where expires_at <= $1",
-    [now],
-  );
+  const removedSessions = await pool.query("delete from auth_sessions where expires_at <= $1", [
+    now,
+  ]);
   const removedBuckets = await pool.query(
     "delete from rate_limit_buckets where window_started_at < $1",
     [new Date(now.getTime() - 24 * 60 * 60 * 1000)],

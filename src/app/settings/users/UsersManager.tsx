@@ -10,12 +10,13 @@ import {
   reactivateUserAction,
   resetUserPasswordAction,
 } from "./actions";
+import dialogStyles from "../confirm-dialog.module.css";
 import pageStyles from "../settings-page.module.css";
 import styles from "./users.module.css";
 
 type ManagedUser = {
   id: string;
-  email: string;
+  email: string | null;
   role: "admin" | "viewer";
   isActive: boolean;
 };
@@ -36,7 +37,13 @@ function ActionFeedback({ state }: { state: UserActionState }) {
   );
 }
 
-function CreateUserForm({ workspaceSlug }: { workspaceSlug: string }) {
+function CreateUserForm({
+  workspaceSlug,
+  centralAuth,
+}: {
+  workspaceSlug: string;
+  centralAuth: boolean;
+}) {
   const [state, action, pending] = useActionState(createUserAction, initialState);
   const formRef = useRef<HTMLFormElement>(null);
   const pendingRef = useRef(false);
@@ -71,13 +78,17 @@ function CreateUserForm({ workspaceSlug }: { workspaceSlug: string }) {
           name="password"
           type="password"
           required
-          minLength={12}
-          maxLength={1024}
+          minLength={centralAuth ? 15 : 12}
+          maxLength={centralAuth ? 256 : 1024}
           autoComplete="new-password"
           aria-describedby="new-user-password-help"
         />
         <small id="new-user-password-help" className={styles.helpText}>
-          At least 12 characters. Share it securely; they sign in to “{workspaceSlug}”.
+          At least {centralAuth ? 15 : 12} characters.{" "}
+          {centralAuth
+            ? "Existing Perminister accounts keep their current password."
+            : "Share it securely; they sign in to"}{" "}
+          {centralAuth ? "" : `“${workspaceSlug}”.`}
         </small>
       </div>
       <div className={styles.field}>
@@ -113,7 +124,7 @@ function RoleForm({ user }: { user: ManagedUser }) {
     <form action={action} className={styles.roleForm}>
       <input type="hidden" name="userId" value={user.id} />
       <label className={styles.screenReaderOnly} htmlFor={roleId}>
-        Role for {user.email}
+        Role for {user.email ?? "account"}
       </label>
       <select
         id={roleId}
@@ -144,6 +155,7 @@ function UserActionDialog({
   confirmLabel,
   tone,
   password = false,
+  centralAuth,
 }: {
   action: UserAction;
   user: ManagedUser;
@@ -153,6 +165,7 @@ function UserActionDialog({
   confirmLabel: string;
   tone: "quiet" | "danger";
   password?: boolean;
+  centralAuth: boolean;
 }) {
   const [state, formAction, pending] = useActionState(action, initialState);
   const [open, setOpen] = useState(false);
@@ -201,7 +214,7 @@ function UserActionDialog({
       </button>
       <dialog
         ref={dialogRef}
-        className={styles.confirmDialog}
+        className={dialogStyles.dialog}
         aria-labelledby={`${id}-title`}
         aria-describedby={`${id}-description`}
         onCancel={(event) => {
@@ -210,12 +223,12 @@ function UserActionDialog({
         }}
         onClose={() => setOpen(false)}
       >
-        <form action={formAction} ref={formRef}>
+        <form action={formAction} ref={formRef} className={styles.confirmDialogForm}>
           <input type="hidden" name="userId" value={user.id} />
-          <h3 id={`${id}-title`} className={styles.confirmTitle}>
+          <h3 id={`${id}-title`} className={`${dialogStyles.title} ${styles.confirmTitle}`}>
             {title}
           </h3>
-          <p id={`${id}-description`} className={styles.confirmCopy}>
+          <p id={`${id}-description`} className={dialogStyles.copy}>
             {description}
           </p>
           {password ? (
@@ -226,22 +239,19 @@ function UserActionDialog({
                 name="password"
                 type="password"
                 required
-                minLength={12}
-                maxLength={1024}
+                minLength={centralAuth ? 15 : 12}
+                maxLength={centralAuth ? 256 : 1024}
                 autoComplete="new-password"
                 autoFocus
               />
-              <small className={styles.helpText}>At least 12 characters.</small>
+              <small className={styles.helpText}>
+                At least {centralAuth ? 15 : 12} characters.
+              </small>
             </div>
           ) : null}
           {open && showFeedback ? <ActionFeedback state={state} /> : null}
-          <div className={styles.confirmActions}>
-            <button
-              type="button"
-              className="button buttonQuiet"
-              autoFocus={!password}
-              onClick={closeDialog}
-            >
+          <div className={`${dialogStyles.actions} ${styles.confirmActions}`}>
+            <button type="button" className="button buttonQuiet" onClick={closeDialog}>
               Cancel
             </button>
             <button
@@ -275,10 +285,12 @@ function ReactivateForm({ user }: { user: ManagedUser }) {
 export function UsersManager({
   currentUserId,
   workspaceSlug,
+  centralAuth,
   users,
 }: {
   currentUserId: string;
   workspaceSlug: string;
+  centralAuth: boolean;
   users: ManagedUser[];
 }) {
   return (
@@ -286,9 +298,13 @@ export function UsersManager({
       <section className={pageStyles.card} aria-labelledby="add-user-title">
         <div className={pageStyles.cardHeading}>
           <h2 id="add-user-title">Add a user</h2>
-          <span className={pageStyles.hint}>Accounts are created for this project only.</span>
+          <span className={pageStyles.hint}>
+            {centralAuth
+              ? "Access is granted to this workspace; Perminister manages the shared identity."
+              : "Accounts are created for this project only."}
+          </span>
         </div>
-        <CreateUserForm workspaceSlug={workspaceSlug} />
+        <CreateUserForm workspaceSlug={workspaceSlug} centralAuth={centralAuth} />
       </section>
       <section
         className={`${pageStyles.card} ${styles.usersCard}`}
@@ -316,7 +332,7 @@ export function UsersManager({
               <article className={styles.userRow} key={user.id}>
                 <div className={styles.userIdentity}>
                   <span className={styles.cellLabel}>User</span>
-                  <strong>{user.email}</strong>
+                  <strong>{user.email ?? "No email on file"}</strong>
                   {isCurrentUser ? <span className={styles.currentUser}>You</span> : null}
                 </div>
                 <div className={styles.userRole}>
@@ -350,16 +366,18 @@ export function UsersManager({
                         confirmLabel="Reset password"
                         tone="quiet"
                         password
+                        centralAuth={centralAuth}
                       />
                       {user.isActive ? (
                         <UserActionDialog
                           action={deactivateUserAction}
                           user={user}
                           triggerLabel="Deactivate"
-                          title="Deactivate this account?"
-                          description="This user will be signed out immediately and will not be able to sign in until an admin reactivates the account."
+                          title="Deactivate this workspace membership?"
+                          description="This user will lose access to this workspace until an admin reactivates their membership. Access to other workspaces is unchanged."
                           confirmLabel="Deactivate user"
                           tone="quiet"
+                          centralAuth={centralAuth}
                         />
                       ) : (
                         <ReactivateForm user={user} />
@@ -367,11 +385,16 @@ export function UsersManager({
                       <UserActionDialog
                         action={deleteUserAction}
                         user={user}
-                        triggerLabel="Delete"
-                        title="Delete this account permanently?"
-                        description="This permanently removes the user account and ends its sessions. Project analytics will remain available. This cannot be undone."
-                        confirmLabel="Delete account"
+                        triggerLabel="Remove"
+                        title="Remove this user from the workspace?"
+                        description={
+                          centralAuth
+                            ? "This removes the user’s Visitoring access to this workspace. Their shared Perminister identity and access to other workspaces remain."
+                            : "This permanently removes the user from this workspace. Workspace analytics remain available."
+                        }
+                        confirmLabel="Remove user"
                         tone="danger"
+                        centralAuth={centralAuth}
                       />
                     </div>
                   )}

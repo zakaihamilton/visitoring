@@ -6,6 +6,13 @@ import { createAuthSession, destroyAuthSession, setSessionCookie } from "@/lib/a
 import { clientIpFromHeaders } from "@/lib/privacy";
 import { clearLoginAccountAttempts, isLoginRateLimited } from "@/lib/login-rate-limit";
 import { authenticateWorkspaceUser } from "@/lib/user-management";
+import {
+  loginWithPerminister,
+  PerministerApiError,
+  revokePerministerSession,
+  usesPerministerAuth,
+  visitoringUserForWorkspace,
+} from "@/lib/perminister";
 
 export async function loginAction(formData: FormData): Promise<void> {
   const email = String(formData.get("email") ?? "")
@@ -21,20 +28,45 @@ export async function loginAction(formData: FormData): Promise<void> {
   const ip = clientIpFromHeaders(await headers());
   if (await isLoginRateLimited({ email, workspaceSlug, ip })) redirect("/login?error=invalid");
 
-  const user = await authenticateWorkspaceUser({ email, workspaceSlug, password });
-  if (!user) redirect("/login?error=invalid");
+  let token: string | null = null;
+  let loginError: "invalid" | "unavailable" | null = null;
+  if (usesPerministerAuth()) {
+    try {
+      const session = await loginWithPerminister(email, password);
+      const user = await visitoringUserForWorkspace(session, workspaceSlug);
+      if (!user) {
+        try {
+          await revokePerministerSession(session.sessionToken);
+        } catch {
+          // The invalid scope is rejected locally; the opaque token is never sent to the browser.
+        }
+        loginError = "invalid";
+      } else {
+        token = session.sessionToken;
+      }
+    } catch (error) {
+      loginError =
+        error instanceof PerministerApiError && error.status < 500 ? "invalid" : "unavailable";
+    }
+  } else {
+    const user = await authenticateWorkspaceUser({ email, workspaceSlug, password });
+    if (!user) loginError = "invalid";
+    else token = await createAuthSession(user.id, user.passwordHash);
+  }
+  if (loginError) redirect(`/login?error=${loginError}`);
+  if (!token) redirect("/login?error=invalid");
 
   await clearLoginAccountAttempts({ email, workspaceSlug });
-  const token = await createAuthSession(user.id, user.passwordHash);
-  if (!token) redirect("/login?error=invalid");
   await setSessionCookie(token);
-  (await cookies()).set("visitoring_last_project", workspaceSlug, {
+  const jar = await cookies();
+  const cookieOptions = {
     httpOnly: true,
-    sameSite: "lax",
+    sameSite: "lax" as const,
     secure: process.env.NODE_ENV === "production",
-    path: "/login",
     maxAge: 60 * 60 * 24 * 365,
-  });
+  };
+  jar.set("visitoring_last_project", workspaceSlug, { ...cookieOptions, path: "/login" });
+  jar.set("visitoring_workspace", workspaceSlug, { ...cookieOptions, path: "/" });
   redirect("/dashboard");
 }
 

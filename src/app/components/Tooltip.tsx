@@ -163,13 +163,17 @@ export function Tooltip({
       window.visualViewport?.removeEventListener("resize", scheduleUpdate);
       window.visualViewport?.removeEventListener("scroll", scheduleUpdate);
     };
-  }, [content, visible]);
+  }, [visible]);
+
+  const hoverHandlers = {
+    onMouseEnter: keepOpen,
+    onMouseLeave: closeAfterPointerLeaves,
+  };
 
   const sharedHandlers = {
     ref: setTriggerRef,
     "aria-describedby": id,
-    onMouseEnter: keepOpen,
-    onMouseLeave: closeAfterPointerLeaves,
+    ...hoverHandlers,
     onFocus: () => {
       setFocused(true);
       setDismissed(false);
@@ -192,8 +196,7 @@ export function Tooltip({
             ref={bubbleRef}
             role="tooltip"
             aria-hidden="true"
-            onMouseEnter={keepOpen}
-            onMouseLeave={closeAfterPointerLeaves}
+            {...hoverHandlers}
             style={{
               left: position.left,
               top: position.top,
@@ -208,6 +211,8 @@ export function Tooltip({
         )
       : null;
 
+  const Trigger = targetElement;
+
   return (
     <>
       {children === undefined ? (
@@ -220,24 +225,15 @@ export function Tooltip({
         >
           <span aria-hidden="true">i</span>
         </button>
-      ) : targetElement === "div" ? (
-        <div
-          {...sharedHandlers}
-          className={`${styles.target} ${targetClassName ?? ""}`}
-          tabIndex={targetTabIndex}
-          {...(targetRole ? { role: targetRole, "aria-label": targetAriaLabel } : {})}
-        >
-          {children}
-        </div>
       ) : (
-        <span
+        <Trigger
           {...sharedHandlers}
           className={`${styles.target} ${targetClassName ?? ""}`}
           tabIndex={targetTabIndex}
           {...(targetRole ? { role: targetRole, "aria-label": targetAriaLabel } : {})}
         >
           {children}
-        </span>
+        </Trigger>
       )}
       <span id={id} hidden>
         {content}

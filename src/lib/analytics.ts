@@ -146,10 +146,7 @@ export async function getAnalyticsData(filters: AnalyticsFilters) {
   fromDay.setUTCHours(0, 0, 0, 0);
   const toDay = new Date(filters.to);
   toDay.setUTCHours(0, 0, 0, 0);
-  const dayCount = Math.max(
-    1,
-    Math.floor((toDay.getTime() - fromDay.getTime()) / 86_400_000) + 1,
-  );
+  const dayCount = Math.max(1, Math.floor((toDay.getTime() - fromDay.getTime()) / 86_400_000) + 1);
   const dayLimit = Math.min(dayCount, 90);
   const start = new Date(toDay);
   start.setUTCDate(start.getUTCDate() - (dayLimit - 1));

@@ -32,8 +32,8 @@ export function Topbar({
         ) : null}
       </nav>
       <div className={styles.account}>
-        <span className={styles.avatar}>{user.email.charAt(0).toUpperCase()}</span>
-        <span className={styles.email}>{user.email}</span>
+        <span className={styles.avatar}>{user.email?.charAt(0).toUpperCase() ?? "V"}</span>
+        <span className={styles.email}>{user.email ?? "Visitoring account"}</span>
         <form action={logoutAction}>
           <button type="submit" className={`button buttonQuiet ${styles.logout}`}>
             Sign out

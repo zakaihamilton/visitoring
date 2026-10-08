@@ -150,36 +150,10 @@
   align-items: center;
   gap: 8px;
 }
-.confirmDialog {
-  width: min(440px, calc(100vw - 32px));
-  max-height: calc(100vh - 32px);
-  margin: auto;
-  padding: 24px;
-  border: 1px solid var(--line);
-  border-radius: 16px;
-  color: var(--ink);
-  background: var(--surface);
-  box-shadow: 0 24px 72px #10252b3b;
-}
-.confirmDialog::backdrop {
-  background: #10252b80;
-  backdrop-filter: blur(2px);
-}
 .confirmTitle {
-  margin: 0 0 10px;
-  font-size: var(--type-card-title);
-  letter-spacing: -0.02em;
-}
-.confirmCopy {
-  margin: 0;
-  color: #617171;
-  font-size: var(--type-body);
-  line-height: 1.5;
+  margin-bottom: 10px;
 }
 .confirmActions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
   margin-top: 22px;
 }
 .keyWarning {

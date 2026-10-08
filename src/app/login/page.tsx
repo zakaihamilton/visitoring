@@ -76,7 +76,9 @@ export default async function LoginPage({ searchParams }: Props) {
           </label>
           {error ? (
             <p className={styles.error} role="alert">
-              We couldn't find a match for that project, email, or password.
+              {error === "unavailable"
+                ? "Sign-in is temporarily unavailable. Please try again shortly."
+                : "We couldn't find a match for that project, email, or password."}
             </p>
           ) : null}
           <button type="submit" className="button buttonPrimary">
