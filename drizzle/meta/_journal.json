@@ -22,6 +22,20 @@
       "when": 1791226574411,
       "tag": "0002_users_active",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1791450688972,
+      "tag": "0003_remove_local_auth",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1791477990834,
+      "tag": "0004_flippant_jean_grey",
+      "breakpoints": true
     }
   ]
 }

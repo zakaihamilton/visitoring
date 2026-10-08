@@ -93,7 +93,7 @@ export function Dashboard({ sites, siteId, data, filters }: Props) {
     <main className={styles.main}>
       <div className={styles.heading}>
         <div>
-          <div className="eyebrow">Project overview</div>
+          <div className="eyebrow">Workspace overview</div>
           <h1>Traffic, at a glance.</h1>
           <p>One clear view of how people find and use your site.</p>
         </div>

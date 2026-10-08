@@ -28,25 +28,19 @@ The Compose database listens on host port `5433` to avoid colliding with a local
 
 Open [http://localhost:3000](http://localhost:3000). For local testing, add `localhost:3000` to the site's website addresses.
 
-The required local variable is `DATABASE_URL`. Set `AUTH_SECRET` and `RATE_LIMIT_SECRET` to distinct, long random values for deployed environments. Production deployments must set `TRUST_PROXY_HEADERS=true` and expose the app only through a trusted reverse proxy that overwrites `x-real-ip` or `x-forwarded-for` with a single client IP. Without that setting, Visitoring ignores forwarded headers and the ready endpoint returns 503. Vercel deployments also need `CRON_SECRET` for the protected daily retention job. `GEOIP_DB_PATH` is optional. `SENTRY8_DATABASE_URL` is required only for history import. Do not commit `.env` or a GeoIP database.
+The required local variables are `DATABASE_URL` and the Perminister app client settings in `.env`. Set a long random `RATE_LIMIT_SECRET` in deployed environments. Production deployments must set `TRUST_PROXY_HEADERS=true` and expose the app only through a trusted reverse proxy that overwrites `x-real-ip` or `x-forwarded-for` with a single client IP. Without that setting, Visitoring ignores forwarded headers and the ready endpoint returns 503. Vercel deployments also need `CRON_SECRET` for the protected daily retention job. `GEOIP_DB_PATH` is optional. `SENTRY8_DATABASE_URL` is required only for history import. Do not commit `.env` or a GeoIP database.
 
-Visitoring Production uses Perminister for identities and workspace access. Local development can continue using the local auth provider; the migration steps, client settings, and rollback constraints are in [the Perminister migration guide](docs/perminister-migration.md). The one-time import defaults to a dry run with `npm run auth:perminister:dry-run`; apply the reviewed import with `npm run auth:perminister:apply`.
+Visitoring uses Perminister for identities, passwords, sessions, and workspace access in every environment. Configure a Visitoring product app client for production and a separate client for local development. The setup and workspace bootstrap steps are in [the Perminister guide](docs/perminister.md).
 
-## Create a project, add accounts, and set up a site
+## Create a workspace, add accounts, and set up a site
 
-Create the first project and administrator after running `db:migrate`:
-
-```sh
-npm run accounts:provision -- --workspace "Acme" --slug acme --email admin@example.com --password 'a-long-initial-password'
-```
-
-Add another account as an administrator or viewer:
+Create a workspace after running `db:migrate`:
 
 ```sh
-npm run users:provision -- --workspace-id WORKSPACE_UUID --email analyst@example.com --password 'a-long-password' --role viewer
+npm run workspaces:provision -- --workspace "Acme" --slug acme --organization-id "<organization-uuid>"
 ```
 
-Sign in with the short project name entered with `--slug`, your email, and password. For example, a project created with `--slug acme` uses `acme` in the **Project** field. To limit password guessing, repeated sign-in attempts are temporarily restricted. Administrators can open **Settings → Sites** to add websites and manage their tracking keys, and **Settings → Setup** for tracker instructions. A tracking key appears only when it is created or replaced, so copy it then. Add every website address that will use the tracker, separated by commas, such as `example.com, www.example.com`. Each address must match exactly; include a port for local development, such as `localhost:3000`.
+The command stores the Perminister organization UUID on the workspace and prints the workspace UUID. In Perminister, grant the initial administrator the `admin` role for that Visitoring workspace under that organization. They can then add accounts and manage roles in **Settings → Users**. Sign in with the workspace slug entered with `--slug`, your email, and password. The workspace record selects its Perminister organization. For example, a workspace created with `--slug acme` uses `acme` in the **Workspace** field. To limit password guessing, repeated sign-in attempts are temporarily restricted. Administrators can open **Settings → Sites** to add websites and manage their tracking keys, and **Settings → Setup** for tracker instructions. A tracking key appears only when it is created or replaced, so copy it then. Add every website address that will use the tracker, separated by commas, such as `example.com, www.example.com`. Each address must match exactly; include a port for local development, such as `localhost:3000`.
 
 ## Add Visitoring to a website
 
@@ -96,7 +90,7 @@ The importer runs a read-only transaction and selects the existing `telemetry_ev
 
 ## Retention and health
 
-Vercel runs the fixed rolling 24-month retention prune daily at 04:00 UTC through a protected cron route. The `CRON_SECRET` production environment variable protects that endpoint. It also removes expired authentication sessions and stale collection and login rate-limit buckets. To run the same job manually:
+Vercel runs the fixed rolling 24-month retention prune daily at 04:00 UTC through a protected cron route. The `CRON_SECRET` production environment variable protects that endpoint. It also removes stale collection and login rate-limit buckets. To run the same job manually:
 
 ```sh
 npm run retention:prune

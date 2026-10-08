@@ -4,10 +4,8 @@ import { pruneExpiredData, retentionCutoff } from "@/lib/retention";
 
 async function main(): Promise<void> {
   const cutoff = retentionCutoff();
-  const { removedEvents, removedSessions, removedBuckets, removedLoginBuckets } =
-    await pruneExpiredData(cutoff);
+  const { removedEvents, removedBuckets, removedLoginBuckets } = await pruneExpiredData(cutoff);
   console.log(`Pruned ${removedEvents} events older than ${cutoff.toISOString()}.`);
-  console.log(`Removed ${removedSessions} expired authentication sessions.`);
   console.log(
     `Removed ${removedBuckets} collection and ${removedLoginBuckets} login rate-limit buckets.`,
   );

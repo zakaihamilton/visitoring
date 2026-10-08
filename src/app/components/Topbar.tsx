@@ -20,6 +20,20 @@ export function Topbar({
         </Link>
         <span className={styles.divider} />
         <span className={styles.workspace}>{user.workspaceName}</span>
+        <span className={styles.divider} />
+        <details className={styles.organization}>
+          <summary
+            aria-label={`Organization: ${user.organizationName}`}
+            className={styles.organizationSummary}
+            title={user.organizationName}
+          >
+            <span className={styles.organizationName}>{user.organizationName}</span>
+          </summary>
+          <div className={styles.organizationPopover}>
+            <span className={styles.organizationLabel}>Organization</span>
+            <strong>{user.organizationName}</strong>
+          </div>
+        </details>
       </div>
       <nav className={styles.nav} aria-label="Main navigation">
         <Link href="/dashboard" aria-current={section === "dashboard" ? "page" : undefined}>

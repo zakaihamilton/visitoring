@@ -37,13 +37,7 @@ function ActionFeedback({ state }: { state: UserActionState }) {
   );
 }
 
-function CreateUserForm({
-  workspaceSlug,
-  centralAuth,
-}: {
-  workspaceSlug: string;
-  centralAuth: boolean;
-}) {
+function CreateUserForm() {
   const [state, action, pending] = useActionState(createUserAction, initialState);
   const formRef = useRef<HTMLFormElement>(null);
   const pendingRef = useRef(false);
@@ -78,17 +72,13 @@ function CreateUserForm({
           name="password"
           type="password"
           required
-          minLength={centralAuth ? 15 : 12}
-          maxLength={centralAuth ? 256 : 1024}
+          minLength={15}
+          maxLength={256}
           autoComplete="new-password"
           aria-describedby="new-user-password-help"
         />
         <small id="new-user-password-help" className={styles.helpText}>
-          At least {centralAuth ? 15 : 12} characters.{" "}
-          {centralAuth
-            ? "Existing Perminister accounts keep their current password."
-            : "Share it securely; they sign in to"}{" "}
-          {centralAuth ? "" : `“${workspaceSlug}”.`}
+          At least 15 characters. Existing Perminister accounts keep their current password.
         </small>
       </div>
       <div className={styles.field}>
@@ -155,7 +145,6 @@ function UserActionDialog({
   confirmLabel,
   tone,
   password = false,
-  centralAuth,
 }: {
   action: UserAction;
   user: ManagedUser;
@@ -165,7 +154,6 @@ function UserActionDialog({
   confirmLabel: string;
   tone: "quiet" | "danger";
   password?: boolean;
-  centralAuth: boolean;
 }) {
   const [state, formAction, pending] = useActionState(action, initialState);
   const [open, setOpen] = useState(false);
@@ -239,14 +227,12 @@ function UserActionDialog({
                 name="password"
                 type="password"
                 required
-                minLength={centralAuth ? 15 : 12}
-                maxLength={centralAuth ? 256 : 1024}
+                minLength={15}
+                maxLength={256}
                 autoComplete="new-password"
                 autoFocus
               />
-              <small className={styles.helpText}>
-                At least {centralAuth ? 15 : 12} characters.
-              </small>
+              <small className={styles.helpText}>At least 15 characters.</small>
             </div>
           ) : null}
           {open && showFeedback ? <ActionFeedback state={state} /> : null}
@@ -284,13 +270,9 @@ function ReactivateForm({ user }: { user: ManagedUser }) {
 
 export function UsersManager({
   currentUserId,
-  workspaceSlug,
-  centralAuth,
   users,
 }: {
   currentUserId: string;
-  workspaceSlug: string;
-  centralAuth: boolean;
   users: ManagedUser[];
 }) {
   return (
@@ -299,19 +281,17 @@ export function UsersManager({
         <div className={pageStyles.cardHeading}>
           <h2 id="add-user-title">Add a user</h2>
           <span className={pageStyles.hint}>
-            {centralAuth
-              ? "Access is granted to this workspace; Perminister manages the shared identity."
-              : "Accounts are created for this project only."}
+            Access is granted to this workspace; Perminister manages the shared identity.
           </span>
         </div>
-        <CreateUserForm workspaceSlug={workspaceSlug} centralAuth={centralAuth} />
+        <CreateUserForm />
       </section>
       <section
         className={`${pageStyles.card} ${styles.usersCard}`}
-        aria-labelledby="project-users-title"
+        aria-labelledby="workspace-users-title"
       >
         <div className={pageStyles.cardHeading}>
-          <h2 id="project-users-title">Project users</h2>
+          <h2 id="workspace-users-title">Workspace members</h2>
           <span className={pageStyles.hint}>
             {users.length} account{users.length === 1 ? "" : "s"}
           </span>
@@ -366,7 +346,6 @@ export function UsersManager({
                         confirmLabel="Reset password"
                         tone="quiet"
                         password
-                        centralAuth={centralAuth}
                       />
                       {user.isActive ? (
                         <UserActionDialog
@@ -377,7 +356,6 @@ export function UsersManager({
                           description="This user will lose access to this workspace until an admin reactivates their membership. Access to other workspaces is unchanged."
                           confirmLabel="Deactivate user"
                           tone="quiet"
-                          centralAuth={centralAuth}
                         />
                       ) : (
                         <ReactivateForm user={user} />
@@ -387,14 +365,9 @@ export function UsersManager({
                         user={user}
                         triggerLabel="Remove"
                         title="Remove this user from the workspace?"
-                        description={
-                          centralAuth
-                            ? "This removes the user’s Visitoring access to this workspace. Their shared Perminister identity and access to other workspaces remain."
-                            : "This permanently removes the user from this workspace. Workspace analytics remain available."
-                        }
+                        description="This removes the user’s Visitoring access to this workspace. Their shared Perminister identity and access to other workspaces remain."
                         confirmLabel="Remove user"
                         tone="danger"
-                        centralAuth={centralAuth}
                       />
                     </div>
                   )}
