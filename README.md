@@ -30,7 +30,7 @@ Open [http://localhost:3000](http://localhost:3000). For local testing, add `loc
 
 The required local variable is `DATABASE_URL`. Set `AUTH_SECRET` and `RATE_LIMIT_SECRET` to distinct, long random values for deployed environments. Production deployments must set `TRUST_PROXY_HEADERS=true` and expose the app only through a trusted reverse proxy that overwrites `x-real-ip` or `x-forwarded-for` with a single client IP. Without that setting, Visitoring ignores forwarded headers and the ready endpoint returns 503. Vercel deployments also need `CRON_SECRET` for the protected daily retention job. `GEOIP_DB_PATH` is optional. `SENTRY8_DATABASE_URL` is required only for history import. Do not commit `.env` or a GeoIP database.
 
-Visitoring can use Perminister for identities and workspace access after the legacy import is reviewed. Keep `VISITORING_AUTH_PROVIDER=local` until the import and deployment are ready; the migration steps, client settings, and rollback constraints are in [the Perminister migration guide](docs/perminister-migration.md). The one-time import commands default to a dry run: `npm run auth:perminister:dry-run` and `npm run auth:perminister:apply`.
+Visitoring Production uses Perminister for identities and workspace access. Local development can continue using the local auth provider; the migration steps, client settings, and rollback constraints are in [the Perminister migration guide](docs/perminister-migration.md). The one-time import defaults to a dry run with `npm run auth:perminister:dry-run`; apply the reviewed import with `npm run auth:perminister:apply`.
 
 ## Create a project, add accounts, and set up a site
 
