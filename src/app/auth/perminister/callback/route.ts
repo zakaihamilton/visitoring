@@ -12,6 +12,7 @@ import {
   perministerSsoCookieName,
   readPerministerSsoTransaction,
 } from "@/lib/perminister-sso";
+import { setVisitoringWorkspaceCookies } from "@/lib/workspace-cookies";
 
 export const runtime = "nodejs";
 
@@ -62,21 +63,7 @@ export async function GET(request: Request) {
     }
 
     await setSessionCookie(auth.sessionToken);
-    const jar = await cookies();
-    const cookieOptions = {
-      httpOnly: true,
-      sameSite: "lax" as const,
-      secure: process.env.NODE_ENV === "production",
-      maxAge: 60 * 60 * 24 * 365,
-    };
-    jar.set("visitoring_last_project", transaction.workspaceSlug, {
-      ...cookieOptions,
-      path: "/login",
-    });
-    jar.set("visitoring_workspace", transaction.workspaceSlug, {
-      ...cookieOptions,
-      path: "/",
-    });
+    await setVisitoringWorkspaceCookies(transaction.workspaceSlug);
 
     const response = NextResponse.redirect(new URL("/dashboard", request.url), 303);
     response.cookies.set(cookieName, "", {
