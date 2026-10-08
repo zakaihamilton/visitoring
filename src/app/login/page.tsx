@@ -26,22 +26,22 @@ export default async function LoginPage({ searchParams }: Props) {
           <p>Private analytics for the sites you run, with no public sign-up.</p>
         </div>
         <div className={styles.mini}>
-          <span className={styles.pulse} /> Your data stays in your project
+          <span className={styles.pulse} /> Your data stays in your workspace
         </div>
       </section>
       <section className={styles.formSide}>
         <form action={loginAction} className={styles.form}>
           <div className="eyebrow">Welcome back</div>
-          <h2>Sign in to your project</h2>
+          <h2>Sign in to your workspace</h2>
           <p className={styles.sub}>
-            Use the project name and account provided by your administrator.
+            Enter the workspace slug and account provided by your administrator. The workspace selects the organization that owns this data.
           </p>
           <div className={styles.field}>
             <div className={styles.labelRow}>
-              <label htmlFor="workspace">Project</label>
+              <label htmlFor="workspace">Workspace</label>
               <Tooltip
-                label="Project"
-                content="Enter the short project name provided by your administrator, such as acme."
+                label="Workspace"
+                content="Enter the workspace slug provided by your administrator, such as acme."
               />
             </div>
             <input

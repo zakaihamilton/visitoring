@@ -2,15 +2,13 @@
 
 import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
-import { createAuthSession, destroyAuthSession, setSessionCookie } from "@/lib/auth";
+import { destroyAuthSession, setSessionCookie } from "@/lib/auth";
 import { clientIpFromHeaders } from "@/lib/privacy";
 import { clearLoginAccountAttempts, isLoginRateLimited } from "@/lib/login-rate-limit";
-import { authenticateWorkspaceUser } from "@/lib/user-management";
 import {
   loginWithPerminister,
   PerministerApiError,
   revokePerministerSession,
-  usesPerministerAuth,
   visitoringUserForWorkspace,
 } from "@/lib/perminister";
 
@@ -30,28 +28,22 @@ export async function loginAction(formData: FormData): Promise<void> {
 
   let token: string | null = null;
   let loginError: "invalid" | "unavailable" | null = null;
-  if (usesPerministerAuth()) {
-    try {
-      const session = await loginWithPerminister(email, password);
-      const user = await visitoringUserForWorkspace(session, workspaceSlug);
-      if (!user) {
-        try {
-          await revokePerministerSession(session.sessionToken);
-        } catch {
-          // The invalid scope is rejected locally; the opaque token is never sent to the browser.
-        }
-        loginError = "invalid";
-      } else {
-        token = session.sessionToken;
+  try {
+    const session = await loginWithPerminister(email, password);
+    const user = await visitoringUserForWorkspace(session, workspaceSlug);
+    if (!user) {
+      try {
+        await revokePerministerSession(session.sessionToken);
+      } catch {
+        // The invalid scope is rejected locally; the opaque token is never sent to the browser.
       }
-    } catch (error) {
-      loginError =
-        error instanceof PerministerApiError && error.status < 500 ? "invalid" : "unavailable";
+      loginError = "invalid";
+    } else {
+      token = session.sessionToken;
     }
-  } else {
-    const user = await authenticateWorkspaceUser({ email, workspaceSlug, password });
-    if (!user) loginError = "invalid";
-    else token = await createAuthSession(user.id, user.passwordHash);
+  } catch (error) {
+    loginError =
+      error instanceof PerministerApiError && error.status < 500 ? "invalid" : "unavailable";
   }
   if (loginError) redirect(`/login?error=${loginError}`);
   if (!token) redirect("/login?error=invalid");

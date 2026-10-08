@@ -20,6 +20,8 @@ export type VisitoringCurrentUser = {
   workspaceId: string;
   workspaceName: string;
   workspaceSlug: string;
+  organizationId: string;
+  organizationName: string;
   email: string | null;
   role: VisitoringRole;
 };
@@ -37,6 +39,7 @@ type ResourceRole = {
 
 type ConsumerOrganization = {
   organizationId: string;
+  organizationName: string;
   productId: string;
   resourceRoles: ResourceRole[];
 };
@@ -70,21 +73,10 @@ type PerministerRequestOptions = {
   token?: string | null;
 };
 
-function visitoringAuthProvider(): "local" | "perminister" {
-  const provider = process.env.VISITORING_AUTH_PROVIDER?.trim().toLowerCase() || "local";
-  if (provider === "local" || provider === "perminister") return provider;
-  throw new Error("VISITORING_AUTH_PROVIDER must be either local or perminister.");
-}
-
-export function usesPerministerAuth(): boolean {
-  return visitoringAuthProvider() === "perminister";
-}
-
 function configuration() {
   const baseUrl = process.env.PERMINISTER_BASE_URL?.trim() || "https://www.perminister.com";
   const clientId = process.env.PERMINISTER_APP_CLIENT_ID?.trim() ?? "";
   const clientSecret = process.env.PERMINISTER_APP_CLIENT_SECRET?.trim() ?? "";
-  const organizationId = process.env.PERMINISTER_ORGANIZATION_ID?.trim() ?? "";
   const productId =
     process.env.PERMINISTER_PRODUCT_ID?.trim().toLowerCase() || VISITORING_PRODUCT_ID;
   let origin: URL;
@@ -103,13 +95,13 @@ function configuration() {
   ) {
     throw new Error("PERMINISTER_BASE_URL must be a valid HTTPS URL.");
   }
-  if (!clientId || !clientSecret || !organizationId) {
-    throw new Error("Perminister app client and organization settings are required.");
+  if (!clientId || !clientSecret) {
+    throw new Error("Perminister app client settings are required.");
   }
   if (productId !== VISITORING_PRODUCT_ID) {
     throw new Error(`PERMINISTER_PRODUCT_ID must be ${VISITORING_PRODUCT_ID}.`);
   }
-  return { baseUrl: origin, clientId, clientSecret, organizationId, productId };
+  return { baseUrl: origin, clientId, clientSecret, productId };
 }
 
 export async function requestPerminister<T>(
@@ -190,31 +182,45 @@ export async function visitoringUserForWorkspace(
 ): Promise<VisitoringCurrentUser | null> {
   const config = configuration();
   const [workspace] = await db
-    .select({ id: workspaces.id, name: workspaces.name, slug: workspaces.slug })
+    .select({
+      id: workspaces.id,
+      name: workspaces.name,
+      slug: workspaces.slug,
+      organizationId: workspaces.organizationId,
+    })
     .from(workspaces)
     .where(eq(workspaces.slug, workspaceSlug.trim().toLowerCase()))
     .limit(1);
   if (!workspace) return null;
 
   const organization = auth.organizations.find(
-    (item) => item.organizationId === config.organizationId && item.productId === config.productId,
+    (item) =>
+      item.organizationId.toLowerCase() === workspace.organizationId.toLowerCase() &&
+      item.productId === config.productId,
   );
   const grant = organization?.resourceRoles.find(
     (item) =>
       item.scope.kind === "workspace" &&
-      item.scope.organizationId === config.organizationId &&
+      item.scope.organizationId?.toLowerCase() === workspace.organizationId.toLowerCase() &&
       item.scope.productId === config.productId &&
       item.scope.workspaceId === workspace.id &&
       (item.role === "admin" || item.role === "viewer") &&
       item.actions.includes("visitoring:workspace:read"),
   );
-  if (!grant || (grant.role !== "admin" && grant.role !== "viewer")) return null;
+  if (
+    !organization ||
+    !grant ||
+    (grant.role !== "admin" && grant.role !== "viewer")
+  )
+    return null;
 
   return {
     id: auth.account.subjectId,
     workspaceId: workspace.id,
     workspaceName: workspace.name,
     workspaceSlug: workspace.slug,
+    organizationId: workspace.organizationId,
+    organizationName: organization.organizationName,
     email: auth.account.email,
     role: grant.role,
   };
@@ -223,9 +229,15 @@ export async function visitoringUserForWorkspace(
 export async function listPerministerWorkspaceMembers(
   workspaceId: string,
 ): Promise<VisitoringWorkspaceMember[]> {
-  const config = configuration();
+  configuration();
+  const [workspace] = await db
+    .select({ organizationId: workspaces.organizationId })
+    .from(workspaces)
+    .where(eq(workspaces.id, workspaceId))
+    .limit(1);
+  if (!workspace) throw new PerministerApiError(404, "Workspace not found.");
   const params = new URLSearchParams({
-    organizationId: config.organizationId,
+    organizationId: workspace.organizationId,
     scopeKind: "workspace",
     resourceId: workspaceId,
   });

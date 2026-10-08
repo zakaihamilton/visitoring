@@ -42,11 +42,19 @@ suite("PostgreSQL collector integration", () => {
   beforeAll(async () => {
     const [workspace] = await db
       .insert(workspaces)
-      .values({ name: "Integration workspace", slug: `it-${crypto.randomUUID().slice(0, 8)}` })
+      .values({
+        name: "Integration workspace",
+        slug: `it-${crypto.randomUUID().slice(0, 8)}`,
+        organizationId: "660601f6-c1c3-42b0-9118-c2285d7659a3",
+      })
       .returning();
     const [other] = await db
       .insert(workspaces)
-      .values({ name: "Other workspace", slug: `it-${crypto.randomUUID().slice(0, 8)}` })
+      .values({
+        name: "Other workspace",
+        slug: `it-${crypto.randomUUID().slice(0, 8)}`,
+        organizationId: "660601f6-c1c3-42b0-9118-c2285d7659a3",
+      })
       .returning();
     if (!workspace || !other) throw new Error("Could not create integration workspaces.");
     workspaceId = workspace.id;

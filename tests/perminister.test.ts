@@ -17,16 +17,13 @@ import {
   loginWithPerminister,
   readPerministerSession,
   requestPerminister,
-  usesPerministerAuth,
   visitoringUserForWorkspace,
 } from "@/lib/perminister";
 
 function configureEnvironment(): void {
-  vi.stubEnv("VISITORING_AUTH_PROVIDER", "perminister");
   vi.stubEnv("PERMINISTER_BASE_URL", "https://www.perminister.com");
   vi.stubEnv("PERMINISTER_APP_CLIENT_ID", "dynamic-client-id");
   vi.stubEnv("PERMINISTER_APP_CLIENT_SECRET", "a-secret-value");
-  vi.stubEnv("PERMINISTER_ORGANIZATION_ID", "11111111-1111-4111-8111-111111111111");
   vi.stubEnv("PERMINISTER_PRODUCT_ID", "visitoring");
   vi.stubEnv("NODE_ENV", "test");
 }
@@ -34,6 +31,7 @@ function configureEnvironment(): void {
 describe("Visitoring Perminister client", () => {
   beforeEach(() => {
     configureEnvironment();
+    dbLimit.mockReset();
     dbSelect.mockReturnValue({ from: dbFrom });
     dbFrom.mockReturnValue({ where: dbWhere });
     dbWhere.mockReturnValue({ limit: dbLimit });
@@ -47,12 +45,6 @@ describe("Visitoring Perminister client", () => {
     vi.unstubAllEnvs();
     vi.unstubAllGlobals();
     vi.restoreAllMocks();
-  });
-
-  it("uses the requested provider and rejects unknown provider values", () => {
-    expect(usesPerministerAuth()).toBe(true);
-    vi.stubEnv("VISITORING_AUTH_PROVIDER", "perminitser");
-    expect(() => usesPerministerAuth()).toThrow("VISITORING_AUTH_PROVIDER");
   });
 
   it("sends login only from the server with the dynamic client credentials", async () => {
@@ -118,6 +110,9 @@ describe("Visitoring Perminister client", () => {
       }),
     );
     vi.stubGlobal("fetch", fetchMock);
+    dbLimit.mockResolvedValueOnce([
+      { organizationId: "11111111-1111-4111-8111-111111111111" },
+    ]);
 
     await expect(listPerministerWorkspaceMembers("workspace-id")).resolves.toEqual([
       { id: "subject-id", email: "person@example.com", role: "admin", isActive: true },
@@ -132,7 +127,12 @@ describe("Visitoring Perminister client", () => {
 
   it("maps only a matching active workspace role into Visitoring context", async () => {
     dbLimit
-      .mockResolvedValueOnce([{ id: "workspace-id", name: "Acme", slug: "acme" }])
+      .mockResolvedValueOnce([{
+        id: "workspace-id",
+        name: "Acme",
+        slug: "acme",
+        organizationId: "11111111-1111-4111-8111-111111111111",
+      }])
       .mockResolvedValueOnce([]);
     const auth = {
       authenticated: true as const,
@@ -140,6 +140,7 @@ describe("Visitoring Perminister client", () => {
       organizations: [
         {
           organizationId: "11111111-1111-4111-8111-111111111111",
+          organizationName: "Acme Organization",
           productId: "visitoring",
           resourceRoles: [
             {
@@ -162,6 +163,8 @@ describe("Visitoring Perminister client", () => {
       workspaceId: "workspace-id",
       workspaceName: "Acme",
       workspaceSlug: "acme",
+      organizationId: "11111111-1111-4111-8111-111111111111",
+      organizationName: "Acme Organization",
       email: null,
       role: "viewer",
     });

@@ -1,8 +1,15 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-const mocks = vi.hoisted(() => ({ requestPerminister: vi.fn() }));
+const mocks = vi.hoisted(() => ({
+  requestPerminister: vi.fn(),
+  dbSelect: vi.fn(),
+  dbFrom: vi.fn(),
+  dbWhere: vi.fn(),
+  dbLimit: vi.fn(),
+}));
 
 vi.mock("server-only", () => ({}));
+vi.mock("@/db", () => ({ db: { select: mocks.dbSelect } }));
 vi.mock("@/lib/perminister", () => ({
   PerministerApiError: class PerministerApiError extends Error {
     constructor(
@@ -13,7 +20,6 @@ vi.mock("@/lib/perminister", () => ({
     }
   },
   requestPerminister: mocks.requestPerminister,
-  usesPerministerAuth: () => process.env.VISITORING_AUTH_PROVIDER === "perminister",
 }));
 
 import {
@@ -36,8 +42,10 @@ const memberPath = "/api/auth/consumer/members";
 const subjectPath = `${memberPath}/22222222-2222-4222-8222-222222222222`;
 
 beforeEach(() => {
-  vi.stubEnv("VISITORING_AUTH_PROVIDER", "perminister");
-  vi.stubEnv("PERMINISTER_ORGANIZATION_ID", scope.organizationId);
+  mocks.dbSelect.mockReturnValue({ from: mocks.dbFrom });
+  mocks.dbFrom.mockReturnValue({ where: mocks.dbWhere });
+  mocks.dbWhere.mockReturnValue({ limit: mocks.dbLimit });
+  mocks.dbLimit.mockResolvedValue([{ organizationId: scope.organizationId }]);
   mocks.requestPerminister.mockResolvedValue({ accountCreated: true });
 });
 
@@ -91,7 +99,7 @@ describe("Visitoring Perminister member management", () => {
     ]);
   });
 
-  it("surfaces scoped administration errors without changing local users", async () => {
+  it("surfaces scoped administration errors from Perminister", async () => {
     mocks.requestPerminister.mockRejectedValue(
       new PerministerApiError(409, "The workspace must keep an active administrator."),
     );

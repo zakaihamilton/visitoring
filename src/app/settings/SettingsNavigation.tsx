@@ -5,7 +5,7 @@ export function SettingsNavigation({ active }: { active: "sites" | "setup" | "us
   return (
     <div className={styles.navShell}>
       <div className={styles.navInner}>
-        <span className={styles.navLabel}>Project settings</span>
+        <span className={styles.navLabel}>Workspace settings</span>
         <nav className={styles.nav} aria-label="Settings pages">
           <Link href="/settings/sites" aria-current={active === "sites" ? "page" : undefined}>
             Sites

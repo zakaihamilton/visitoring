@@ -8,7 +8,6 @@ import {
   timestamp,
   uniqueIndex,
   uuid,
-  boolean,
   varchar,
 } from "drizzle-orm/pg-core";
 
@@ -16,38 +15,9 @@ export const workspaces = pgTable("workspaces", {
   id: uuid("id").defaultRandom().primaryKey(),
   name: varchar("name", { length: 120 }).notNull(),
   slug: varchar("slug", { length: 80 }).notNull().unique(),
+  organizationId: uuid("organization_id").notNull(),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-});
-
-export const users = pgTable(
-  "users",
-  {
-    id: uuid("id").defaultRandom().primaryKey(),
-    workspaceId: uuid("workspace_id")
-      .notNull()
-      .references(() => workspaces.id, { onDelete: "cascade" }),
-    email: varchar("email", { length: 254 }).notNull(),
-    passwordHash: text("password_hash").notNull(),
-    role: varchar("role", { length: 16 }).notNull().default("viewer"),
-    isActive: boolean("is_active").notNull().default(true),
-    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-  },
-  (table) => [uniqueIndex("users_workspace_email_idx").on(table.workspaceId, table.email)],
-);
-
-export const authSessions = pgTable(
-  "auth_sessions",
-  {
-    id: uuid("id").defaultRandom().primaryKey(),
-    userId: uuid("user_id")
-      .notNull()
-      .references(() => users.id, { onDelete: "cascade" }),
-    tokenHash: varchar("token_hash", { length: 64 }).notNull().unique(),
-    expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
-    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-  },
-  (table) => [index("auth_sessions_expiry_idx").on(table.expiresAt)],
-);
+}, (table) => [index("workspaces_organization_idx").on(table.organizationId)]);
 
 export const authRateLimitBuckets = pgTable(
   "auth_rate_limit_buckets",
