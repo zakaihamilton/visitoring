@@ -12,6 +12,16 @@ import {
   visitoringUserForWorkspace,
 } from "@/lib/perminister";
 
+export async function startPerministerLoginAction(formData: FormData): Promise<void> {
+  const workspaceSlug = String(formData.get("workspace") ?? "")
+    .trim()
+    .toLowerCase();
+  if (!/^[a-z0-9][a-z0-9_-]{0,79}$/.test(workspaceSlug)) {
+    redirect("/login?error=workspace");
+  }
+  redirect(`/auth/perminister/start?workspace=${encodeURIComponent(workspaceSlug)}`);
+}
+
 export async function loginAction(formData: FormData): Promise<void> {
   const email = String(formData.get("email") ?? "")
     .trim()
