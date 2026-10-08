@@ -7,8 +7,9 @@ limits. Visitoring no longer reads or writes local account credentials or sessio
 ## Configure Perminister
 
 1. Configure the `visitoring` product in each approved Perminister organization that will own Visitoring workspaces.
-2. Create a production app client for that product. Set the session lifetime to 30 days and leave
-   self-registration disabled. Record the client ID and secret.
+2. Create a production app client for that product. Set the exact Visitoring origin as its app
+   origin, set the session lifetime to 30 days, and leave self-registration disabled. Record the
+   client ID and secret. The SSO callback is `/auth/perminister/callback` on that origin.
 3. Create a separate app client for local development, preferably in a staging organization with
    separate workspace data.
 4. Set the following server-only environment variables for each Visitoring deployment:
@@ -38,7 +39,9 @@ Perminister identity keeps its current password.
 
 Visitoring's login form takes the workspace slug and the member's email. After Perminister confirms
 the account session, Visitoring verifies that the account has an active `admin` or `viewer` grant for
-the selected workspace before opening the dashboard.
+the selected workspace before opening the dashboard. **Sign in with Perminister** uses the same
+workspace slug and completes a short-lived, PKCE-protected authorization-code flow before setting the
+Visitoring session cookie.
 
 ## Data migration and storage
 

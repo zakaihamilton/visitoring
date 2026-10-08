@@ -104,6 +104,29 @@ function configuration() {
   return { baseUrl: origin, clientId, clientSecret, productId };
 }
 
+export function perministerClientSecretForSso(): string {
+  return configuration().clientSecret;
+}
+
+export function perministerAuthorizationUrl(
+  state: string,
+  challenge: string,
+  appOrigin: string,
+): string {
+  const config = configuration();
+  const redirectUri = new URL("/auth/perminister/callback", appOrigin);
+  const url = new URL("/oauth/authorize", config.baseUrl);
+  url.search = new URLSearchParams({
+    client_id: config.clientId,
+    redirect_uri: redirectUri.toString(),
+    response_type: "code",
+    state,
+    code_challenge: challenge,
+    code_challenge_method: "S256",
+  }).toString();
+  return url.toString();
+}
+
 export async function requestPerminister<T>(
   path: string,
   options: PerministerRequestOptions = {},
@@ -162,6 +185,21 @@ export function loginWithPerminister(identifier: string, password: string): Prom
     method: "POST",
     token: null,
     body: { identifier, password },
+  });
+}
+
+export function exchangePerministerAuthorizationCode(
+  code: string,
+  codeVerifier: string,
+): Promise<ConsumerLogin> {
+  return requestPerminister<ConsumerLogin>("/api/auth/consumer/token", {
+    method: "POST",
+    token: null,
+    body: {
+      grant_type: "authorization_code",
+      code,
+      code_verifier: codeVerifier,
+    },
   });
 }
 

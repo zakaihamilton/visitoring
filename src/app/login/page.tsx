@@ -1,4 +1,4 @@
-import { loginAction } from "./actions";
+import { loginAction, startPerministerLoginAction } from "./actions";
 import { cookies } from "next/headers";
 import { BrandIcon } from "@/app/components/BrandIcon";
 import { Tooltip } from "@/app/components/Tooltip";
@@ -54,6 +54,17 @@ export default async function LoginPage({ searchParams }: Props) {
               defaultValue={lastProject}
             />
           </div>
+          <button
+            type="submit"
+            formAction={startPerministerLoginAction}
+            formNoValidate
+            className={`button buttonQuiet ${styles.ssoButton}`}
+          >
+            Sign in with Perminister <span aria-hidden>↗</span>
+          </button>
+          <div className={styles.authDivider}>
+            <span>or sign in with email and password</span>
+          </div>
           <label>
             Email
             <input
@@ -79,7 +90,11 @@ export default async function LoginPage({ searchParams }: Props) {
             <p className={styles.error} role="alert">
               {error === "unavailable"
                 ? "Sign-in is temporarily unavailable. Please try again shortly."
-                : "We couldn't find a match for that project, email, or password."}
+                : error === "workspace"
+                  ? "Enter your workspace slug before signing in with Perminister."
+                  : error === "sso"
+                    ? "Perminister sign-in could not be completed. Please try again."
+                    : "We couldn't find a match for that project, email, or password."}
             </p>
           ) : null}
           <button type="submit" className="button buttonPrimary">
