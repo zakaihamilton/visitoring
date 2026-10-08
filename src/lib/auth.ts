@@ -5,18 +5,21 @@ import { redirect } from "next/navigation";
 import { authSessions, users, workspaces } from "@/db/schema";
 import { db } from "@/db";
 import { createToken, hashSessionToken } from "@/lib/crypto";
+import {
+  PERMINISTER_SESSION_COOKIE,
+  PerministerApiError,
+  readPerministerSession,
+  revokePerministerSession,
+  usesPerministerAuth,
+  visitoringUserForWorkspace,
+  type VisitoringCurrentUser,
+} from "@/lib/perminister";
 
-const SESSION_COOKIE = "visitoring_session";
+const SESSION_COOKIE = PERMINISTER_SESSION_COOKIE;
+const ACTIVE_WORKSPACE_COOKIE = "visitoring_workspace";
 const SESSION_DURATION_MS = 1000 * 60 * 60 * 24 * 30;
 
-export type CurrentUser = {
-  id: string;
-  workspaceId: string;
-  workspaceName: string;
-  workspaceSlug: string;
-  email: string;
-  role: "admin" | "viewer";
-};
+export type CurrentUser = VisitoringCurrentUser;
 
 export async function createAuthSession(
   userId: string,
@@ -30,7 +33,7 @@ export async function createAuthSession(
       .where(eq(users.id, userId))
       .limit(1)
       .for("update");
-    if (!user || !user.isActive || user.passwordHash !== expectedPasswordHash) return false;
+    if (!user?.isActive || user.passwordHash !== expectedPasswordHash) return false;
 
     await tx.insert(authSessions).values({
       userId,
@@ -43,8 +46,23 @@ export async function createAuthSession(
 }
 
 async function getCurrentUser(): Promise<CurrentUser | null> {
-  const token = (await cookies()).get(SESSION_COOKIE)?.value;
+  const jar = await cookies();
+  const token = jar.get(SESSION_COOKIE)?.value;
   if (!token) return null;
+
+  if (usesPerministerAuth()) {
+    const workspaceSlug = jar.get(ACTIVE_WORKSPACE_COOKIE)?.value;
+    if (!workspaceSlug) return null;
+    try {
+      const session = await readPerministerSession(token);
+      if (!session.authenticated) return null;
+      return visitoringUserForWorkspace(session, workspaceSlug);
+    } catch (error) {
+      if (error instanceof PerministerApiError && error.status === 401) return null;
+      throw error;
+    }
+  }
+
   const [row] = await db
     .select({
       id: users.id,
@@ -66,7 +84,7 @@ async function getCurrentUser(): Promise<CurrentUser | null> {
       ),
     )
     .limit(1);
-  if (!row || !row.isActive || (row.role !== "admin" && row.role !== "viewer")) return null;
+  if (!row?.isActive || (row.role !== "admin" && row.role !== "viewer")) return null;
   return {
     id: row.id,
     workspaceId: row.workspaceId,
@@ -92,8 +110,20 @@ export async function requireAdmin(): Promise<CurrentUser> {
 export async function destroyAuthSession(): Promise<void> {
   const jar = await cookies();
   const token = jar.get(SESSION_COOKIE)?.value;
-  if (token)
+  if (usesPerministerAuth()) {
+    if (token) {
+      try {
+        await revokePerministerSession(token);
+      } catch (error) {
+        console.error(
+          "Visitoring could not revoke the Perminister session during sign-out.",
+          error instanceof Error ? error.message : "unknown error",
+        );
+      }
+    }
+  } else if (token) {
     await db.delete(authSessions).where(eq(authSessions.tokenHash, hashSessionToken(token)));
+  }
   jar.delete(SESSION_COOKIE);
 }
 

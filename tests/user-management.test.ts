@@ -1,7 +1,9 @@
 import { hash } from "@node-rs/argon2";
 import { and, eq, inArray, sql } from "drizzle-orm";
 import { randomBytes, randomUUID } from "node:crypto";
-import { afterAll, describe, expect, it } from "vitest";
+import { afterAll, describe, expect, it, vi } from "vitest";
+
+vi.mock("server-only", () => ({}));
 import { db, pool } from "@/db";
 import { authSessions, siteEvents, sites, users, workspaces } from "@/db/schema";
 import { createSiteKey, sha256 } from "@/lib/crypto";

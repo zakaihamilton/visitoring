@@ -14,6 +14,8 @@
     "db:migrate": "drizzle-kit migrate",
     "accounts:provision": "tsx scripts/provision-workspace.ts",
     "users:provision": "tsx scripts/provision-user.ts",
+    "auth:perminister:dry-run": "tsx scripts/migrate-perminister.ts",
+    "auth:perminister:apply": "tsx scripts/migrate-perminister.ts --apply",
     "sites:provision": "tsx scripts/provision-site.ts",
     "import:sentry8": "tsx scripts/import-sentry8.ts",
     "retention:prune": "tsx scripts/prune-events.ts",

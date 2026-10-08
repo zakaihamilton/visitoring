@@ -4,6 +4,7 @@ import { z } from "zod";
 import { db } from "@/db";
 import { authSessions, users, workspaces } from "@/db/schema";
 import { createToken } from "@/lib/crypto";
+import { PerministerApiError, requestPerminister, usesPerministerAuth } from "@/lib/perminister";
 
 const emailSchema = z.string().email().max(254);
 const roleSchema = z.enum(["admin", "viewer"]);
@@ -72,6 +73,40 @@ function cannotChangeSelf(actorId: string, targetId: string): boolean {
   return actorId === targetId;
 }
 
+function perminResponseMessage(error: unknown): string {
+  if (error instanceof PerministerApiError) {
+    if (error.status === 401) return "Your session expired. Sign in again and retry.";
+    if (error.status >= 400 && error.status < 500) return error.message;
+  }
+  return "Perminister is temporarily unavailable. Please try again shortly.";
+}
+
+function perminPasswordIsValid(value: string): boolean {
+  return value.length >= 15 && value.length <= 256;
+}
+
+function consumerWorkspaceScope(workspaceId: string) {
+  return {
+    organizationId: process.env.PERMINISTER_ORGANIZATION_ID?.trim() ?? "",
+    scopeKind: "workspace",
+    resourceId: workspaceId,
+  };
+}
+
+async function runPerministerMemberAction(
+  path: string,
+  method: "POST" | "PATCH" | "DELETE",
+  body: Record<string, unknown>,
+  successMessage: string,
+): Promise<UserManagementResult> {
+  try {
+    await requestPerminister(path, { method, body });
+    return success(successMessage);
+  } catch (error) {
+    return failure(perminResponseMessage(error));
+  }
+}
+
 export async function createWorkspaceUser(input: {
   workspaceId: string;
   email: string;
@@ -84,6 +119,31 @@ export async function createWorkspaceUser(input: {
     return failure("Use a password between 12 and 1024 characters.");
   const role = roleSchema.safeParse(input.role);
   if (!role.success) return failure("Choose either the admin or viewer role.");
+  if (usesPerministerAuth()) {
+    if (!perminPasswordIsValid(input.password))
+      return failure("Use a password between 15 and 256 characters.");
+    try {
+      const result = await requestPerminister<{
+        accountCreated: boolean;
+        member: { subjectId: string };
+      }>("/api/auth/consumer/members", {
+        method: "POST",
+        body: {
+          ...consumerWorkspaceScope(input.workspaceId),
+          email,
+          password: input.password,
+          role: role.data,
+        },
+      });
+      return success(
+        result.accountCreated
+          ? "User added. Share the initial password with them securely."
+          : "Existing Perminister account added to this workspace; their current password is unchanged.",
+      );
+    } catch (error) {
+      return failure(perminResponseMessage(error));
+    }
+  }
 
   const passwordHash = await hash(input.password);
   const [created] = await db
@@ -111,6 +171,14 @@ export async function changeWorkspaceUserRole(input: {
     return failure("You cannot change your own account here.");
   const role = roleSchema.safeParse(input.role);
   if (!role.success) return failure("Choose either the admin or viewer role.");
+  if (usesPerministerAuth()) {
+    return runPerministerMemberAction(
+      `/api/auth/consumer/members/${encodeURIComponent(input.userId)}`,
+      "PATCH",
+      { ...consumerWorkspaceScope(input.workspaceId), role: role.data },
+      "User role updated.",
+    );
+  }
 
   return db.transaction(async (tx) => {
     await lockWorkspace(tx, input.workspaceId);
@@ -137,6 +205,16 @@ export async function resetWorkspaceUserPassword(input: {
 }): Promise<UserManagementResult> {
   if (cannotChangeSelf(input.actorId, input.userId))
     return failure("You cannot reset your own password here.");
+  if (usesPerministerAuth()) {
+    if (!perminPasswordIsValid(input.password))
+      return failure("Use a password between 15 and 256 characters.");
+    return runPerministerMemberAction(
+      `/api/auth/consumer/members/${encodeURIComponent(input.userId)}`,
+      "PATCH",
+      { ...consumerWorkspaceScope(input.workspaceId), password: input.password },
+      "Password reset. The user must sign in again with the new password.",
+    );
+  }
   if (!validPassword(input.password))
     return failure("Use a password between 12 and 1024 characters.");
 
@@ -160,6 +238,14 @@ export async function deactivateWorkspaceUser(input: {
 }): Promise<UserManagementResult> {
   if (cannotChangeSelf(input.actorId, input.userId))
     return failure("You cannot deactivate your own account here.");
+  if (usesPerministerAuth()) {
+    return runPerministerMemberAction(
+      `/api/auth/consumer/members/${encodeURIComponent(input.userId)}`,
+      "PATCH",
+      { ...consumerWorkspaceScope(input.workspaceId), status: "disabled" },
+      "User removed from this workspace.",
+    );
+  }
 
   return db.transaction(async (tx) => {
     await lockWorkspace(tx, input.workspaceId);
@@ -187,6 +273,14 @@ export async function reactivateWorkspaceUser(input: {
 }): Promise<UserManagementResult> {
   if (cannotChangeSelf(input.actorId, input.userId))
     return failure("You cannot reactivate your own account here.");
+  if (usesPerministerAuth()) {
+    return runPerministerMemberAction(
+      `/api/auth/consumer/members/${encodeURIComponent(input.userId)}`,
+      "PATCH",
+      { ...consumerWorkspaceScope(input.workspaceId), status: "active" },
+      "User reactivated for this workspace.",
+    );
+  }
 
   return db.transaction(async (tx) => {
     await lockWorkspace(tx, input.workspaceId);
@@ -214,6 +308,14 @@ export async function deleteWorkspaceUser(input: {
 }): Promise<UserManagementResult> {
   if (cannotChangeSelf(input.actorId, input.userId))
     return failure("You cannot delete your own account here.");
+  if (usesPerministerAuth()) {
+    return runPerministerMemberAction(
+      `/api/auth/consumer/members/${encodeURIComponent(input.userId)}`,
+      "DELETE",
+      consumerWorkspaceScope(input.workspaceId),
+      "User removed from this workspace.",
+    );
+  }
 
   return db.transaction(async (tx) => {
     await lockWorkspace(tx, input.workspaceId);
