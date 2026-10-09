@@ -60,7 +60,6 @@ export const siteEvents = pgTable(
     siteId: uuid("site_id")
       .notNull()
       .references(() => sites.id, { onDelete: "cascade" }),
-    sourceId: varchar("source_id", { length: 160 }),
     visitorId: varchar("visitor_id", { length: 64 }).notNull(),
     sessionId: varchar("session_id", { length: 64 }).notNull(),
     eventName: varchar("event_name", { length: 128 }).notNull(),
@@ -77,7 +76,6 @@ export const siteEvents = pgTable(
       .defaultNow(),
   },
   (table) => [
-    uniqueIndex("site_events_source_idx").on(table.siteId, table.sourceId),
     index("site_events_site_time_idx").on(table.siteId, table.createdAt),
     index("site_events_workspace_time_idx").on(table.workspaceId, table.createdAt),
     index("site_events_site_name_time_idx").on(table.siteId, table.eventName, table.createdAt),

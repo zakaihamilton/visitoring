@@ -260,10 +260,6 @@ export default function DevelopersPage() {
                 </li>
                 <li>IP addresses and full browser details are not stored.</li>
               </ul>
-              <p className={styles.note}>
-                The collector also accepts the legacy <code>welcome_*</code> event format. Keep only
-                one automatic page-view tracker active at a time.
-              </p>
             </section>
 
             <div className={styles.footerCallout}>

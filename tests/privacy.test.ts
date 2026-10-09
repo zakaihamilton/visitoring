@@ -4,7 +4,6 @@ import { allowsRateLimitCount, isDoNotTrack } from "@/lib/collection-policy";
 import { originIsAllowed, parseAllowedDomains } from "@/lib/domains";
 import { cleanPath, cleanReferrerHost } from "@/lib/privacy";
 import { retentionCutoff } from "@/lib/retention";
-import { toImportedEvent } from "../scripts/import-utils";
 
 describe("privacy and policy helpers", () => {
   it("removes query strings from paths and keeps only referrer hostnames", () => {
@@ -56,38 +55,8 @@ describe("privacy and policy helpers", () => {
     ).toEqual({ country: "US", region: "US-CA" });
   });
 
-  it("uses a rolling month cutoff and maps Sentry8 events without inventing attribution", () => {
+  it("uses the rolling retention cutoff", () => {
     const cutoff = retentionCutoff(new Date("2026-10-31T12:00:00.000Z"), 1);
     expect(cutoff.toISOString()).toBe("2026-09-30T12:00:00.000Z");
-    const createdAt = "2026-04-10 10:00:00.123456+00";
-    expect(
-      toImportedEvent(
-        {
-          id: "source-id",
-          anonymous_id: "visitor-123456",
-          session_id: "session-12345",
-          event_name: "welcome_cta_click",
-          path: "/?campaign=launch",
-          referrer_host: "https://example.org/from?token=secret",
-          properties: { target: "demo", placement: "hero" },
-          created_at: createdAt,
-        },
-        { id: "site-1", workspaceId: "workspace-1" },
-      ),
-    ).toMatchObject({
-      sourceId: "sentry8:source-id",
-      visitorId: "visitor-123456",
-      sessionId: "session-12345",
-      eventName: "welcome_cta_click",
-      path: "/",
-      referrerHost: "example.org",
-      country: null,
-      region: null,
-      device: null,
-      browser: null,
-      os: null,
-      properties: { target: "demo", placement: "hero" },
-      createdAt,
-    });
   });
 });

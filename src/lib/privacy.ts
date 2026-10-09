@@ -25,7 +25,7 @@ export function cleanReferrerHost(input: string | undefined): string | null {
   }
 }
 
-export function isValidAnonymousId(value: unknown): value is string {
+export function isValidVisitorId(value: unknown): value is string {
   return typeof value === "string" && visitorIdPattern.test(value);
 }
 
