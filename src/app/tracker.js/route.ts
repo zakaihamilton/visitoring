@@ -4,8 +4,8 @@ const tracker = `(function () {
   var endpoint = script && script.getAttribute('data-endpoint');
   if (!endpoint && script && script.src) endpoint = new URL('/api/collect', script.src).href;
   endpoint = endpoint || '/api/collect';
-  var visitorKey = 'sentry8-telemetry-visitor-id';
-  var sessionKey = 'sentry8-telemetry-session-id';
+  var visitorKey = 'visitoring-visitor-id';
+  var sessionKey = 'visitoring-session-id';
   var visitorId;
   var sessionId;
   function id() {

@@ -75,9 +75,9 @@ export async function OPTIONS(request: Request): Promise<Response> {
   const origin = request.headers.get("origin");
   if (!origin) return new Response(null, { status: 403 });
 
-  // A preflight has no POST body, so a key supplied as siteKey/site_key cannot
-  // be checked here. Check query keys when present; POST always validates the
-  // key and origin before accepting an event.
+  // A preflight has no POST body, so a key supplied as siteKey cannot be
+  // checked here. Check query keys when present; POST always validates the key
+  // and origin before accepting an event.
   const siteKey = url.searchParams.get("key");
   if (siteKey !== null) {
     const site = await authorizedSite(siteKey, origin);
