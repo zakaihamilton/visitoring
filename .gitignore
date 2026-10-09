@@ -11,3 +11,5 @@ coverage/
 *.mmdb
 .neon
 .vercel
+playwright-report/
+test-results/
