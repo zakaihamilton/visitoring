@@ -230,7 +230,6 @@ function UserActionDialog({
                 minLength={15}
                 maxLength={256}
                 autoComplete="new-password"
-                autoFocus
               />
               <small className={styles.helpText}>At least 15 characters.</small>
             </div>

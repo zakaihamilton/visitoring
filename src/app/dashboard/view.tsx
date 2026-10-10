@@ -230,10 +230,7 @@ export function Dashboard({ sites, siteId, data, filters }: Props) {
         <article className={styles.metric}>
           <div className={styles.metricLabel}>
             <span>Page views</span>
-            <Tooltip
-              label="Page views"
-              content="Counts page_view events."
-            />
+            <Tooltip label="Page views" content="Counts page_view events." />
           </div>
           <strong>{number(data.pageViews)}</strong>
           <small>Tracked page views</small>
