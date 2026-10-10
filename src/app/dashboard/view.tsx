@@ -230,13 +230,10 @@ export function Dashboard({ sites, siteId, data, filters }: Props) {
         <article className={styles.metric}>
           <div className={styles.metricLabel}>
             <span>Page views</span>
-            <Tooltip
-              label="Page views"
-              content="Includes page_view events and imported welcome_view events."
-            />
+            <Tooltip label="Page views" content="Counts page_view events." />
           </div>
           <strong>{number(data.pageViews)}</strong>
-          <small>Includes imported page views</small>
+          <small>Tracked page views</small>
         </article>
         <article className={styles.metric}>
           <div className={styles.metricLabel}>
@@ -265,7 +262,7 @@ export function Dashboard({ sites, siteId, data, filters }: Props) {
             <span>Custom events</span>
             <Tooltip
               label="Custom events"
-              content="Events other than page_view and imported welcome_view, such as a signup."
+              content="Events other than page_view, such as a signup."
             />
           </div>
           <strong>{number(data.customEvents)}</strong>

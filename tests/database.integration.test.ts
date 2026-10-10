@@ -6,7 +6,6 @@ import { createSiteKey, sha256 } from "@/lib/crypto";
 import { getAnalyticsData } from "@/lib/analytics";
 import { POST } from "@/app/api/collect/route";
 import { pruneExpiredData, retentionCutoff } from "@/lib/retention";
-import { toImportedEvent } from "../scripts/import-utils";
 
 const integration = Boolean(process.env.DATABASE_URL);
 const suite = integration ? describe : describe.skip;
@@ -147,46 +146,6 @@ suite("PostgreSQL collector integration", () => {
       event: "signup",
     });
     expect(customData).toMatchObject({ total: 1, pageViews: 0, customEvents: 1 });
-  });
-
-  it("imports welcome_view as a page view metric and deduplicates stable source IDs", async () => {
-    const imported = toImportedEvent(
-      {
-        id: "legacy-event-id",
-        anonymous_id: "legacy-visitor-123",
-        session_id: "legacy-session-123",
-        event_name: "welcome_view",
-        path: "/?utm_source=legacy",
-        referrer_host: "legacy.example",
-        properties: {},
-        created_at: new Date().toISOString(),
-      },
-      { id: siteId, workspaceId },
-    );
-    const first = await db
-      .insert(siteEvents)
-      .values(imported)
-      .onConflictDoNothing({
-        target: [siteEvents.siteId, siteEvents.sourceId],
-      })
-      .returning({ id: siteEvents.id });
-    const second = await db
-      .insert(siteEvents)
-      .values(imported)
-      .onConflictDoNothing({
-        target: [siteEvents.siteId, siteEvents.sourceId],
-      })
-      .returning({ id: siteEvents.id });
-    expect(first).toHaveLength(1);
-    expect(second).toHaveLength(0);
-    const data = await getAnalyticsData({
-      workspaceId,
-      siteId,
-      from: new Date(Date.now() - 86_400_000).toISOString(),
-      to: new Date(Date.now() + 86_400_000).toISOString(),
-      event: "welcome_view",
-    });
-    expect(data).toMatchObject({ total: 1, pageViews: 1 });
   });
 
   it("rejects unapproved origins and invalid payloads without inserting events", async () => {

@@ -14,7 +14,6 @@
     "db:migrate": "drizzle-kit migrate",
     "workspaces:provision": "tsx scripts/provision-workspace.ts",
     "sites:provision": "tsx scripts/provision-site.ts",
-    "import:sentry8": "tsx scripts/import-sentry8.ts",
     "retention:prune": "tsx scripts/prune-events.ts",
     "typecheck": "tsc --noEmit",
     "lint": "biome lint . && eslint .",

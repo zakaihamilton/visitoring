@@ -1,4 +1,4 @@
-import { and, count, desc, eq, gte, ilike, inArray, lte, sql } from "drizzle-orm";
+import { and, count, desc, eq, gte, ilike, lte, sql } from "drizzle-orm";
 import type { AnyPgColumn } from "drizzle-orm/pg-core";
 import { db } from "@/db";
 import { siteEvents } from "@/db/schema";
@@ -59,16 +59,14 @@ async function breakdown(column: AnyPgColumn, filters: AnalyticsFilters): Promis
 
 export async function getAnalyticsData(filters: AnalyticsFilters) {
   const where = conditions(filters);
-  const pageWhere = filters.event
-    ? where
-    : and(where, inArray(siteEvents.eventName, ["page_view", "welcome_view"]));
+  const pageWhere = filters.event ? where : and(where, eq(siteEvents.eventName, "page_view"));
   const [totals] = await db
     .select({
       total: count(),
       visitors: sql<number>`count(distinct ${siteEvents.visitorId})::int`,
       sessions: sql<number>`count(distinct ${siteEvents.sessionId})::int`,
-      pageViews: sql<number>`count(*) filter (where ${siteEvents.eventName} in ('page_view', 'welcome_view'))::int`,
-      customEvents: sql<number>`count(*) filter (where ${siteEvents.eventName} not in ('page_view', 'welcome_view'))::int`,
+      pageViews: sql<number>`count(*) filter (where ${siteEvents.eventName} = 'page_view')::int`,
+      customEvents: sql<number>`count(*) filter (where ${siteEvents.eventName} <> 'page_view')::int`,
     })
     .from(siteEvents)
     .where(where);
@@ -90,7 +88,7 @@ export async function getAnalyticsData(filters: AnalyticsFilters) {
       .select({
         day: dayExpression,
         total: count(),
-        pageViews: sql<number>`count(*) filter (where ${siteEvents.eventName} in ('page_view', 'welcome_view'))::int`,
+        pageViews: sql<number>`count(*) filter (where ${siteEvents.eventName} = 'page_view')::int`,
       })
       .from(siteEvents)
       .where(where)
