@@ -1,6 +1,12 @@
 import { describe, expect, it } from "vitest";
 import { coarseGeo, parseAttribution, parseUserAgent, lookupGeo } from "@/lib/attribution";
-import { allowsRateLimitCount, isDoNotTrack } from "@/lib/collection-policy";
+import {
+  allowsRateLimitCount,
+  collectorRateLimitConfigurationError,
+  collectorRateLimitMaxEvents,
+  isDoNotTrack,
+} from "@/lib/collection-policy";
+import { hashRateLimitKey, rateLimitSecretConfigurationError } from "@/lib/crypto";
 import { originIsAllowed, parseAllowedDomains } from "@/lib/domains";
 import { cleanPath, cleanReferrerHost } from "@/lib/privacy";
 import { retentionCutoff } from "@/lib/retention";
@@ -25,8 +31,47 @@ describe("privacy and policy helpers", () => {
   it("honors Do Not Track and applies the per-site/IP event cap", () => {
     expect(isDoNotTrack("1")).toBe(true);
     expect(isDoNotTrack("0")).toBe(false);
-    expect(allowsRateLimitCount(120)).toBe(true);
-    expect(allowsRateLimitCount(121)).toBe(false);
+    const previousLimit = process.env.COLLECTOR_RATE_LIMIT_MAX_EVENTS;
+    try {
+      delete process.env.COLLECTOR_RATE_LIMIT_MAX_EVENTS;
+      expect(collectorRateLimitMaxEvents()).toBe(120);
+      expect(allowsRateLimitCount(120)).toBe(true);
+      expect(allowsRateLimitCount(121)).toBe(false);
+
+      process.env.COLLECTOR_RATE_LIMIT_MAX_EVENTS = "7";
+      expect(collectorRateLimitConfigurationError()).toBeNull();
+      expect(collectorRateLimitMaxEvents()).toBe(7);
+      expect(allowsRateLimitCount(7)).toBe(true);
+      expect(allowsRateLimitCount(8)).toBe(false);
+
+      process.env.COLLECTOR_RATE_LIMIT_MAX_EVENTS = "0";
+      expect(collectorRateLimitConfigurationError()).toContain("positive integer");
+      process.env.COLLECTOR_RATE_LIMIT_MAX_EVENTS = "2147483647";
+      expect(collectorRateLimitConfigurationError()).toContain("must not exceed");
+    } finally {
+      if (previousLimit === undefined) delete process.env.COLLECTOR_RATE_LIMIT_MAX_EVENTS;
+      else process.env.COLLECTOR_RATE_LIMIT_MAX_EVENTS = previousLimit;
+    }
+  });
+
+  it("requires a long rate-limit secret in production and refuses to hash with the fallback", () => {
+    const previousEnvironment = process.env.NODE_ENV;
+    const previousSecret = process.env.RATE_LIMIT_SECRET;
+    Reflect.set(process.env, "NODE_ENV", "production");
+    Reflect.deleteProperty(process.env, "RATE_LIMIT_SECRET");
+    try {
+      expect(rateLimitSecretConfigurationError()).toContain("at least 32 UTF-8 bytes");
+      expect(() => hashRateLimitKey("ip:203.0.113.7")).toThrow("RATE_LIMIT_SECRET");
+
+      process.env.RATE_LIMIT_SECRET = "s".repeat(32);
+      expect(rateLimitSecretConfigurationError()).toBeNull();
+      expect(hashRateLimitKey("ip:203.0.113.7")).toMatch(/^[a-f0-9]{64}$/);
+    } finally {
+      if (previousEnvironment === undefined) Reflect.deleteProperty(process.env, "NODE_ENV");
+      else Reflect.set(process.env, "NODE_ENV", previousEnvironment);
+      if (previousSecret === undefined) delete process.env.RATE_LIMIT_SECRET;
+      else process.env.RATE_LIMIT_SECRET = previousSecret;
+    }
   });
 
   it("stores only coarse Bowser categories and keeps ingest usable without a GeoIP file", async () => {

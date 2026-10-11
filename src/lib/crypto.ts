@@ -12,7 +12,20 @@ export function hashRateLimitIp(ip: string): string {
   return hashRateLimitKey(`ip:${ip}`);
 }
 
+export const RATE_LIMIT_SECRET_MIN_BYTES = 32;
+
+export function rateLimitSecretConfigurationError(): string | null {
+  if (process.env.NODE_ENV !== "production") return null;
+  const secret = process.env.RATE_LIMIT_SECRET;
+  if (!secret || Buffer.byteLength(secret, "utf8") < RATE_LIMIT_SECRET_MIN_BYTES) {
+    return "RATE_LIMIT_SECRET must contain at least 32 UTF-8 bytes in production.";
+  }
+  return null;
+}
+
 export function hashRateLimitKey(value: string): string {
-  const secret = process.env.RATE_LIMIT_SECRET ?? "visitoring-local-rate-limit";
+  const configurationError = rateLimitSecretConfigurationError();
+  if (configurationError) throw new Error(configurationError);
+  const secret = process.env.RATE_LIMIT_SECRET || "visitoring-local-rate-limit";
   return createHmac("sha256", secret).update(value).digest("hex");
 }

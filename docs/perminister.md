@@ -27,7 +27,7 @@ operations go through Perminister; there is no local authentication fallback.
 ## Manage Visitoring projects
 
 Deploy the Perminister release with the Visitoring workspace lifecycle endpoints before deploying a
-Visitoring release that calls them. Then run Visitoring's `db:migrate`; the new nullable archive and
+Visitoring release that calls them. Then run Visitoring's `db:migrate`; it uses the same migration runner as production, including its concurrent-index migrations. The new nullable archive and
 deletion-pending fields leave existing workspaces active.
 
 Organization owners and admins can add projects from Visitoring's project picker, even when they do

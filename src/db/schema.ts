@@ -48,7 +48,10 @@ export const sites = pgTable(
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
   },
-  (table) => [index("sites_workspace_idx").on(table.workspaceId)],
+  (table) => [
+    index("sites_workspace_idx").on(table.workspaceId),
+    uniqueIndex("sites_site_key_hash_unique").on(table.siteKeyHash).concurrently(),
+  ],
 );
 
 export const siteEvents = pgTable(
@@ -82,6 +85,7 @@ export const siteEvents = pgTable(
     index("site_events_site_name_time_idx").on(table.siteId, table.eventName, table.createdAt),
     index("site_events_site_visitor_idx").on(table.siteId, table.visitorId),
     index("site_events_site_session_idx").on(table.siteId, table.sessionId),
+    index("site_events_created_at_idx").on(table.createdAt).concurrently(),
   ],
 );
 
