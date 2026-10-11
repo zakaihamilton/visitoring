@@ -1,5 +1,5 @@
-export const DEFAULT_COLLECTOR_RATE_LIMIT_MAX_EVENTS = 120;
-export const MAX_COLLECTOR_RATE_LIMIT_MAX_EVENTS = 2_147_483_646;
+const DEFAULT_COLLECTOR_RATE_LIMIT_MAX_EVENTS = 120;
+const MAX_COLLECTOR_RATE_LIMIT_MAX_EVENTS = 2_147_483_646;
 
 export function collectorRateLimitConfigurationError(): string | null {
   const configured = process.env.COLLECTOR_RATE_LIMIT_MAX_EVENTS;

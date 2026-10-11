@@ -12,7 +12,7 @@ export function hashRateLimitIp(ip: string): string {
   return hashRateLimitKey(`ip:${ip}`);
 }
 
-export const RATE_LIMIT_SECRET_MIN_BYTES = 32;
+const RATE_LIMIT_SECRET_MIN_BYTES = 32;
 
 export function rateLimitSecretConfigurationError(): string | null {
   if (process.env.NODE_ENV !== "production") return null;

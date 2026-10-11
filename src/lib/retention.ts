@@ -1,6 +1,6 @@
 import { pool } from "@/db";
 
-export const EVENT_PRUNE_BATCH_SIZE = 10_000;
+const EVENT_PRUNE_BATCH_SIZE = 10_000;
 
 export function retentionCutoff(now = new Date(), months = 24): Date {
   const cutoff = new Date(now);
