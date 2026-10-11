@@ -16,13 +16,17 @@ function redirectToLogin(request: Request, error: string) {
 
 export async function GET(request: Request) {
   const url = new URL(request.url);
-  const workspaceSlug = (url.searchParams.get("workspace") ?? "").trim().toLowerCase();
-  if (!/^[a-z0-9][a-z0-9_-]{0,79}$/.test(workspaceSlug)) {
-    return redirectToLogin(request, "workspace");
+  const organizationId = (url.searchParams.get("organizationId") ?? "").trim().toLowerCase();
+  if (
+    !/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
+      organizationId,
+    )
+  ) {
+    return redirectToLogin(request, "organization");
   }
 
   try {
-    const transaction = createPerministerSsoTransaction(workspaceSlug);
+    const transaction = createPerministerSsoTransaction(organizationId);
     const secret = perministerClientSecretForSso();
     const destination = perministerAuthorizationUrl(
       transaction.state,

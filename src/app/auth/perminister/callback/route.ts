@@ -4,7 +4,7 @@ import {
   exchangePerministerAuthorizationCode,
   perministerClientSecretForSso,
   revokePerministerSession,
-  visitoringUserForWorkspace,
+  hasVisitoringOrganization,
 } from "@/lib/perminister";
 import { setSessionCookie } from "@/lib/auth";
 import {
@@ -12,7 +12,7 @@ import {
   perministerSsoCookieName,
   readPerministerSsoTransaction,
 } from "@/lib/perminister-sso";
-import { setVisitoringWorkspaceCookies } from "@/lib/workspace-cookies";
+import { setVisitoringOrganizationCookies } from "@/lib/organization-cookies";
 
 export const runtime = "nodejs";
 
@@ -52,20 +52,19 @@ export async function GET(request: Request) {
     }
 
     const auth = await exchangePerministerAuthorizationCode(code, transaction.verifier);
-    const user = await visitoringUserForWorkspace(auth, transaction.workspaceSlug);
-    if (!user) {
+    if (!hasVisitoringOrganization(auth, transaction.organizationId)) {
       try {
         await revokePerministerSession(auth.sessionToken);
       } catch {
-        // The local workspace check failed; the new token is never returned to the browser.
+        // The organization check failed; the new token is never returned to the browser.
       }
       return responseToLogin(request, "invalid", state);
     }
 
     await setSessionCookie(auth.sessionToken);
-    await setVisitoringWorkspaceCookies(transaction.workspaceSlug);
+    await setVisitoringOrganizationCookies(transaction.organizationId);
 
-    const response = NextResponse.redirect(new URL("/dashboard", request.url), 303);
+    const response = NextResponse.redirect(new URL("/projects", request.url), 303);
     response.cookies.set(cookieName, "", {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",

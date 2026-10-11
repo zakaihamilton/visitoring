@@ -16,7 +16,6 @@ export const workspaces = pgTable(
   {
     id: uuid("id").defaultRandom().primaryKey(),
     name: varchar("name", { length: 120 }).notNull(),
-    slug: varchar("slug", { length: 80 }).notNull().unique(),
     organizationId: uuid("organization_id").notNull(),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },

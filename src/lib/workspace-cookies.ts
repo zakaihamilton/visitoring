@@ -2,21 +2,12 @@ import "server-only";
 
 import { cookies } from "next/headers";
 
-export async function setVisitoringWorkspaceCookies(workspaceSlug: string): Promise<void> {
-  const cookieStore = await cookies();
-  const cookieOptions = {
+export async function setVisitoringWorkspaceCookie(workspaceId: string): Promise<void> {
+  (await cookies()).set("visitoring_workspace_id", workspaceId, {
     httpOnly: true,
-    sameSite: "lax" as const,
+    sameSite: "lax",
     secure: process.env.NODE_ENV === "production",
-    maxAge: 60 * 60 * 24 * 365,
-  };
-
-  cookieStore.set("visitoring_last_project", workspaceSlug, {
-    ...cookieOptions,
-    path: "/login",
-  });
-  cookieStore.set("visitoring_workspace", workspaceSlug, {
-    ...cookieOptions,
     path: "/",
+    maxAge: 60 * 60 * 24 * 365,
   });
 }

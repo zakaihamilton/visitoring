@@ -1,5 +1,5 @@
 import "server-only";
-import { eq } from "drizzle-orm";
+import { and, eq, inArray } from "drizzle-orm";
 import { cookies } from "next/headers";
 import { db } from "@/db";
 import { workspaces } from "@/db/schema";
@@ -8,6 +8,13 @@ export const PERMINISTER_SESSION_COOKIE = "visitoring_session";
 const VISITORING_PRODUCT_ID = "visitoring";
 
 export type VisitoringRole = "admin" | "viewer";
+export type VisitoringWorkspaceChoice = {
+  id: string;
+  name: string;
+  organizationId: string;
+  organizationName: string;
+  role: VisitoringRole;
+};
 type VisitoringWorkspaceMember = {
   id: string;
   email: string | null;
@@ -19,7 +26,6 @@ export type VisitoringCurrentUser = {
   id: string;
   workspaceId: string;
   workspaceName: string;
-  workspaceSlug: string;
   organizationId: string;
   organizationName: string;
   email: string | null;
@@ -214,48 +220,141 @@ export async function revokePerministerSession(token: string): Promise<void> {
   });
 }
 
+export function hasVisitoringOrganization(auth: ConsumerSession, organizationId: string): boolean {
+  return visitoringOrganizationForId(auth, organizationId) !== null;
+}
+
+export function visitoringOrganizationForId(
+  auth: ConsumerSession,
+  organizationId: string,
+): { organizationId: string; organizationName: string } | null {
+  const config = configuration();
+  const normalizedOrganizationId = organizationId.trim().toLowerCase();
+  const organization = auth.organizations.find(
+    (item) =>
+      item.organizationId.toLowerCase() === normalizedOrganizationId &&
+      item.productId === config.productId,
+  );
+  return organization
+    ? {
+        organizationId: organization.organizationId,
+        organizationName: organization.organizationName,
+      }
+    : null;
+}
+
+function visitoringRoleForWorkspace(
+  organization: ConsumerOrganization,
+  organizationId: string,
+  workspaceId: string,
+): VisitoringRole | null {
+  const config = configuration();
+  const grants = organization.resourceRoles.filter(
+    (item) =>
+      item.scope.kind === "workspace" &&
+      item.scope.organizationId?.toLowerCase() === organizationId &&
+      item.scope.productId === config.productId &&
+      item.scope.workspaceId === workspaceId &&
+      (item.role === "admin" || item.role === "viewer") &&
+      item.actions.includes("visitoring:workspace:read"),
+  );
+  if (grants.some((item) => item.role === "admin")) return "admin";
+  if (grants.some((item) => item.role === "viewer")) return "viewer";
+  return null;
+}
+
+export async function visitoringWorkspacesForOrganization(
+  auth: ConsumerSession,
+  organizationId: string,
+): Promise<VisitoringWorkspaceChoice[]> {
+  const config = configuration();
+  const normalizedOrganizationId = organizationId.trim().toLowerCase();
+  const organization = auth.organizations.find(
+    (item) =>
+      item.organizationId.toLowerCase() === normalizedOrganizationId &&
+      item.productId === config.productId,
+  );
+  if (!organization) return [];
+
+  const workspaceIds = [
+    ...new Set(
+      organization.resourceRoles
+        .filter(
+          (item) =>
+            item.scope.kind === "workspace" &&
+            item.scope.organizationId?.toLowerCase() === normalizedOrganizationId &&
+            item.scope.productId === config.productId &&
+            typeof item.scope.workspaceId === "string" &&
+            (item.role === "admin" || item.role === "viewer") &&
+            item.actions.includes("visitoring:workspace:read"),
+        )
+        .map((item) => item.scope.workspaceId)
+        .filter((workspaceId): workspaceId is string => typeof workspaceId === "string"),
+    ),
+  ];
+  if (workspaceIds.length === 0) return [];
+
+  const accessibleWorkspaces = await db
+    .select({
+      id: workspaces.id,
+      name: workspaces.name,
+      organizationId: workspaces.organizationId,
+    })
+    .from(workspaces)
+    .where(
+      and(
+        inArray(workspaces.id, workspaceIds),
+        eq(workspaces.organizationId, normalizedOrganizationId),
+      ),
+    )
+    .limit(workspaceIds.length);
+
+  return accessibleWorkspaces
+    .map((workspace) => {
+      const role = visitoringRoleForWorkspace(organization, normalizedOrganizationId, workspace.id);
+      return role ? { ...workspace, organizationName: organization.organizationName, role } : null;
+    })
+    .filter((workspace): workspace is VisitoringWorkspaceChoice => workspace !== null)
+    .sort((left, right) => left.name.localeCompare(right.name));
+}
+
 export async function visitoringUserForWorkspace(
   auth: ConsumerSession,
-  workspaceSlug: string,
+  organizationId: string,
+  workspaceId: string,
 ): Promise<VisitoringCurrentUser | null> {
-  const config = configuration();
+  const normalizedOrganizationId = organizationId.trim().toLowerCase();
+  const organization = auth.organizations.find(
+    (item) =>
+      item.organizationId.toLowerCase() === normalizedOrganizationId &&
+      item.productId === configuration().productId,
+  );
+  if (!organization) return null;
+
   const [workspace] = await db
     .select({
       id: workspaces.id,
       name: workspaces.name,
-      slug: workspaces.slug,
       organizationId: workspaces.organizationId,
     })
     .from(workspaces)
-    .where(eq(workspaces.slug, workspaceSlug.trim().toLowerCase()))
+    .where(
+      and(eq(workspaces.id, workspaceId), eq(workspaces.organizationId, normalizedOrganizationId)),
+    )
     .limit(1);
   if (!workspace) return null;
 
-  const organization = auth.organizations.find(
-    (item) =>
-      item.organizationId.toLowerCase() === workspace.organizationId.toLowerCase() &&
-      item.productId === config.productId,
-  );
-  const grant = organization?.resourceRoles.find(
-    (item) =>
-      item.scope.kind === "workspace" &&
-      item.scope.organizationId?.toLowerCase() === workspace.organizationId.toLowerCase() &&
-      item.scope.productId === config.productId &&
-      item.scope.workspaceId === workspace.id &&
-      (item.role === "admin" || item.role === "viewer") &&
-      item.actions.includes("visitoring:workspace:read"),
-  );
-  if (!organization || !grant || (grant.role !== "admin" && grant.role !== "viewer")) return null;
+  const role = visitoringRoleForWorkspace(organization, normalizedOrganizationId, workspace.id);
+  if (!role) return null;
 
   return {
     id: auth.account.subjectId,
     workspaceId: workspace.id,
     workspaceName: workspace.name,
-    workspaceSlug: workspace.slug,
     organizationId: workspace.organizationId,
     organizationName: organization.organizationName,
     email: auth.account.email,
-    role: grant.role,
+    role,
   };
 }
 

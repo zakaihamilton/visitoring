@@ -4,14 +4,20 @@ import { redirect } from "next/navigation";
 import {
   PERMINISTER_SESSION_COOKIE,
   PerministerApiError,
+  hasVisitoringOrganization,
   readPerministerSession,
   revokePerministerSession,
+  visitoringOrganizationForId,
   visitoringUserForWorkspace,
+  visitoringWorkspacesForOrganization,
   type VisitoringCurrentUser,
+  type VisitoringWorkspaceChoice,
 } from "@/lib/perminister";
+import { setVisitoringWorkspaceCookie } from "@/lib/workspace-cookies";
 
 const SESSION_COOKIE = PERMINISTER_SESSION_COOKIE;
-const ACTIVE_WORKSPACE_COOKIE = "visitoring_workspace";
+const ACTIVE_ORGANIZATION_COOKIE = "visitoring_organization_id";
+const ACTIVE_WORKSPACE_COOKIE = "visitoring_workspace_id";
 const SESSION_DURATION_MS = 1000 * 60 * 60 * 24 * 30;
 
 export type CurrentUser = VisitoringCurrentUser;
@@ -21,12 +27,13 @@ async function getCurrentUser(): Promise<CurrentUser | null> {
   const token = jar.get(SESSION_COOKIE)?.value;
   if (!token) return null;
 
-  const workspaceSlug = jar.get(ACTIVE_WORKSPACE_COOKIE)?.value;
-  if (!workspaceSlug) return null;
+  const organizationId = jar.get(ACTIVE_ORGANIZATION_COOKIE)?.value;
+  const workspaceId = jar.get(ACTIVE_WORKSPACE_COOKIE)?.value;
+  if (!organizationId || !workspaceId) return null;
   try {
     const session = await readPerministerSession(token);
     if (!session.authenticated) return null;
-    return visitoringUserForWorkspace(session, workspaceSlug);
+    return visitoringUserForWorkspace(session, organizationId, workspaceId);
   } catch (error) {
     if (error instanceof PerministerApiError && error.status === 401) return null;
     throw error;
@@ -35,8 +42,61 @@ async function getCurrentUser(): Promise<CurrentUser | null> {
 
 export async function requireUser(): Promise<CurrentUser> {
   const user = await getCurrentUser();
-  if (!user) redirect("/login");
+  if (!user) {
+    const jar = await cookies();
+    if (jar.get(SESSION_COOKIE)?.value && jar.get(ACTIVE_ORGANIZATION_COOKIE)?.value)
+      redirect("/projects");
+    redirect("/login");
+  }
   return user;
+}
+
+export async function requireOrganizationWorkspaces(): Promise<{
+  organizationId: string;
+  organizationName: string;
+  workspaces: VisitoringWorkspaceChoice[];
+}> {
+  const jar = await cookies();
+  const token = jar.get(SESSION_COOKIE)?.value;
+  const organizationId = jar.get(ACTIVE_ORGANIZATION_COOKIE)?.value;
+  if (!token || !organizationId) redirect("/login");
+
+  let session: Awaited<ReturnType<typeof readPerministerSession>>;
+  try {
+    session = await readPerministerSession(token);
+  } catch (error) {
+    if (error instanceof PerministerApiError && error.status === 401) redirect("/login");
+    throw error;
+  }
+
+  const organization = visitoringOrganizationForId(session, organizationId);
+  if (!organization) redirect("/login?error=invalid");
+
+  return {
+    organizationId: organization.organizationId,
+    organizationName: organization.organizationName,
+    workspaces: await visitoringWorkspacesForOrganization(session, organizationId),
+  };
+}
+
+export async function selectVisitoringWorkspace(workspaceId: string): Promise<void> {
+  const jar = await cookies();
+  const token = jar.get(SESSION_COOKIE)?.value;
+  const organizationId = jar.get(ACTIVE_ORGANIZATION_COOKIE)?.value;
+  if (!token || !organizationId) redirect("/login");
+
+  let session: Awaited<ReturnType<typeof readPerministerSession>>;
+  try {
+    session = await readPerministerSession(token);
+  } catch (error) {
+    if (error instanceof PerministerApiError && error.status === 401) redirect("/login");
+    throw error;
+  }
+
+  if (!hasVisitoringOrganization(session, organizationId)) redirect("/login?error=invalid");
+  const user = await visitoringUserForWorkspace(session, organizationId, workspaceId);
+  if (!user) redirect("/projects?error=access");
+  await setVisitoringWorkspaceCookie(workspaceId);
 }
 
 export async function requireAdmin(): Promise<CurrentUser> {

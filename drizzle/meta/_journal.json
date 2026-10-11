@@ -43,6 +43,13 @@
       "when": 1791554020525,
       "tag": "0005_powerful_lionheart",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1791707866739,
+      "tag": "0006_eager_living_tribunal",
+      "breakpoints": true
     }
   ]
 }

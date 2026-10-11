@@ -42,6 +42,10 @@
   font-size: var(--type-compact);
   text-overflow: ellipsis;
   white-space: nowrap;
+  text-decoration: none;
+}
+.workspace:hover {
+  color: var(--ink);
 }
 .organization {
   position: relative;

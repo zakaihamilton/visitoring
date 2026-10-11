@@ -25,7 +25,7 @@ async function countAttempt(bucketKey: string, maxAttempts: number, now: Date): 
 
 export async function isLoginRateLimited(input: {
   email: string;
-  workspaceSlug: string;
+  organizationId: string;
   ip: string;
 }): Promise<boolean> {
   const now = new Date();
@@ -42,13 +42,13 @@ export async function isLoginRateLimited(input: {
   return accountCount > ACCOUNT_ATTEMPT_LIMIT;
 }
 
-function accountBucketKey(input: { email: string; workspaceSlug: string }): string {
-  return hashRateLimitKey(`login:account:${input.workspaceSlug}:${input.email}`);
+function accountBucketKey(input: { email: string; organizationId: string }): string {
+  return hashRateLimitKey(`login:account:${input.organizationId}:${input.email}`);
 }
 
 export async function clearLoginAccountAttempts(input: {
   email: string;
-  workspaceSlug: string;
+  organizationId: string;
 }): Promise<void> {
   await db
     .delete(authRateLimitBuckets)

@@ -19,7 +19,9 @@ export function Topbar({
           <span>Visitoring</span>
         </Link>
         <span className={styles.divider} />
-        <span className={styles.workspace}>{user.workspaceName}</span>
+        <Link href="/projects" className={styles.workspace} title="Switch project">
+          {user.workspaceName}
+        </Link>
         <span className={styles.divider} />
         <details className={styles.organization}>
           <summary
