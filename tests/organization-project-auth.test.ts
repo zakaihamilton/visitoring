@@ -100,14 +100,16 @@ describe("organization project management authorization", () => {
     await expect(requireOrganizationAdmin()).rejects.toThrow("redirect:/projects?error=forbidden");
   });
 
-  it("routes authenticated users without an organization to the chooser", async () => {
+  it("automatically selects an organization for authenticated users without one", async () => {
     mocks.cookies.mockResolvedValue({
       get: (name: string) =>
         name === "visitoring_session" ? { value: "current-session" } : undefined,
     });
 
-    await expect(requireUser()).rejects.toThrow("redirect:/organizations");
-    await expect(requireOrganizationWorkspaces()).rejects.toThrow("redirect:/organizations");
+    await expect(requireUser()).rejects.toThrow("redirect:/auth/organization/default");
+    await expect(requireOrganizationWorkspaces()).rejects.toThrow(
+      "redirect:/auth/organization/default",
+    );
   });
 
   it("sends an expired session without an organization back to sign-in", async () => {

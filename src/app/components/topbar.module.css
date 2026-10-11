@@ -47,73 +47,6 @@
 .workspace:hover {
   color: var(--ink);
 }
-.organization {
-  position: relative;
-  min-width: 0;
-  max-width: min(16vw, 190px);
-}
-.organizationSummary {
-  display: flex;
-  min-height: 44px;
-  min-width: 0;
-  align-items: center;
-  gap: 5px;
-  list-style: none;
-  cursor: pointer;
-}
-.organizationSummary::-webkit-details-marker {
-  display: none;
-}
-.organizationSummary::after {
-  content: "⌄";
-  flex: 0 0 auto;
-  color: var(--muted);
-  font-size: 12px;
-}
-.organizationSummary:focus-visible {
-  border-radius: 4px;
-  outline: 2px solid var(--ink);
-  outline-offset: 2px;
-}
-.organizationName {
-  display: block;
-  min-width: 0;
-  overflow: hidden;
-  color: var(--ink-soft);
-  font-size: var(--type-compact);
-  font-weight: 600;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.organizationPopover {
-  position: absolute;
-  z-index: 20;
-  top: calc(100% + 6px);
-  right: 0;
-  width: max-content;
-  max-width: min(320px, calc(100vw - 32px));
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  padding: 12px 14px;
-  color: var(--ink);
-  background: #fff;
-  box-shadow: 0 12px 32px rgb(25 44 39 / 14%);
-}
-.organizationLabel {
-  display: block;
-  margin-bottom: 4px;
-  color: var(--muted);
-  font-size: 11px;
-  font-weight: 650;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-}
-.organizationPopover strong {
-  display: block;
-  overflow-wrap: anywhere;
-  font-size: 14px;
-  line-height: 1.45;
-}
 .nav {
   flex: 0 0 auto;
   gap: 4px;
@@ -166,12 +99,6 @@
   }
   .workspace {
     max-width: min(22vw, 120px);
-  }
-  .organization {
-    max-width: min(22vw, 120px);
-  }
-  .organizationPopover {
-    right: 0;
   }
   .account {
     margin-left: auto;

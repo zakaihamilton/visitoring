@@ -12,6 +12,7 @@ import {
   visitoringUserForWorkspace,
   visitoringWorkspacesForOrganization,
   type VisitoringCurrentUser,
+  type VisitoringOrganizationChoice,
   type VisitoringWorkspaceChoice,
 } from "@/lib/perminister";
 import { setVisitoringWorkspaceCookie } from "@/lib/workspace-cookies";
@@ -21,20 +22,25 @@ const ACTIVE_ORGANIZATION_COOKIE = "visitoring_organization_id";
 const ACTIVE_WORKSPACE_COOKIE = "visitoring_workspace_id";
 const SESSION_DURATION_MS = 1000 * 60 * 60 * 24 * 30;
 
-export type CurrentUser = VisitoringCurrentUser;
+export type CurrentUser = VisitoringCurrentUser & {
+  organizations: VisitoringOrganizationChoice[];
+};
 
 async function getCurrentUser(): Promise<CurrentUser | null> {
   const jar = await cookies();
   const token = jar.get(SESSION_COOKIE)?.value;
   if (!token) return null;
 
-  const organizationId = jar.get(ACTIVE_ORGANIZATION_COOKIE)?.value;
-  const workspaceId = jar.get(ACTIVE_WORKSPACE_COOKIE)?.value;
-  if (!organizationId || !workspaceId) return null;
   try {
     const session = await readPerministerSession(token);
     if (!session.authenticated) return null;
-    return visitoringUserForWorkspace(session, organizationId, workspaceId);
+    const organizationId = jar.get(ACTIVE_ORGANIZATION_COOKIE)?.value;
+    const workspaceId = jar.get(ACTIVE_WORKSPACE_COOKIE)?.value;
+    if (!organizationId || !workspaceId) return null;
+    if (!visitoringOrganizationForId(session, organizationId)) return null;
+    const user = await visitoringUserForWorkspace(session, organizationId, workspaceId);
+    if (!user) return null;
+    return { ...user, organizations: visitoringOrganizations(session) };
   } catch (error) {
     if (error instanceof PerministerApiError && error.status === 401) return null;
     throw error;
@@ -67,10 +73,10 @@ async function requireOrganizationSession() {
   const jar = await cookies();
   const organizationId = jar.get(ACTIVE_ORGANIZATION_COOKIE)?.value;
   const session = await requirePerministerSession();
-  if (!organizationId) redirect("/organizations");
+  if (!organizationId) redirect("/auth/organization/default");
 
   const organization = visitoringOrganizationForId(session, organizationId);
-  if (!organization) redirect("/organizations?error=invalid");
+  if (!organization) redirect("/auth/organization/default");
   return { session, organization };
 }
 
@@ -82,16 +88,16 @@ export async function requireUser(): Promise<CurrentUser> {
   if (!jar.get(SESSION_COOKIE)?.value) redirect("/login");
   const session = await requirePerministerSession();
   const organizationId = jar.get(ACTIVE_ORGANIZATION_COOKIE)?.value;
-  if (!organizationId) {
-    if (visitoringOrganizations(session).length === 0) redirect("/login?error=invalid");
-    redirect("/organizations");
-  }
+  if (visitoringOrganizations(session).length === 0) redirect("/login?error=invalid");
+  if (!organizationId || !visitoringOrganizationForId(session, organizationId))
+    redirect("/auth/organization/default");
   redirect("/projects");
 }
 
 export async function requireOrganizationWorkspaces(): Promise<{
   organizationId: string;
   organizationName: string;
+  organizations: VisitoringOrganizationChoice[];
   canManageProjects: boolean;
   workspaces: VisitoringWorkspaceChoice[];
 }> {
@@ -100,6 +106,7 @@ export async function requireOrganizationWorkspaces(): Promise<{
   return {
     organizationId: organization.organizationId,
     organizationName: organization.organizationName,
+    organizations: visitoringOrganizations(session),
     canManageProjects: isVisitoringOrganizationAdmin(session, organization.organizationId),
     workspaces: await visitoringWorkspacesForOrganization(session, organization.organizationId),
   };

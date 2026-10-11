@@ -295,11 +295,13 @@
     padding: 20px 18px 56px;
   }
   .header {
-    align-items: flex-start;
-    gap: 16px;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
   }
   .account {
     align-items: flex-end;
+    margin-left: auto;
     gap: 12px;
   }
   .organization {

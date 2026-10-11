@@ -1,7 +1,9 @@
 import Link from "next/link";
 import { logoutAction } from "@/app/login/actions";
+import { selectOrganizationAction } from "@/app/organizations/actions";
 import type { CurrentUser } from "@/lib/auth";
 import { BrandIcon } from "./BrandIcon";
+import { OrganizationSwitcher } from "./OrganizationSwitcher";
 import styles from "./topbar.module.css";
 
 export function Topbar({
@@ -23,19 +25,11 @@ export function Topbar({
           {user.workspaceName}
         </Link>
         <span className={styles.divider} />
-        <details className={styles.organization}>
-          <summary
-            aria-label={`Organization: ${user.organizationName}`}
-            className={styles.organizationSummary}
-            title={user.organizationName}
-          >
-            <span className={styles.organizationName}>{user.organizationName}</span>
-          </summary>
-          <div className={styles.organizationPopover}>
-            <span className={styles.organizationLabel}>Organization</span>
-            <strong>{user.organizationName}</strong>
-          </div>
-        </details>
+        <OrganizationSwitcher
+          organizations={user.organizations}
+          currentOrganizationId={user.organizationId}
+          action={selectOrganizationAction}
+        />
       </div>
       <nav className={styles.nav} aria-label="Main navigation">
         <Link href="/dashboard" aria-current={section === "dashboard" ? "page" : undefined}>
