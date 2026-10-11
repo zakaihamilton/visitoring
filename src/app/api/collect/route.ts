@@ -1,7 +1,7 @@
-import { eq, sql } from "drizzle-orm";
+import { and, eq, isNull, sql } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { db } from "@/db";
-import { rateLimitBuckets, siteEvents, sites } from "@/db/schema";
+import { rateLimitBuckets, siteEvents, sites, workspaces } from "@/db/schema";
 import { parseAttribution } from "@/lib/attribution";
 import { parseEnvelope } from "@/lib/collect-envelope";
 import { hashRateLimitIp, sha256 } from "@/lib/crypto";
@@ -62,9 +62,20 @@ function corsHeaders(origin: string): HeadersInit {
 async function authorizedSite(siteKey: string | null, origin: string | null) {
   if (!siteKey?.startsWith("vk_")) return null;
   const [site] = await db
-    .select()
+    .select({
+      id: sites.id,
+      workspaceId: sites.workspaceId,
+      allowedDomains: sites.allowedDomains,
+    })
     .from(sites)
-    .where(eq(sites.siteKeyHash, sha256(siteKey)))
+    .innerJoin(workspaces, eq(sites.workspaceId, workspaces.id))
+    .where(
+      and(
+        eq(sites.siteKeyHash, sha256(siteKey)),
+        isNull(workspaces.archivedAt),
+        isNull(workspaces.deletionPendingAt),
+      ),
+    )
     .limit(1);
   if (!site || !originIsAllowed(origin, site.allowedDomains)) return null;
   return site;

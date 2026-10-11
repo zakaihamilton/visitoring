@@ -1,7 +1,11 @@
 import Link from "next/link";
+import { asc, eq } from "drizzle-orm";
+import { db } from "@/db";
+import { workspaces as workspacesTable } from "@/db/schema";
 import { BrandIcon } from "@/app/components/BrandIcon";
 import { logoutAction } from "@/app/login/actions";
 import { requireOrganizationWorkspaces } from "@/lib/auth";
+import { ProjectManager } from "./ProjectManager";
 import styles from "./projects.module.css";
 import { selectWorkspaceAction } from "./actions";
 
@@ -10,10 +14,45 @@ export const dynamic = "force-dynamic";
 type Props = { searchParams: Promise<{ error?: string }> };
 
 export default async function ProjectsPage({ searchParams }: Props) {
-  const [{ organizationName, workspaces }, { error }] = await Promise.all([
-    requireOrganizationWorkspaces(),
-    searchParams,
-  ]);
+  const [{ organizationId, organizationName, canManageProjects, workspaces }, { error }] =
+    await Promise.all([requireOrganizationWorkspaces(), searchParams]);
+
+  const managedProjects = canManageProjects
+    ? await db
+        .select({
+          id: workspacesTable.id,
+          name: workspacesTable.name,
+          archivedAt: workspacesTable.archivedAt,
+          deletionPendingAt: workspacesTable.deletionPendingAt,
+        })
+        .from(workspacesTable)
+        .where(eq(workspacesTable.organizationId, organizationId))
+        .orderBy(asc(workspacesTable.name))
+    : [];
+  const hasActiveManagedProjects = managedProjects.some((project) => !project.archivedAt);
+  const hasArchivedManagedProjects = managedProjects.some((project) => project.archivedAt);
+  const emptyState = canManageProjects
+    ? hasActiveManagedProjects
+      ? {
+          title: "No accessible projects",
+          message:
+            "This organization has active projects, but your account does not have access to them. Ask a project admin to grant access, or add a project below.",
+        }
+      : hasArchivedManagedProjects
+        ? {
+            title: "No active projects",
+            message:
+              "Restore an archived project below or add a new project to start using analytics.",
+          }
+        : {
+            title: "No projects yet",
+            message: "Create a project below to start using Visitoring analytics.",
+          }
+    : {
+        title: "No accessible projects",
+        message:
+          "Your account is signed in, but it does not have access to a Visitoring project in this organization. Ask an administrator to grant access.",
+      };
 
   return (
     <main className={styles.page}>
@@ -47,6 +86,12 @@ export default async function ProjectsPage({ searchParams }: Props) {
           </p>
         ) : null}
 
+        {error === "forbidden" ? (
+          <p className={styles.error} role="alert">
+            Only organization owners and admins can manage Visitoring projects.
+          </p>
+        ) : null}
+
         {workspaces.length > 0 ? (
           <div className={styles.grid}>
             {workspaces.map((workspace) => (
@@ -69,13 +114,20 @@ export default async function ProjectsPage({ searchParams }: Props) {
           </div>
         ) : (
           <div className={styles.empty}>
-            <h2>No projects yet</h2>
-            <p>
-              Your account is signed in, but it does not have access to a Visitoring project in this
-              organization. Ask an administrator to grant access.
-            </p>
+            <h2>{emptyState.title}</h2>
+            <p>{emptyState.message}</p>
           </div>
         )}
+
+        {canManageProjects ? (
+          <ProjectManager
+            projects={managedProjects.map((project) => ({
+              ...project,
+              archivedAt: project.archivedAt?.toISOString() ?? null,
+              deletionPendingAt: project.deletionPendingAt?.toISOString() ?? null,
+            }))}
+          />
+        ) : null}
       </section>
     </main>
   );

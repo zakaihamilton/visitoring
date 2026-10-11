@@ -158,6 +158,34 @@ suite("PostgreSQL collector integration", () => {
     expect(after.length).toBe(before.length);
   });
 
+  it("pauses collection while a project is archived and resumes it after restoration", async () => {
+    const before = await db.select().from(siteEvents).where(eq(siteEvents.siteId, siteId));
+    await db
+      .update(workspaces)
+      .set({ archivedAt: new Date() })
+      .where(eq(workspaces.id, workspaceId));
+
+    const rejected = await collect(
+      { ...payload, visitorId: "archived-project-visitor" },
+      { ip: "198.51.100.56" },
+    );
+    expect(rejected.status).toBe(403);
+    const whileArchived = await db.select().from(siteEvents).where(eq(siteEvents.siteId, siteId));
+    expect(whileArchived).toHaveLength(before.length);
+
+    await db.update(workspaces).set({ archivedAt: null }).where(eq(workspaces.id, workspaceId));
+    const restored = await collect(
+      { ...payload, visitorId: "restored-project-visitor" },
+      { ip: "198.51.100.57" },
+    );
+    expect(restored.status).toBe(204);
+    const afterRestore = await db
+      .select()
+      .from(siteEvents)
+      .where(eq(siteEvents.visitorId, "restored-project-visitor"));
+    expect(afterRestore).toHaveLength(1);
+  });
+
   it("honors the DNT header and applies the 120-event site/IP rate limit", async () => {
     const before = await db.select().from(siteEvents).where(eq(siteEvents.siteId, siteId));
     expect((await collect(payload, { ip: "198.51.100.40", dnt: "1" })).status).toBe(204);

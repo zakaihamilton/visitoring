@@ -2,6 +2,7 @@
 
 import { useActionState, useEffect, useRef, useState } from "react";
 import { Tooltip } from "@/app/components/Tooltip";
+import { guardConfirmableSubmit } from "@/app/components/confirmable-form";
 import {
   createSiteAction,
   rotateSiteKeyAction,
@@ -126,15 +127,7 @@ export function SiteControls({ siteId, domains }: { siteId: string; domains: str
       <form
         action={action}
         className={styles.keyActions}
-        onSubmit={(event) => {
-          if (confirmedRef.current) {
-            confirmedRef.current = false;
-            setConfirmOpen(false);
-            return;
-          }
-          event.preventDefault();
-          setConfirmOpen(true);
-        }}
+        onSubmit={(event) => guardConfirmableSubmit(event, confirmedRef, setConfirmOpen)}
       >
         <input type="hidden" name="siteId" value={siteId} />
         <div className={styles.keyActionLine}>
@@ -150,7 +143,7 @@ export function SiteControls({ siteId, domains }: { siteId: string; domains: str
         <ActionNotice state={state} />
         <dialog
           ref={dialogRef}
-          className={dialogStyles.dialog}
+          className="confirmationDialogSurface"
           aria-labelledby={`replace-key-title-${siteId}`}
           aria-describedby={`replace-key-description-${siteId}`}
           onCancel={(event) => {
