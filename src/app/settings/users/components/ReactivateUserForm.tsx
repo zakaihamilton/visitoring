@@ -1,3 +1,5 @@
+"use client";
+
 import { useActionState } from "react";
 import { reactivateUserAction } from "../actions";
 import type { ManagedUser } from "../user-types";

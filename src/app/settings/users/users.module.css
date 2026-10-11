@@ -68,6 +68,18 @@
 .userList {
   min-width: 0;
 }
+.loadingUserRows {
+  display: grid;
+  gap: 12px;
+  margin-top: 18px;
+}
+.loadingUserRow {
+  height: 64px;
+  border-radius: 9px;
+  background: linear-gradient(90deg, #edf1ed 25%, #f7f9f6 37%, #edf1ed 63%);
+  background-size: 400% 100%;
+  animation: userSkeleton 1.4s ease infinite;
+}
 .userListHeader,
 .userRow {
   display: grid;
@@ -198,6 +210,11 @@
 .confirmActions {
   margin-top: 9px;
 }
+@keyframes userSkeleton {
+  to {
+    background-position-x: -400%;
+  }
+}
 
 @media (max-width: 980px) {
   .createForm {
@@ -270,5 +287,11 @@
   }
   .actionList {
     gap: 7px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .loadingUserRow {
+    animation: none;
   }
 }

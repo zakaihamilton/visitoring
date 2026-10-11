@@ -60,19 +60,18 @@ async function breakdown(column: AnyPgColumn, filters: AnalyticsFilters): Promis
 export async function getAnalyticsData(filters: AnalyticsFilters) {
   const where = conditions(filters);
   const pageWhere = filters.event ? where : and(where, eq(siteEvents.eventName, "page_view"));
-  const [totals] = await db
-    .select({
-      total: count(),
-      visitors: sql<number>`count(distinct ${siteEvents.visitorId})::int`,
-      sessions: sql<number>`count(distinct ${siteEvents.sessionId})::int`,
-      pageViews: sql<number>`count(*) filter (where ${siteEvents.eventName} = 'page_view')::int`,
-      customEvents: sql<number>`count(*) filter (where ${siteEvents.eventName} <> 'page_view')::int`,
-    })
-    .from(siteEvents)
-    .where(where);
-
   const dayExpression = sql<string>`to_char(${siteEvents.createdAt} at time zone 'UTC', 'YYYY-MM-DD')`;
+  const fromDay = new Date(filters.from);
+  fromDay.setUTCHours(0, 0, 0, 0);
+  const toDay = new Date(filters.to);
+  toDay.setUTCHours(0, 0, 0, 0);
+  const dayCount = Math.max(1, Math.floor((toDay.getTime() - fromDay.getTime()) / 86_400_000) + 1);
+  const dayLimit = Math.min(dayCount, 90);
+  const start = new Date(toDay);
+  start.setUTCDate(start.getUTCDate() - (dayLimit - 1));
+  const trendWhere = and(where, gte(siteEvents.createdAt, start.toISOString()));
   const [
+    totalRows,
     trend,
     pages,
     referrers,
@@ -86,12 +85,22 @@ export async function getAnalyticsData(filters: AnalyticsFilters) {
   ] = await Promise.all([
     db
       .select({
+        total: count(),
+        visitors: sql<number>`count(distinct ${siteEvents.visitorId})::int`,
+        sessions: sql<number>`count(distinct ${siteEvents.sessionId})::int`,
+        pageViews: sql<number>`count(*) filter (where ${siteEvents.eventName} = 'page_view')::int`,
+        customEvents: sql<number>`count(*) filter (where ${siteEvents.eventName} <> 'page_view')::int`,
+      })
+      .from(siteEvents)
+      .where(where),
+    db
+      .select({
         day: dayExpression,
         total: count(),
         pageViews: sql<number>`count(*) filter (where ${siteEvents.eventName} = 'page_view')::int`,
       })
       .from(siteEvents)
-      .where(where)
+      .where(trendWhere)
       .groupBy(dayExpression)
       .orderBy(dayExpression),
     db
@@ -139,15 +148,8 @@ export async function getAnalyticsData(filters: AnalyticsFilters) {
       .orderBy(siteEvents.eventName)
       .limit(EVENT_NAME_OPTIONS_LIMIT),
   ]);
+  const totals = totalRows[0];
 
-  const fromDay = new Date(filters.from);
-  fromDay.setUTCHours(0, 0, 0, 0);
-  const toDay = new Date(filters.to);
-  toDay.setUTCHours(0, 0, 0, 0);
-  const dayCount = Math.max(1, Math.floor((toDay.getTime() - fromDay.getTime()) / 86_400_000) + 1);
-  const dayLimit = Math.min(dayCount, 90);
-  const start = new Date(toDay);
-  start.setUTCDate(start.getUTCDate() - (dayLimit - 1));
   const trendMap = new Map(
     trend.map((item) => [item.day, { total: item.total, pageViews: item.pageViews }]),
   );

@@ -445,6 +445,103 @@
   color: #366a5b;
   font-weight: 650;
 }
+.skeletonLine {
+  display: block;
+  border-radius: 7px;
+  background: linear-gradient(90deg, #edf1ed 25%, #f7f9f6 37%, #edf1ed 63%);
+  background-size: 400% 100%;
+  animation: dashboardSkeleton 1.4s ease infinite;
+}
+.loadingFilters {
+  grid-template-columns: repeat(5, minmax(0, 1fr)) auto;
+}
+.skeletonField {
+  height: 40px;
+}
+.skeletonButton {
+  width: 112px;
+  height: 40px;
+}
+.skeletonCaption {
+  display: block;
+  height: 13px;
+  color: transparent;
+  font-size: var(--type-compact);
+  line-height: 13px;
+}
+.skeletonValue {
+  width: 54%;
+  height: 34px;
+  margin-top: 13px;
+}
+.skeletonNote {
+  width: 72%;
+  height: 11px;
+  margin-top: auto;
+}
+.skeletonChartCard {
+  grid-row: span 2;
+  min-height: 330px;
+}
+.skeletonTitle {
+  width: 43%;
+  height: 17px;
+  margin-bottom: 17px;
+}
+.skeletonBars {
+  height: 225px;
+  display: flex;
+  align-items: end;
+  gap: 6px;
+  padding: 8px 0 0;
+  border-bottom: 1px solid var(--line);
+  background: repeating-linear-gradient(to bottom, transparent 0, transparent 55px, #edf1ed 56px);
+}
+.skeletonBar {
+  flex: 1 1 0;
+  height: 35%;
+  border-radius: 4px 4px 0 0;
+  background: #e9efea;
+}
+.skeletonBar:nth-child(3n) {
+  height: 68%;
+}
+.skeletonBar:nth-child(4n) {
+  height: 48%;
+}
+.skeletonBar:nth-child(7n) {
+  height: 90%;
+}
+.skeletonBreakdownCard {
+  min-height: 158px;
+}
+.skeletonBreakdownCard .skeletonTitle {
+  margin-bottom: 19px;
+}
+.skeletonRow {
+  height: 10px;
+  margin-top: 13px;
+}
+.skeletonRow:nth-child(2n) {
+  width: 76%;
+}
+.skeletonSmallCard {
+  min-height: 150px;
+}
+.skeletonEvents {
+  margin-top: 2px;
+}
+.skeletonEventRow {
+  height: 36px;
+  margin: 0 -20px;
+  border-radius: 0;
+  border-bottom: 1px solid #f0f2ef;
+}
+@keyframes dashboardSkeleton {
+  to {
+    background-position-x: -400%;
+  }
+}
 @media (max-width: 1080px) {
   .filters {
     grid-template-columns: repeat(3, 1fr);
@@ -461,6 +558,12 @@
   }
   .breakdownGrid {
     grid-template-columns: repeat(3, 1fr);
+  }
+  .loadingFilters {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .skeletonButton {
+    display: none;
   }
 }
 @media (max-width: 760px) {
@@ -503,6 +606,9 @@
   .chartCard {
     grid-row: auto;
   }
+  .skeletonChartCard {
+    grid-row: auto;
+  }
   .breakdownGrid {
     grid-template-columns: 1fr 1fr;
     gap: 10px;
@@ -515,6 +621,9 @@
 @media (prefers-reduced-motion: reduce) {
   .bar {
     transition-duration: 0.01ms;
+  }
+  .skeletonLine {
+    animation: none;
   }
 }
 @media (max-width: 390px) {
