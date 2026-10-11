@@ -5,7 +5,8 @@ import { Topbar } from "@/app/components/Topbar";
 import { Tooltip } from "@/app/components/Tooltip";
 import { requireAdmin } from "@/lib/auth";
 import { SettingsNavigation } from "../SettingsNavigation";
-import { CreateSiteForm, SiteControls } from "./SiteManager";
+import { CreateSiteForm } from "./components/CreateSiteForm";
+import { SiteControls } from "./components/SiteControls";
 import styles from "../settings-page.module.css";
 
 export const dynamic = "force-dynamic";
