@@ -4,6 +4,7 @@ const mocks = vi.hoisted(() => ({
   cookies: vi.fn(),
   readPerministerSession: vi.fn(),
   visitoringOrganizationForId: vi.fn(),
+  visitoringOrganizations: vi.fn(),
   isVisitoringOrganizationAdmin: vi.fn(),
   redirect: vi.fn((path: string) => {
     throw new Error(`redirect:${path}`);
@@ -23,16 +24,17 @@ vi.mock("@/lib/perminister", () => ({
       super(message);
     }
   },
-  hasVisitoringOrganization: vi.fn(),
   isVisitoringOrganizationAdmin: mocks.isVisitoringOrganizationAdmin,
   readPerministerSession: mocks.readPerministerSession,
   revokePerministerSession: vi.fn(),
   visitoringOrganizationForId: mocks.visitoringOrganizationForId,
+  visitoringOrganizations: mocks.visitoringOrganizations,
   visitoringUserForWorkspace: vi.fn(),
   visitoringWorkspacesForOrganization: vi.fn(),
 }));
 
-import { requireOrganizationAdmin } from "@/lib/auth";
+import { requireOrganizationAdmin, requireOrganizationWorkspaces, requireUser } from "@/lib/auth";
+import { PerministerApiError } from "@/lib/perminister";
 
 const organizationId = "11111111-1111-4111-8111-111111111111";
 
@@ -72,6 +74,7 @@ beforeEach(() => {
       currentSession.organizations[0]?.organizationRole === "owner" ||
       currentSession.organizations[0]?.organizationRole === "admin",
   );
+  mocks.visitoringOrganizations.mockReturnValue([{ organizationId, organizationName: "Acme" }]);
 });
 
 describe("organization project management authorization", () => {
@@ -95,5 +98,25 @@ describe("organization project management authorization", () => {
     mocks.readPerministerSession.mockResolvedValue(session("member"));
 
     await expect(requireOrganizationAdmin()).rejects.toThrow("redirect:/projects?error=forbidden");
+  });
+
+  it("routes authenticated users without an organization to the chooser", async () => {
+    mocks.cookies.mockResolvedValue({
+      get: (name: string) =>
+        name === "visitoring_session" ? { value: "current-session" } : undefined,
+    });
+
+    await expect(requireUser()).rejects.toThrow("redirect:/organizations");
+    await expect(requireOrganizationWorkspaces()).rejects.toThrow("redirect:/organizations");
+  });
+
+  it("sends an expired session without an organization back to sign-in", async () => {
+    mocks.cookies.mockResolvedValue({
+      get: (name: string) =>
+        name === "visitoring_session" ? { value: "expired-session" } : undefined,
+    });
+    mocks.readPerministerSession.mockRejectedValueOnce(new PerministerApiError(401, "expired"));
+
+    await expect(requireUser()).rejects.toThrow("redirect:/login");
   });
 });

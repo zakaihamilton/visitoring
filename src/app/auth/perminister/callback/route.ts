@@ -4,15 +4,15 @@ import {
   exchangePerministerAuthorizationCode,
   perministerClientSecretForSso,
   revokePerministerSession,
-  hasVisitoringOrganization,
+  visitoringOrganizations,
 } from "@/lib/perminister";
 import { setSessionCookie } from "@/lib/auth";
+import { clearVisitoringOrganizationSelection } from "@/lib/organization-cookies";
 import {
   matchesPerministerSsoState,
   perministerSsoCookieName,
   readPerministerSsoTransaction,
 } from "@/lib/perminister-sso";
-import { setVisitoringOrganizationCookies } from "@/lib/organization-cookies";
 
 export const runtime = "nodejs";
 
@@ -52,19 +52,19 @@ export async function GET(request: Request) {
     }
 
     const auth = await exchangePerministerAuthorizationCode(code, transaction.verifier);
-    if (!hasVisitoringOrganization(auth, transaction.organizationId)) {
+    if (visitoringOrganizations(auth).length === 0) {
       try {
         await revokePerministerSession(auth.sessionToken);
       } catch {
-        // The organization check failed; the new token is never returned to the browser.
+        // Missing Visitoring access is rejected locally; the new token is never returned.
       }
       return responseToLogin(request, "invalid", state);
     }
 
+    await clearVisitoringOrganizationSelection();
     await setSessionCookie(auth.sessionToken);
-    await setVisitoringOrganizationCookies(transaction.organizationId);
 
-    const response = NextResponse.redirect(new URL("/projects", request.url), 303);
+    const response = NextResponse.redirect(new URL("/organizations", request.url), 303);
     response.cookies.set(cookieName, "", {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",

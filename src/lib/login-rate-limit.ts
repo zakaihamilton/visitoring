@@ -23,11 +23,7 @@ async function countAttempt(bucketKey: string, maxAttempts: number, now: Date): 
   return bucket?.count ?? maxAttempts + 1;
 }
 
-export async function isLoginRateLimited(input: {
-  email: string;
-  organizationId: string;
-  ip: string;
-}): Promise<boolean> {
+export async function isLoginRateLimited(input: { email: string; ip: string }): Promise<boolean> {
   const now = new Date();
   if (input.ip !== "unknown") {
     const ipCount = await countAttempt(
@@ -42,14 +38,11 @@ export async function isLoginRateLimited(input: {
   return accountCount > ACCOUNT_ATTEMPT_LIMIT;
 }
 
-function accountBucketKey(input: { email: string; organizationId: string }): string {
-  return hashRateLimitKey(`login:account:${input.organizationId}:${input.email}`);
+function accountBucketKey(input: { email: string }): string {
+  return hashRateLimitKey(`login:account:${input.email}`);
 }
 
-export async function clearLoginAccountAttempts(input: {
-  email: string;
-  organizationId: string;
-}): Promise<void> {
+export async function clearLoginAccountAttempts(input: { email: string }): Promise<void> {
   await db
     .delete(authRateLimitBuckets)
     .where(eq(authRateLimitBuckets.bucketKey, accountBucketKey(input)));
