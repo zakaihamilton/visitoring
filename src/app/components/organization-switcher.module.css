@@ -46,9 +46,22 @@
 }
 
 .chevron {
+  display: block;
+  width: 12px;
+  height: 12px;
   flex: 0 0 auto;
   color: var(--muted);
-  font-size: 12px;
+  transition: transform 160ms ease;
+}
+
+.trigger[aria-expanded="true"] .chevron {
+  transform: rotate(180deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chevron {
+    transition: none;
+  }
 }
 
 .options {

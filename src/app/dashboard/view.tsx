@@ -1,4 +1,5 @@
 import type { getAnalyticsData } from "@/lib/analytics";
+import { DropdownSelect } from "@/app/components/DropdownSelect";
 import { Tooltip } from "@/app/components/Tooltip";
 import styles from "./dashboard.module.css";
 
@@ -109,13 +110,13 @@ export function Dashboard({ sites, siteId, data, filters }: Props) {
             htmlFor="filter-site"
             help="Choose which website’s events to include in the dashboard."
           />
-          <select id="filter-site" name="site" defaultValue={siteId}>
+          <DropdownSelect id="filter-site" name="site" defaultValue={siteId}>
             {sites.map((site) => (
               <option key={site.id} value={site.id}>
                 {site.name}
               </option>
             ))}
-          </select>
+          </DropdownSelect>
         </div>
         <div className={styles.filterField}>
           <FilterLabel

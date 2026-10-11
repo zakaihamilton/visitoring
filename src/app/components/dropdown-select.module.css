@@ -1,0 +1,28 @@
+.control {
+  position: relative;
+  display: block;
+  width: 100%;
+  min-width: 0;
+}
+
+.chevron {
+  position: absolute;
+  top: 50%;
+  right: 15px;
+  width: 14px;
+  height: 14px;
+  color: #536768;
+  pointer-events: none;
+  transform: translateY(-50%);
+  transition: transform 160ms ease;
+}
+
+.control select:open + .chevron {
+  transform: translateY(-50%) rotate(180deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chevron {
+    transition: none;
+  }
+}

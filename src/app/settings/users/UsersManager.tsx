@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState, useEffect, useId, useRef, useState } from "react";
+import { DropdownSelect } from "@/app/components/DropdownSelect";
 import type { UserActionState } from "./actions";
 import {
   changeUserRoleAction,
@@ -83,7 +84,7 @@ function CreateUserForm() {
       </div>
       <div className={styles.field}>
         <label htmlFor="new-user-role">Role</label>
-        <select
+        <DropdownSelect
           id="new-user-role"
           name="role"
           value={role}
@@ -91,7 +92,7 @@ function CreateUserForm() {
         >
           <option value="viewer">Viewer</option>
           <option value="admin">Admin</option>
-        </select>
+        </DropdownSelect>
       </div>
       <button type="submit" className="button buttonPrimary" disabled={pending}>
         {pending ? "Adding…" : "Add user"}
@@ -116,7 +117,7 @@ function RoleForm({ user }: { user: ManagedUser }) {
       <label className={styles.screenReaderOnly} htmlFor={roleId}>
         Role for {user.email ?? "account"}
       </label>
-      <select
+      <DropdownSelect
         id={roleId}
         name="role"
         value={role}
@@ -125,7 +126,7 @@ function RoleForm({ user }: { user: ManagedUser }) {
       >
         <option value="viewer">Viewer</option>
         <option value="admin">Admin</option>
-      </select>
+      </DropdownSelect>
       <button type="submit" className="button buttonQuiet" disabled={pending || role === user.role}>
         {pending ? "Saving…" : "Save"}
       </button>
