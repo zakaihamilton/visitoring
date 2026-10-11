@@ -123,9 +123,15 @@ export function OrganizationSwitcher({ organizations, currentOrganizationId, act
           <span id={valueId} className={styles.currentName}>
             {currentOrganization?.organizationName ?? "Choose organization"}
           </span>
-          <span className={styles.chevron} aria-hidden="true">
-            {open ? "⌃" : "⌄"}
-          </span>
+          <svg className={styles.chevron} aria-hidden="true" viewBox="0 0 12 12" fill="none">
+            <path
+              d="m3 4.5 3 3 3-3"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
         </button>
         <div
           id={listboxId}

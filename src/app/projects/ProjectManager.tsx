@@ -154,13 +154,7 @@ export function ProjectManager({ projects }: { projects: ManagedProject[] }) {
       <form action={action} className={styles.createProjectForm}>
         <div>
           <label htmlFor="new-project-name">Project name</label>
-          <input
-            id="new-project-name"
-            name="name"
-            required
-            maxLength={120}
-            placeholder="ShiftingFront"
-          />
+          <input id="new-project-name" name="name" required maxLength={120} />
         </div>
         <button type="submit" className="button buttonPrimary" disabled={pending}>
           {pending ? "Adding…" : "Add project"}
