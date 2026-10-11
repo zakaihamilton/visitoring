@@ -6,8 +6,8 @@ import { destroyAuthSession, setSessionCookie } from "@/lib/auth";
 import { clientIpFromHeaders } from "@/lib/privacy";
 import { clearLoginAccountAttempts, isLoginRateLimited } from "@/lib/login-rate-limit";
 import {
-  clearVisitoringOrganizationSelection,
   makeVisitoringLastOrganizationCookieAvailable,
+  setInitialVisitoringOrganization,
 } from "@/lib/organization-cookies";
 import {
   loginWithPerminister,
@@ -32,10 +32,12 @@ export async function loginAction(formData: FormData): Promise<void> {
   if (await isLoginRateLimited({ email, ip })) redirect("/login?error=invalid");
 
   let token: string | null = null;
+  let organizations = [] as ReturnType<typeof visitoringOrganizations>;
   let loginError: "invalid" | "unavailable" | null = null;
   try {
     const session = await loginWithPerminister(email, password);
-    if (visitoringOrganizations(session).length === 0) {
+    organizations = visitoringOrganizations(session);
+    if (organizations.length === 0) {
       try {
         await revokePerministerSession(session.sessionToken);
       } catch {
@@ -53,10 +55,9 @@ export async function loginAction(formData: FormData): Promise<void> {
   if (!token) redirect("/login?error=invalid");
 
   await clearLoginAccountAttempts({ email });
-  await makeVisitoringLastOrganizationCookieAvailable();
-  await clearVisitoringOrganizationSelection();
+  await setInitialVisitoringOrganization(organizations);
   await setSessionCookie(token);
-  redirect("/organizations");
+  redirect("/projects");
 }
 
 export async function logoutAction(): Promise<void> {

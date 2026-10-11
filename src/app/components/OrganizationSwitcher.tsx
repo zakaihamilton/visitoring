@@ -1,34 +1,29 @@
 "use client";
 
-import { useCallback, useEffect, useId, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import type { KeyboardEvent } from "react";
 import type { VisitoringOrganizationChoice } from "@/lib/perminister";
-import styles from "./organizations.module.css";
+import styles from "./organization-switcher.module.css";
 
 type Props = {
   organizations: VisitoringOrganizationChoice[];
-  initialOrganizationId: string;
+  currentOrganizationId: string;
   action: (formData: FormData) => void | Promise<void>;
 };
 
-export function OrganizationPicker({ organizations, initialOrganizationId, action }: Props) {
-  const [selectedId, setSelectedId] = useState(initialOrganizationId);
-  const [activeIndex, setActiveIndex] = useState(() =>
-    Math.max(
-      0,
-      organizations.findIndex(
-        (organization) => organization.organizationId === initialOrganizationId,
-      ),
-    ),
+export function OrganizationSwitcher({ organizations, currentOrganizationId, action }: Props) {
+  const currentIndex = organizations.findIndex(
+    (organization) => organization.organizationId === currentOrganizationId,
   );
   const [open, setOpen] = useState(false);
+  const [activeIndex, setActiveIndex] = useState(Math.max(currentIndex, 0));
   const containerRef = useRef<HTMLDivElement>(null);
+  const formRef = useRef<HTMLFormElement>(null);
+  const optionRefs = useRef<Array<HTMLButtonElement | null>>([]);
   const labelId = useId();
   const valueId = useId();
   const listboxId = useId();
-  const selectedOrganization = organizations.find(
-    (organization) => organization.organizationId === selectedId,
-  );
+  const currentOrganization = organizations[currentIndex];
 
   useEffect(() => {
     if (!open) return;
@@ -41,23 +36,23 @@ export function OrganizationPicker({ organizations, initialOrganizationId, actio
     return () => document.removeEventListener("pointerdown", closeWhenOutside);
   }, [open]);
 
-  const scrollActiveOption = useCallback(
-    (option: HTMLDivElement | null) => {
-      if (open) option?.scrollIntoView?.({ block: "nearest" });
-    },
-    [open],
-  );
+  useEffect(() => {
+    if (open) optionRefs.current[activeIndex]?.scrollIntoView?.({ block: "nearest" });
+  }, [activeIndex, open]);
 
   function openAt(index: number) {
+    if (organizations.length === 0) return;
     setActiveIndex(Math.min(Math.max(index, 0), organizations.length - 1));
     setOpen(true);
   }
 
   function selectActive() {
-    const organization = organizations[activeIndex];
-    if (!organization) return;
-    setSelectedId(organization.organizationId);
-    setOpen(false);
+    if (activeIndex === currentIndex) {
+      setOpen(false);
+      return;
+    }
+    const submitter = optionRefs.current[activeIndex];
+    if (submitter) formRef.current?.requestSubmit(submitter);
   }
 
   function handleKeyDown(event: KeyboardEvent<HTMLButtonElement>) {
@@ -70,16 +65,14 @@ export function OrganizationPicker({ organizations, initialOrganizationId, actio
       setOpen(false);
       return;
     }
+    if (organizations.length === 0) return;
 
     if (event.key === "ArrowDown" || event.key === "ArrowUp") {
       event.preventDefault();
       if (!open) {
-        const selectedIndex = organizations.findIndex(
-          (organization) => organization.organizationId === selectedId,
-        );
         openAt(
-          selectedIndex >= 0
-            ? selectedIndex
+          currentIndex >= 0
+            ? currentIndex
             : event.key === "ArrowDown"
               ? 0
               : organizations.length - 1,
@@ -101,48 +94,34 @@ export function OrganizationPicker({ organizations, initialOrganizationId, actio
     if (event.key === "Enter" || event.key === " ") {
       event.preventDefault();
       if (open) selectActive();
-      else {
-        const selectedIndex = organizations.findIndex(
-          (organization) => organization.organizationId === selectedId,
-        );
-        openAt(selectedIndex >= 0 ? selectedIndex : 0);
-      }
+      else openAt(currentIndex >= 0 ? currentIndex : 0);
     }
   }
 
   return (
-    <form action={action} className={styles.selectionForm}>
-      <div className={styles.pickerField} ref={containerRef}>
-        <span id={labelId} className={styles.fieldLabel}>
+    <form action={action} ref={formRef} className={styles.form}>
+      <div className={styles.container} ref={containerRef}>
+        <span id={labelId} className={styles.screenReaderOnly}>
           Organization
         </span>
-        <input type="hidden" name="organizationId" value={selectedId} />
         <button
           type="button"
           role="combobox"
           aria-labelledby={`${labelId} ${valueId}`}
           aria-haspopup="listbox"
-          aria-required="true"
           aria-expanded={open}
           aria-controls={listboxId}
           aria-activedescendant={open ? `${listboxId}-option-${activeIndex}` : undefined}
-          className={styles.pickerTrigger}
+          className={styles.trigger}
+          title={currentOrganization?.organizationName ?? "Choose organization"}
           onClick={() => {
             if (open) setOpen(false);
-            else {
-              const selectedIndex = organizations.findIndex(
-                (organization) => organization.organizationId === selectedId,
-              );
-              openAt(selectedIndex >= 0 ? selectedIndex : 0);
-            }
+            else openAt(currentIndex >= 0 ? currentIndex : 0);
           }}
           onKeyDown={handleKeyDown}
         >
-          <span
-            id={valueId}
-            className={`${styles.triggerLabel} ${selectedOrganization ? "" : styles.placeholder}`}
-          >
-            {selectedOrganization?.organizationName ?? "Select an organization"}
+          <span id={valueId} className={styles.currentName}>
+            {currentOrganization?.organizationName ?? "Choose organization"}
           </span>
           <span className={styles.chevron} aria-hidden="true">
             {open ? "⌃" : "⌄"}
@@ -156,44 +135,35 @@ export function OrganizationPicker({ organizations, initialOrganizationId, actio
           hidden={!open}
         >
           {organizations.map((organization, index) => (
-            <div
+            <button
               id={`${listboxId}-option-${index}`}
               key={organization.organizationId}
-              ref={index === activeIndex ? scrollActiveOption : undefined}
+              ref={(element) => {
+                optionRefs.current[index] = element;
+              }}
+              type="submit"
+              name="organizationId"
+              value={organization.organizationId}
               role="option"
               tabIndex={-1}
-              aria-selected={organization.organizationId === selectedId}
+              aria-selected={organization.organizationId === currentOrganizationId}
               className={index === activeIndex ? styles.activeOption : styles.option}
               onMouseEnter={() => setActiveIndex(index)}
-              onClick={() => {
-                setSelectedId(organization.organizationId);
-                setActiveIndex(index);
+              onClick={(event) => {
+                if (organization.organizationId === currentOrganizationId) {
+                  event.preventDefault();
+                }
                 setOpen(false);
               }}
-              onKeyDown={(event) => {
-                if (event.key === "Enter" || event.key === " ") {
-                  event.preventDefault();
-                  setSelectedId(organization.organizationId);
-                  setActiveIndex(index);
-                  setOpen(false);
-                }
-              }}
             >
-              <span className={styles.optionName}>{organization.organizationName}</span>
-              {organization.organizationId === selectedId ? (
+              <span>{organization.organizationName}</span>
+              {organization.organizationId === currentOrganizationId ? (
                 <span aria-hidden="true">✓</span>
               ) : null}
-            </div>
+            </button>
           ))}
         </div>
       </div>
-      <button
-        type="submit"
-        className={`button buttonPrimary ${styles.continue}`}
-        disabled={!selectedId}
-      >
-        Continue <span aria-hidden="true">↗</span>
-      </button>
     </form>
   );
 }

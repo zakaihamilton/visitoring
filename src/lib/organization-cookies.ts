@@ -1,6 +1,7 @@
 import "server-only";
 
 import { cookies } from "next/headers";
+import type { VisitoringOrganizationChoice } from "@/lib/perminister";
 
 export async function makeVisitoringLastOrganizationCookieAvailable(): Promise<void> {
   const cookieStore = await cookies();
@@ -38,6 +39,28 @@ export async function setVisitoringOrganizationCookies(organizationId: string): 
     path: "/",
     maxAge: 0,
   });
+}
+
+export async function setInitialVisitoringOrganization(
+  organizations: VisitoringOrganizationChoice[],
+): Promise<string> {
+  if (organizations.length === 0) {
+    throw new Error("A Visitoring organization is required to create an organization context.");
+  }
+
+  const cookieStore = await cookies();
+  const rememberedOrganizationId = cookieStore
+    .get("visitoring_last_organization")
+    ?.value.toLowerCase();
+  const organization =
+    organizations.find((item) => item.organizationId === rememberedOrganizationId) ??
+    organizations[0];
+  if (!organization) {
+    throw new Error("A Visitoring organization is required to create an organization context.");
+  }
+
+  await setVisitoringOrganizationCookies(organization.organizationId);
+  return organization.organizationId;
 }
 
 export async function clearVisitoringOrganizationSelection(): Promise<void> {

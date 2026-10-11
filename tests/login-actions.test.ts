@@ -10,8 +10,8 @@ const mocks = vi.hoisted(() => ({
   clientIpFromHeaders: vi.fn(),
   clearLoginAccountAttempts: vi.fn(),
   isLoginRateLimited: vi.fn(),
-  clearVisitoringOrganizationSelection: vi.fn(),
   makeVisitoringLastOrganizationCookieAvailable: vi.fn(),
+  setInitialVisitoringOrganization: vi.fn(),
   loginWithPerminister: vi.fn(),
   revokePerministerSession: vi.fn(),
   visitoringOrganizations: vi.fn(),
@@ -29,9 +29,9 @@ vi.mock("@/lib/login-rate-limit", () => ({
   isLoginRateLimited: mocks.isLoginRateLimited,
 }));
 vi.mock("@/lib/organization-cookies", () => ({
-  clearVisitoringOrganizationSelection: mocks.clearVisitoringOrganizationSelection,
   makeVisitoringLastOrganizationCookieAvailable:
     mocks.makeVisitoringLastOrganizationCookieAvailable,
+  setInitialVisitoringOrganization: mocks.setInitialVisitoringOrganization,
 }));
 vi.mock("@/lib/perminister", () => ({
   loginWithPerminister: mocks.loginWithPerminister,
@@ -75,10 +75,10 @@ describe("sign-in actions", () => {
     expect(mocks.makeVisitoringLastOrganizationCookieAvailable).toHaveBeenCalledOnce();
   });
 
-  it("signs in by email and routes to the organization chooser", async () => {
+  it("signs in by email and opens projects in the initial organization", async () => {
     mocks.loginWithPerminister.mockResolvedValue({ sessionToken: "session-token" });
 
-    await expect(loginAction(loginForm())).rejects.toThrow("redirect:/organizations");
+    await expect(loginAction(loginForm())).rejects.toThrow("redirect:/projects");
 
     expect(mocks.isLoginRateLimited).toHaveBeenCalledWith({
       email: "person@example.com",
@@ -86,8 +86,9 @@ describe("sign-in actions", () => {
     });
     expect(mocks.loginWithPerminister).toHaveBeenCalledWith("person@example.com", "secret");
     expect(mocks.clearLoginAccountAttempts).toHaveBeenCalledWith({ email: "person@example.com" });
-    expect(mocks.makeVisitoringLastOrganizationCookieAvailable).toHaveBeenCalledOnce();
-    expect(mocks.clearVisitoringOrganizationSelection).toHaveBeenCalledOnce();
+    expect(mocks.setInitialVisitoringOrganization).toHaveBeenCalledWith(
+      mocks.visitoringOrganizations.mock.results[0]?.value,
+    );
     expect(mocks.setSessionCookie).toHaveBeenCalledWith("session-token");
   });
 
@@ -99,7 +100,7 @@ describe("sign-in actions", () => {
 
     expect(mocks.revokePerministerSession).toHaveBeenCalledWith("session-token");
     expect(mocks.setSessionCookie).not.toHaveBeenCalled();
-    expect(mocks.clearVisitoringOrganizationSelection).not.toHaveBeenCalled();
+    expect(mocks.setInitialVisitoringOrganization).not.toHaveBeenCalled();
   });
 
   it("does not call Perminister when rate limited", async () => {

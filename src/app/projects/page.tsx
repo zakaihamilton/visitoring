@@ -3,7 +3,9 @@ import { asc, eq } from "drizzle-orm";
 import { db } from "@/db";
 import { workspaces as workspacesTable } from "@/db/schema";
 import { BrandIcon } from "@/app/components/BrandIcon";
+import { OrganizationSwitcher } from "@/app/components/OrganizationSwitcher";
 import { logoutAction } from "@/app/login/actions";
+import { selectOrganizationAction } from "@/app/organizations/actions";
 import { requireOrganizationWorkspaces } from "@/lib/auth";
 import { ProjectManager } from "./ProjectManager";
 import styles from "./projects.module.css";
@@ -14,7 +16,7 @@ export const dynamic = "force-dynamic";
 type Props = { searchParams: Promise<{ error?: string }> };
 
 export default async function ProjectsPage({ searchParams }: Props) {
-  const [{ organizationId, organizationName, canManageProjects, workspaces }, { error }] =
+  const [{ organizationId, organizations, canManageProjects, workspaces }, { error }] =
     await Promise.all([requireOrganizationWorkspaces(), searchParams]);
 
   const managedProjects = canManageProjects
@@ -63,8 +65,11 @@ export default async function ProjectsPage({ searchParams }: Props) {
         </Link>
         <div className={styles.account}>
           <div className={styles.organization}>
-            <span className={styles.organizationLabel}>Organization</span>
-            <strong>{organizationName}</strong>
+            <OrganizationSwitcher
+              organizations={organizations}
+              currentOrganizationId={organizationId}
+              action={selectOrganizationAction}
+            />
           </div>
           <form action={logoutAction}>
             <button type="submit" className="button buttonQuiet">

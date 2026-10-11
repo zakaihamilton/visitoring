@@ -8,7 +8,7 @@ const mocks = vi.hoisted(() => ({
   revokePerministerSession: vi.fn(),
   visitoringOrganizations: vi.fn(),
   setSessionCookie: vi.fn(),
-  clearVisitoringOrganizationSelection: vi.fn(),
+  setInitialVisitoringOrganization: vi.fn(),
 }));
 
 vi.mock("server-only", () => ({}));
@@ -22,7 +22,7 @@ vi.mock("@/lib/perminister", () => ({
 }));
 vi.mock("@/lib/auth", () => ({ setSessionCookie: mocks.setSessionCookie }));
 vi.mock("@/lib/organization-cookies", () => ({
-  clearVisitoringOrganizationSelection: mocks.clearVisitoringOrganizationSelection,
+  setInitialVisitoringOrganization: mocks.setInitialVisitoringOrganization,
 }));
 
 import { GET as startPerministerSso } from "@/app/auth/perminister/start/route";
@@ -72,12 +72,14 @@ describe("Perminister SSO organization selection", () => {
     );
 
     expect(callbackResponse.status).toBe(303);
-    expect(callbackResponse.headers.get("location")).toBe("https://visitoring.test/organizations");
+    expect(callbackResponse.headers.get("location")).toBe("https://visitoring.test/projects");
     expect(mocks.exchangeAuthorizationCode).toHaveBeenCalledWith(
       "authorization-code",
       expect.any(String),
     );
-    expect(mocks.clearVisitoringOrganizationSelection).toHaveBeenCalledOnce();
+    expect(mocks.setInitialVisitoringOrganization).toHaveBeenCalledWith(
+      mocks.visitoringOrganizations.mock.results[0]?.value,
+    );
     expect(mocks.setSessionCookie).toHaveBeenCalledWith("sso-session-token");
   });
 

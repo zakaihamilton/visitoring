@@ -30,9 +30,7 @@ export default async function LoginPage({ searchParams }: Props) {
         <div className={styles.form}>
           <div className="eyebrow">Welcome back</div>
           <h2>Sign in to Visitoring</h2>
-          <p className={styles.sub}>
-            Sign in with your account, then choose the Visitoring organization you want to open.
-          </p>
+          <p className={styles.sub}>Sign in with your account to open your Visitoring projects.</p>
           <form action={startPerministerLoginAction} className={styles.ssoForm}>
             <button type="submit" className={`button buttonQuiet ${styles.ssoButton}`}>
               Sign in with Perminister <span aria-hidden>↗</span>

@@ -7,7 +7,7 @@ import {
   visitoringOrganizations,
 } from "@/lib/perminister";
 import { setSessionCookie } from "@/lib/auth";
-import { clearVisitoringOrganizationSelection } from "@/lib/organization-cookies";
+import { setInitialVisitoringOrganization } from "@/lib/organization-cookies";
 import {
   matchesPerministerSsoState,
   perministerSsoCookieName,
@@ -52,7 +52,8 @@ export async function GET(request: Request) {
     }
 
     const auth = await exchangePerministerAuthorizationCode(code, transaction.verifier);
-    if (visitoringOrganizations(auth).length === 0) {
+    const organizations = visitoringOrganizations(auth);
+    if (organizations.length === 0) {
       try {
         await revokePerministerSession(auth.sessionToken);
       } catch {
@@ -61,10 +62,10 @@ export async function GET(request: Request) {
       return responseToLogin(request, "invalid", state);
     }
 
-    await clearVisitoringOrganizationSelection();
+    await setInitialVisitoringOrganization(organizations);
     await setSessionCookie(auth.sessionToken);
 
-    const response = NextResponse.redirect(new URL("/organizations", request.url), 303);
+    const response = NextResponse.redirect(new URL("/projects", request.url), 303);
     response.cookies.set(cookieName, "", {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
