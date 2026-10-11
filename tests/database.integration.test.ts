@@ -187,18 +187,37 @@ suite("PostgreSQL collector integration", () => {
   });
 
   it("honors the DNT header and applies the 120-event site/IP rate limit", async () => {
-    const before = await db.select().from(siteEvents).where(eq(siteEvents.siteId, siteId));
-    expect((await collect(payload, { ip: "198.51.100.40", dnt: "1" })).status).toBe(204);
-    const afterDnt = await db.select().from(siteEvents).where(eq(siteEvents.siteId, siteId));
-    expect(afterDnt.length).toBe(before.length);
-    for (let index = 0; index < 120; index += 1) {
-      const response = await collect(
-        { ...payload, visitorId: `rate-visitor-${index}` },
-        { ip: "198.51.100.41" },
-      );
-      expect(response.status).toBe(204);
+    const configuredLimit = process.env.COLLECTOR_RATE_LIMIT_MAX_EVENTS;
+    try {
+      delete process.env.COLLECTOR_RATE_LIMIT_MAX_EVENTS;
+      const before = await db.select().from(siteEvents).where(eq(siteEvents.siteId, siteId));
+      expect((await collect(payload, { ip: "198.51.100.40", dnt: "1" })).status).toBe(204);
+      const afterDnt = await db.select().from(siteEvents).where(eq(siteEvents.siteId, siteId));
+      expect(afterDnt.length).toBe(before.length);
+      for (let index = 0; index < 120; index += 1) {
+        const response = await collect(
+          { ...payload, visitorId: `rate-visitor-${index}` },
+          { ip: "198.51.100.41" },
+        );
+        expect(response.status).toBe(204);
+      }
+      expect((await collect(payload, { ip: "198.51.100.41" })).status).toBe(429);
+      expect((await collect(payload, { ip: "198.51.100.41" })).status).toBe(429);
+
+      process.env.COLLECTOR_RATE_LIMIT_MAX_EVENTS = "2";
+      expect(
+        (await collect({ ...payload, visitorId: "configured-limit-one" }, { ip: "198.51.100.42" }))
+          .status,
+      ).toBe(204);
+      expect(
+        (await collect({ ...payload, visitorId: "configured-limit-two" }, { ip: "198.51.100.42" }))
+          .status,
+      ).toBe(204);
+      expect((await collect(payload, { ip: "198.51.100.42" })).status).toBe(429);
+    } finally {
+      if (configuredLimit === undefined) delete process.env.COLLECTOR_RATE_LIMIT_MAX_EVENTS;
+      else process.env.COLLECTOR_RATE_LIMIT_MAX_EVENTS = configuredLimit;
     }
-    expect((await collect(payload, { ip: "198.51.100.41" })).status).toBe(429);
   });
 
   it("scopes dashboard queries to the selected workspace and site", async () => {
@@ -212,21 +231,38 @@ suite("PostgreSQL collector integration", () => {
     expect(data.pageViews).toBe(0);
   });
 
-  it("prunes events outside the retention window", async () => {
+  it("prunes more than one batch of expired events while retaining newer events", async () => {
     const oldCutoff = retentionCutoff(new Date(), 25);
+    await pool.query(
+      `insert into site_events
+         (workspace_id, site_id, visitor_id, session_id, event_name, path, properties, created_at)
+       select $1, $2, 'retention-batch-visitor', 'retention-batch-session', 'page_view',
+              '/expired-retention-batch', '{}'::jsonb, $3
+       from generate_series(1, 10001)`,
+      [workspaceId, siteId, oldCutoff.toISOString()],
+    );
     await db.insert(siteEvents).values({
       workspaceId,
       siteId,
-      visitorId: "retention-visitor",
-      sessionId: "retention-session",
+      visitorId: "retention-recent-visitor",
+      sessionId: "retention-recent-session",
       eventName: "page_view",
-      path: "/old",
+      path: "/current-retention-batch",
       properties: {},
-      createdAt: oldCutoff.toISOString(),
+      createdAt: new Date().toISOString(),
     });
+
     const result = await pruneExpiredData(retentionCutoff());
-    expect(result.removedEvents).toBeGreaterThanOrEqual(1);
-    const oldRows = await db.select().from(siteEvents).where(eq(siteEvents.path, "/old"));
+    expect(result.removedEvents).toBeGreaterThanOrEqual(10001);
+    const oldRows = await db
+      .select()
+      .from(siteEvents)
+      .where(eq(siteEvents.path, "/expired-retention-batch"));
     expect(oldRows).toHaveLength(0);
+    const recentRows = await db
+      .select()
+      .from(siteEvents)
+      .where(eq(siteEvents.path, "/current-retention-batch"));
+    expect(recentRows).toHaveLength(1);
   });
 });

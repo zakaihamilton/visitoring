@@ -4,10 +4,15 @@ import { db } from "@/db";
 import { rateLimitBuckets, siteEvents, sites, workspaces } from "@/db/schema";
 import { parseAttribution } from "@/lib/attribution";
 import { parseEnvelope } from "@/lib/collect-envelope";
-import { hashRateLimitIp, sha256 } from "@/lib/crypto";
+import { hashRateLimitIp, rateLimitSecretConfigurationError, sha256 } from "@/lib/crypto";
 import { originIsAllowed } from "@/lib/domains";
 import { clientIp } from "@/lib/privacy";
-import { allowsRateLimitCount, isDoNotTrack } from "@/lib/collection-policy";
+import {
+  allowsRateLimitCount,
+  collectorRateLimitConfigurationError,
+  collectorRateLimitMaxEvents,
+  isDoNotTrack,
+} from "@/lib/collection-policy";
 
 export const runtime = "nodejs";
 
@@ -107,6 +112,10 @@ export async function OPTIONS(request: Request): Promise<Response> {
 }
 
 export async function POST(request: Request): Promise<Response> {
+  if (rateLimitSecretConfigurationError() || collectorRateLimitConfigurationError()) {
+    return NextResponse.json({ error: "Collection is temporarily unavailable." }, { status: 503 });
+  }
+
   const url = new URL(request.url);
   const origin = request.headers.get("origin");
   let body: unknown;
@@ -131,6 +140,7 @@ export async function POST(request: Request): Promise<Response> {
   const ip = clientIp(request);
   const now = new Date();
   const windowMs = 15 * 60 * 1000;
+  const maxEvents = collectorRateLimitMaxEvents();
   const [bucket] = await db
     .insert(rateLimitBuckets)
     .values({
@@ -143,11 +153,11 @@ export async function POST(request: Request): Promise<Response> {
       target: [rateLimitBuckets.siteId, rateLimitBuckets.ipHash],
       set: {
         windowStartedAt: sql`case when ${rateLimitBuckets.windowStartedAt} <= ${new Date(now.getTime() - windowMs)} then ${now} else ${rateLimitBuckets.windowStartedAt} end`,
-        count: sql`case when ${rateLimitBuckets.windowStartedAt} <= ${new Date(now.getTime() - windowMs)} then 1 else ${rateLimitBuckets.count} + 1 end`,
+        count: sql`case when ${rateLimitBuckets.windowStartedAt} <= ${new Date(now.getTime() - windowMs)} then 1 else least(${rateLimitBuckets.count}, ${maxEvents}) + 1 end`,
       },
     })
     .returning({ count: rateLimitBuckets.count });
-  if (bucket && !allowsRateLimitCount(bucket.count))
+  if (bucket && !allowsRateLimitCount(bucket.count, maxEvents))
     return NextResponse.json({ error: "Rate limit exceeded." }, { status: 429, headers: cors });
 
   const attribution = await parseAttribution(ip, request.headers.get("user-agent"));

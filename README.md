@@ -22,11 +22,14 @@ npm run db:migrate
 npm run dev
 ```
 
+Use `npm run db:migrate` to apply migrations locally. It serializes migrations and supports the
+explicitly marked concurrent-index migrations used for production-safe index builds.
+
 The Compose database listens on host port `5433` to avoid colliding with a local PostgreSQL server. If using your existing local PostgreSQL instead, set `DATABASE_URL` to that server (commonly port `5432`) and skip `docker compose up -d db`.
 
 Open [http://localhost:3000](http://localhost:3000). For local testing, add `localhost:3000` to the site's website addresses.
 
-The required local variables are `DATABASE_URL` and the Perminister app client settings in `.env`. Set a long random `RATE_LIMIT_SECRET` in deployed environments. Production deployments must set `TRUST_PROXY_HEADERS=true` and expose the app only through a trusted reverse proxy that overwrites `x-real-ip` or `x-forwarded-for` with a single client IP. Without that setting, Visitoring ignores forwarded headers and the ready endpoint returns 503. Vercel deployments also need `CRON_SECRET` for the protected daily retention job. `GEOIP_DB_PATH` is optional. Do not commit `.env` or a GeoIP database.
+The required local variables are `DATABASE_URL` and the Perminister app client settings in `.env`. Deployed environments must set `RATE_LIMIT_SECRET` to a random value containing at least 32 UTF-8 bytes; production readiness fails if it is missing or too short. `COLLECTOR_RATE_LIMIT_MAX_EVENTS` optionally changes the per-site/IP cap for each 15-minute window; it defaults to `120` and must be a positive integer. Production deployments must set `TRUST_PROXY_HEADERS=true` and expose the app only through a trusted reverse proxy that overwrites `x-real-ip` or `x-forwarded-for` with a single client IP. Without that setting, Visitoring ignores forwarded headers and the ready endpoint returns 503. Vercel deployments also need `CRON_SECRET` for the protected daily retention job. `GEOIP_DB_PATH` is optional. Do not commit `.env` or a GeoIP database.
 
 Visitoring uses Perminister for identities, passwords, sessions, and workspace access in every environment. Configure a Visitoring product app client for production and a separate client for local development. The setup and workspace bootstrap steps are in [the Perminister guide](docs/perminister.md).
 
@@ -56,7 +59,7 @@ Add every website address that will use the tracker, separated by commas, such a
 `example.com, www.example.com`. Each address must match exactly; include a port for local
 development, such as `localhost:3000`.
 
-Each Visitoring site gets a tracking key and belongs to one project. The collector uses that key to look up the site, checks that the request comes from an approved domain, then records the event with the site's and project's IDs. For example, ShiftingFront and Puzzimori can each have a site under the same organization; their separate keys keep their analytics attributed to the right project.
+Each Visitoring site gets a tracking key and belongs to one project. The collector uses that key to look up the site, checks that the request comes from an approved domain, then records the event with the site's and project's IDs. This origin check constrains browser requests; it is not authentication against non-browser clients, which can send a spoofed `Origin` header. Tracking keys are public in the browser snippet. For example, ShiftingFront and Puzzimori can each have a site under the same organization; their separate keys keep their analytics attributed to the right project.
 
 ## Add Visitoring to a website
 
@@ -94,13 +97,13 @@ Bowser is used to reduce user-agent strings to `desktop/mobile/tablet/other`, br
 
 ## Retention and health
 
-Vercel runs the fixed rolling 24-month retention prune daily at 04:00 UTC through a protected cron route. The `CRON_SECRET` production environment variable protects that endpoint. It also removes stale collection and login rate-limit buckets. To run the same job manually:
+Vercel runs the fixed rolling 24-month retention prune daily at 04:00 UTC through a protected cron route. Expired events are deleted in restart-safe batches of 10,000; the job also removes stale collection and login rate-limit buckets. The `CRON_SECRET` production environment variable protects that endpoint. To run the same job manually:
 
 ```sh
 npm run retention:prune
 ```
 
-`GET /api/health/live` returns process liveness. `GET /api/health/ready` returns success only while PostgreSQL is reachable.
+`GET /api/health/live` returns process liveness. `GET /api/health/ready` returns success only while PostgreSQL is reachable and production proxy, rate-limit secret, and collector cap configuration are valid.
 
 Repnix is configured as the repository health gate, with required type, lint, format, test, dead-code, and duplication checks. Greenfield adoption intentionally has no baseline:
 
@@ -108,4 +111,4 @@ Repnix is configured as the repository health gate, with required type, lint, fo
 npm run health
 ```
 
-CI starts PostgreSQL, applies Drizzle migrations, and runs the same health command. Its integration suite checks collection, rejected origins, rate limiting, Do Not Track, privacy sanitization, and workspace isolation.
+CI starts PostgreSQL, applies the checked-in database migrations, and runs the same health command. Its integration suite checks collection, rejected origins, rate limiting, Do Not Track, privacy sanitization, retention batching, and workspace isolation.

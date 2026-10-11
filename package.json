@@ -11,7 +11,7 @@
     "start": "next start",
     "db:generate": "drizzle-kit generate",
     "db:push": "drizzle-kit push",
-    "db:migrate": "drizzle-kit migrate",
+    "db:migrate": "tsx scripts/migrate-deploy.ts",
     "workspaces:provision": "tsx scripts/provision-workspace.ts",
     "sites:provision": "tsx scripts/provision-site.ts",
     "retention:prune": "tsx scripts/prune-events.ts",

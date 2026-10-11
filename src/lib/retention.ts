@@ -1,5 +1,7 @@
 import { pool } from "@/db";
 
+const EVENT_PRUNE_BATCH_SIZE = 10_000;
+
 export function retentionCutoff(now = new Date(), months = 24): Date {
   const cutoff = new Date(now);
   const day = cutoff.getUTCDate();
@@ -13,9 +15,23 @@ export function retentionCutoff(now = new Date(), months = 24): Date {
 }
 
 export async function pruneExpiredData(cutoff: Date, now = new Date()) {
-  const removedEvents = await pool.query("delete from site_events where created_at < $1", [
-    cutoff.toISOString(),
-  ]);
+  let removedEventCount = 0;
+  while (true) {
+    const removedEvents = await pool.query(
+      `delete from site_events
+       where id in (
+         select id from site_events
+         where created_at < $1
+         order by created_at, id
+         limit $2
+       )`,
+      [cutoff.toISOString(), EVENT_PRUNE_BATCH_SIZE],
+    );
+    const batchCount = removedEvents.rowCount ?? 0;
+    removedEventCount += batchCount;
+    if (batchCount < EVENT_PRUNE_BATCH_SIZE) break;
+  }
+
   const removedBuckets = await pool.query(
     "delete from rate_limit_buckets where window_started_at < $1",
     [new Date(now.getTime() - 24 * 60 * 60 * 1000)],
@@ -25,7 +41,7 @@ export async function pruneExpiredData(cutoff: Date, now = new Date()) {
     [new Date(now.getTime() - 24 * 60 * 60 * 1000)],
   );
   return {
-    removedEvents: removedEvents.rowCount ?? 0,
+    removedEvents: removedEventCount,
     removedBuckets: removedBuckets.rowCount ?? 0,
     removedLoginBuckets: removedLoginBuckets.rowCount ?? 0,
   };

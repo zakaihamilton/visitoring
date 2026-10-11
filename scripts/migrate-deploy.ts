@@ -1,18 +1,12 @@
 import "dotenv/config";
-import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
+import { pathToFileURL } from "node:url";
 import { Pool, type PoolClient } from "pg";
+import { applyMigration, parseMigrationSql, type MigrationFile } from "./migration-runner";
 
 type MigrationJournal = {
   entries: Array<{ tag: string; when: number }>;
-};
-
-type MigrationFile = {
-  tag: string;
-  when: number;
-  hash: string;
-  statements: string[];
 };
 
 const MIGRATION_SCHEMA = "drizzle";
@@ -67,15 +61,7 @@ async function readMigrations(): Promise<MigrationFile[]> {
   return Promise.all(
     journal.entries.map(async (entry) => {
       const sql = await readFile(resolve(MIGRATIONS_FOLDER, `${entry.tag}.sql`), "utf8");
-      return {
-        tag: entry.tag,
-        when: entry.when,
-        hash: createHash("sha256").update(sql).digest("hex"),
-        statements: sql
-          .split("--> statement-breakpoint")
-          .map((statement) => statement.trim())
-          .filter(Boolean),
-      };
+      return parseMigrationSql(entry.tag, entry.when, sql);
     }),
   );
 }
@@ -187,61 +173,63 @@ async function recordVerifiedBaseline(
 }
 
 async function applyMigrations(client: PoolClient, migrations: MigrationFile[]): Promise<void> {
-  let latestTimestamp = await recordVerifiedBaseline(client, migrations);
+  await client.query("BEGIN");
+  let latestTimestamp: number;
+  try {
+    await client.query(`CREATE SCHEMA IF NOT EXISTS ${MIGRATION_SCHEMA}`);
+    await client.query(
+      `CREATE TABLE IF NOT EXISTS ${MIGRATION_SCHEMA}.${MIGRATION_TABLE} (
+        id SERIAL PRIMARY KEY,
+        hash text NOT NULL,
+        created_at bigint
+      )`,
+    );
+    latestTimestamp = await recordVerifiedBaseline(client, migrations);
+    await client.query("COMMIT");
+  } catch (error) {
+    await client.query("ROLLBACK").catch(() => undefined);
+    throw error;
+  }
 
   for (const migration of migrations) {
     if (latestTimestamp >= migration.when) continue;
-
-    for (const statement of migration.statements) {
-      await client.query(statement);
-    }
-    await client.query(
-      `INSERT INTO ${MIGRATION_SCHEMA}.${MIGRATION_TABLE} (hash, created_at)
-       VALUES ($1, $2)`,
-      [migration.hash, migration.when],
-    );
+    await applyMigration(client, migration);
     latestTimestamp = migration.when;
     console.info(`Applied database migration ${migration.tag}.`);
   }
 }
 
-async function main(): Promise<void> {
+export async function main(): Promise<void> {
   const connectionString = process.env.DATABASE_URL;
   if (!connectionString) {
-    throw new Error("DATABASE_URL is required to run production database migrations.");
+    throw new Error("DATABASE_URL is required to run database migrations.");
   }
 
   const pool = new Pool({ connectionString, max: 1 });
   let client: PoolClient | undefined;
+  let lockAcquired = false;
   try {
     client = await pool.connect();
-    await client.query("BEGIN");
-    try {
-      await client.query("SELECT pg_advisory_xact_lock($1)", [ADVISORY_LOCK_KEY]);
-      await client.query(`CREATE SCHEMA IF NOT EXISTS ${MIGRATION_SCHEMA}`);
-      await client.query(
-        `CREATE TABLE IF NOT EXISTS ${MIGRATION_SCHEMA}.${MIGRATION_TABLE} (
-          id SERIAL PRIMARY KEY,
-          hash text NOT NULL,
-          created_at bigint
-        )`,
-      );
-      await applyMigrations(client, await readMigrations());
-      await client.query("COMMIT");
-    } catch (error) {
-      await client.query("ROLLBACK").catch(() => undefined);
-      throw error;
-    }
+    await client.query("SELECT pg_advisory_lock($1)", [ADVISORY_LOCK_KEY]);
+    lockAcquired = true;
+    await applyMigrations(client, await readMigrations());
     console.info("Database migrations completed successfully.");
   } finally {
+    if (client && lockAcquired) {
+      await client
+        .query("SELECT pg_advisory_unlock($1)", [ADVISORY_LOCK_KEY])
+        .catch(() => undefined);
+    }
     client?.release();
     await pool.end();
   }
 }
 
-main().catch((error: unknown) => {
-  const details = getErrorDetails(error);
-  console.error(`Database migration failed: ${details.message}`);
-  if (details.code) console.error(`PostgreSQL error code: ${details.code}`);
-  process.exitCode = 1;
-});
+if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {
+  main().catch((error: unknown) => {
+    const details = getErrorDetails(error);
+    console.error(`Database migration failed: ${details.message}`);
+    if (details.code) console.error(`PostgreSQL error code: ${details.code}`);
+    process.exitCode = 1;
+  });
+}
