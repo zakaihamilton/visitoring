@@ -18,6 +18,8 @@ export const workspaces = pgTable(
     name: varchar("name", { length: 120 }).notNull(),
     organizationId: uuid("organization_id").notNull(),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    archivedAt: timestamp("archived_at", { withTimezone: true }),
+    deletionPendingAt: timestamp("deletion_pending_at", { withTimezone: true }),
   },
   (table) => [index("workspaces_organization_idx").on(table.organizationId)],
 );

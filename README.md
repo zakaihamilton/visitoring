@@ -30,15 +30,31 @@ The required local variables are `DATABASE_URL` and the Perminister app client s
 
 Visitoring uses Perminister for identities, passwords, sessions, and workspace access in every environment. Configure a Visitoring product app client for production and a separate client for local development. The setup and workspace bootstrap steps are in [the Perminister guide](docs/perminister.md).
 
-## Create a workspace, add accounts, and set up a site
+## Manage projects, add accounts, and set up a site
 
-Create a workspace after running `db:migrate`:
+Organization owners and admins can add projects from the project picker, including when they do not
+currently have a project selected. The creator receives admin access to the new workspace. Project
+members and roles are managed from **Settings → Users**. Other organization members can open projects
+they have been granted access to.
+
+Archiving a project pauses tracking and dashboard access while retaining its analytics and keys.
+Restore it to resume collection and access. Permanent deletion is available only after archiving;
+it removes the project’s Visitoring sites, tracking keys, analytics, and Perminister workspace grants.
+
+For a manual or scripted workspace bootstrap, run `db:migrate` and then:
 
 ```sh
 npm run workspaces:provision -- --workspace "ShiftingFront" --organization-id "<organization-uuid>"
 ```
 
-The command associates the named project with a Perminister organization and prints its workspace UUID. In Perminister, grant the initial administrator the `admin` role for that Visitoring workspace. They can then add accounts and manage roles in **Settings → Users**. Sign in with the organization ID, email, and password. Visitoring shows the workspaces in that organization that your account can access; choose one to open its analytics. Repeat the provisioning command for each project in the organization. To limit password guessing, repeated sign-in attempts are temporarily restricted. Administrators can open **Settings → Sites** to add websites and manage their tracking keys, and **Settings → Setup** for tracker instructions. A tracking key appears only when it is created or replaced, so copy it then. Add every website address that will use the tracker, separated by commas, such as `example.com, www.example.com`. Each address must match exactly; include a port for local development, such as `localhost:3000`.
+The command associates the named project with a Perminister organization and prints its workspace
+UUID. Grant an initial administrator the `admin` role for that Visitoring workspace in Perminister.
+To limit password guessing, repeated sign-in attempts are temporarily restricted. Administrators can
+open **Settings → Sites** to add websites and manage their tracking keys, and **Settings → Setup** for
+tracker instructions. A tracking key appears only when it is created or replaced, so copy it then.
+Add every website address that will use the tracker, separated by commas, such as
+`example.com, www.example.com`. Each address must match exactly; include a port for local
+development, such as `localhost:3000`.
 
 Each Visitoring site gets a tracking key and belongs to one project. The collector uses that key to look up the site, checks that the request comes from an approved domain, then records the event with the site's and project's IDs. For example, ShiftingFront and Puzzimori can each have a site under the same organization; their separate keys keep their analytics attributed to the right project.
 

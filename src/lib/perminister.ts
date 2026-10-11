@@ -1,5 +1,5 @@
 import "server-only";
-import { and, eq, inArray } from "drizzle-orm";
+import { and, eq, inArray, isNull } from "drizzle-orm";
 import { cookies } from "next/headers";
 import { db } from "@/db";
 import { workspaces } from "@/db/schema";
@@ -8,6 +8,7 @@ export const PERMINISTER_SESSION_COOKIE = "visitoring_session";
 const VISITORING_PRODUCT_ID = "visitoring";
 
 export type VisitoringRole = "admin" | "viewer";
+export type VisitoringOrganizationRole = "owner" | "admin" | "member";
 export type VisitoringWorkspaceChoice = {
   id: string;
   name: string;
@@ -46,6 +47,7 @@ type ResourceRole = {
 type ConsumerOrganization = {
   organizationId: string;
   organizationName: string;
+  organizationRole: VisitoringOrganizationRole;
   productId: string;
   resourceRoles: ResourceRole[];
 };
@@ -227,7 +229,11 @@ export function hasVisitoringOrganization(auth: ConsumerSession, organizationId:
 export function visitoringOrganizationForId(
   auth: ConsumerSession,
   organizationId: string,
-): { organizationId: string; organizationName: string } | null {
+): {
+  organizationId: string;
+  organizationName: string;
+  organizationRole: VisitoringOrganizationRole;
+} | null {
   const config = configuration();
   const normalizedOrganizationId = organizationId.trim().toLowerCase();
   const organization = auth.organizations.find(
@@ -239,8 +245,56 @@ export function visitoringOrganizationForId(
     ? {
         organizationId: organization.organizationId,
         organizationName: organization.organizationName,
+        organizationRole: organization.organizationRole,
       }
     : null;
+}
+
+export function isVisitoringOrganizationAdmin(
+  auth: ConsumerSession,
+  organizationId: string,
+): boolean {
+  const organization = visitoringOrganizationForId(auth, organizationId);
+  return organization?.organizationRole === "owner" || organization?.organizationRole === "admin";
+}
+
+export async function bootstrapVisitoringWorkspaceAdmin(
+  organizationId: string,
+  workspaceId: string,
+): Promise<void> {
+  const result = await requestPerminister<unknown>("/api/auth/consumer/workspaces", {
+    method: "POST",
+    body: { organizationId, workspaceId },
+  });
+  if (
+    typeof result !== "object" ||
+    result === null ||
+    !("granted" in result) ||
+    result.granted !== true
+  ) {
+    throw new PerministerApiError(503, "Perminister returned an invalid workspace grant response.");
+  }
+}
+
+export async function revokeVisitoringWorkspaceGrants(
+  organizationId: string,
+  workspaceId: string,
+): Promise<void> {
+  const result = await requestPerminister<unknown>(
+    `/api/auth/consumer/workspaces/${encodeURIComponent(workspaceId)}`,
+    { method: "DELETE", body: { organizationId } },
+  );
+  if (
+    typeof result !== "object" ||
+    result === null ||
+    !("revoked" in result) ||
+    result.revoked !== true
+  ) {
+    throw new PerministerApiError(
+      503,
+      "Perminister returned an invalid workspace revocation response.",
+    );
+  }
 }
 
 function visitoringRoleForWorkspace(
@@ -305,6 +359,8 @@ export async function visitoringWorkspacesForOrganization(
       and(
         inArray(workspaces.id, workspaceIds),
         eq(workspaces.organizationId, normalizedOrganizationId),
+        isNull(workspaces.archivedAt),
+        isNull(workspaces.deletionPendingAt),
       ),
     )
     .limit(workspaceIds.length);
@@ -339,7 +395,12 @@ export async function visitoringUserForWorkspace(
     })
     .from(workspaces)
     .where(
-      and(eq(workspaces.id, workspaceId), eq(workspaces.organizationId, normalizedOrganizationId)),
+      and(
+        eq(workspaces.id, workspaceId),
+        eq(workspaces.organizationId, normalizedOrganizationId),
+        isNull(workspaces.archivedAt),
+        isNull(workspaces.deletionPendingAt),
+      ),
     )
     .limit(1);
   if (!workspace) return null;

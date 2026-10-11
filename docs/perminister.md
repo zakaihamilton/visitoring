@@ -24,21 +24,35 @@ limits. Visitoring no longer reads or writes local account credentials or sessio
 Never expose the app client secret to browser code. All sign-in, session checks, and membership
 operations go through Perminister; there is no local authentication fallback.
 
-## Create a workspace and its first administrator
+## Manage Visitoring projects
 
-Create a Visitoring workspace record:
+Deploy the Perminister release with the Visitoring workspace lifecycle endpoints before deploying a
+Visitoring release that calls them. Then run Visitoring's `db:migrate`; the new nullable archive and
+deletion-pending fields leave existing workspaces active.
+
+Organization owners and admins can add projects from Visitoring's project picker, even when they do
+not have a project selected. Visitoring creates the workspace under the selected organization, and
+Perminister grants its creator the workspace `admin` role. Organization members can open only
+projects for which they have a workspace grant. Workspace members and roles continue to be managed
+from **Settings → Users**. New accounts created there cannot self-register, and an existing
+Perminister identity keeps its current password.
+
+Archiving a project pauses Visitoring dashboard access and event collection while retaining its
+sites, keys, and analytics. Restoring it resumes access and collection. Permanent deletion is
+available only for archived projects. Visitoring revokes every Perminister grant for the workspace,
+then deletes the local workspace and its cascading site, key, event, and rate-limit data. If either
+cleanup step fails, the project remains archived and deletion can be retried; it cannot be restored
+while deletion is pending.
+
+For manual or scripted setup, create a Visitoring workspace record with:
 
 ```sh
 npm run workspaces:provision -- --workspace "ShiftingFront" --organization-id "<organization-uuid>"
 ```
 
-The command associates the named Visitoring project with the selected organization and prints its
-workspace UUID. In Perminister, grant the initial account the `admin` role for that workspace
-resource under the same organization’s Visitoring product. Run the command again for each Visitoring
-project you want in the organization. After the first administrator can sign in, they can add
-accounts, change roles, reset passwords, deactivate members, and remove workspace access from
-**Settings → Users**. New accounts created there cannot self-register, and an existing Perminister
-identity keeps its current password.
+The command associates the named project with the selected organization and prints its workspace
+UUID. In Perminister, grant the initial account the `admin` role for that workspace resource under
+the same organization’s Visitoring product.
 
 Visitoring's login form takes the Perminister organization ID and the member's email. After
 Perminister confirms the account session, Visitoring shows the account's accessible workspaces for

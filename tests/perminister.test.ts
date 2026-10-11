@@ -13,9 +13,12 @@ vi.mock("@/db", () => ({ db: { select: dbSelect } }));
 
 import { cookies } from "next/headers";
 import {
+  bootstrapVisitoringWorkspaceAdmin,
+  isVisitoringOrganizationAdmin,
   listPerministerWorkspaceMembers,
   loginWithPerminister,
   readPerministerSession,
+  revokeVisitoringWorkspaceGrants,
   requestPerminister,
   visitoringUserForWorkspace,
   visitoringWorkspacesForOrganization,
@@ -153,6 +156,7 @@ describe("Visitoring Perminister client", () => {
         {
           organizationId: "11111111-1111-4111-8111-111111111111",
           organizationName: "Acme Organization",
+          organizationRole: "owner" as const,
           productId: "visitoring",
           resourceRoles: [
             {
@@ -213,5 +217,51 @@ describe("Visitoring Perminister client", () => {
     await expect(
       visitoringUserForWorkspace(auth, "11111111-1111-4111-8111-111111111111", "missing"),
     ).resolves.toBeNull();
+
+    expect(isVisitoringOrganizationAdmin(auth, "11111111-1111-4111-8111-111111111111")).toBe(true);
+  });
+
+  it("uses scoped Perminister operations to bootstrap and revoke workspace grants", async () => {
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce(Response.json({ granted: true }))
+      .mockResolvedValueOnce(Response.json({ revoked: true }));
+    vi.stubGlobal("fetch", fetchMock);
+    const organizationId = "11111111-1111-4111-8111-111111111111";
+    const workspaceId = "22222222-2222-4222-8222-222222222222";
+
+    await bootstrapVisitoringWorkspaceAdmin(organizationId, workspaceId);
+    await revokeVisitoringWorkspaceGrants(organizationId, workspaceId);
+
+    const [bootstrapUrl, bootstrapInit] = fetchMock.mock.calls[0] as [URL, RequestInit];
+    expect(bootstrapUrl.pathname).toBe("/api/auth/consumer/workspaces");
+    expect(bootstrapInit.method).toBe("POST");
+    expect(JSON.parse(String(bootstrapInit.body))).toEqual({ organizationId, workspaceId });
+
+    const [revokeUrl, revokeInit] = fetchMock.mock.calls[1] as [URL, RequestInit];
+    expect(revokeUrl.pathname).toBe(`/api/auth/consumer/workspaces/${workspaceId}`);
+    expect(revokeInit.method).toBe("DELETE");
+    expect(JSON.parse(String(revokeInit.body))).toEqual({ organizationId });
+  });
+
+  it("requires explicit confirmation from Perminister before treating cleanup as complete", async () => {
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce(Response.json({ granted: false }))
+      .mockResolvedValueOnce(Response.json({ revoked: false }));
+    vi.stubGlobal("fetch", fetchMock);
+    const organizationId = "11111111-1111-4111-8111-111111111111";
+    const workspaceId = "22222222-2222-4222-8222-222222222222";
+
+    await expect(
+      bootstrapVisitoringWorkspaceAdmin(organizationId, workspaceId),
+    ).rejects.toMatchObject({
+      status: 503,
+    });
+    await expect(
+      revokeVisitoringWorkspaceGrants(organizationId, workspaceId),
+    ).rejects.toMatchObject({
+      status: 503,
+    });
   });
 });
