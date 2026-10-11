@@ -152,8 +152,8 @@ export function OrganizationSwitcher({ organizations, currentOrganizationId, act
               onClick={(event) => {
                 if (organization.organizationId === currentOrganizationId) {
                   event.preventDefault();
-                  setOpen(false);
                 }
+                setOpen(false);
               }}
             >
               <span>{organization.organizationName}</span>

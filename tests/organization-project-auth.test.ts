@@ -117,7 +117,7 @@ describe("organization project management authorization", () => {
       get: (name: string) =>
         name === "visitoring_session" ? { value: "expired-session" } : undefined,
     });
-    mocks.readPerministerSession.mockRejectedValueOnce(new PerministerApiError(401, "expired"));
+    mocks.readPerministerSession.mockRejectedValue(new PerministerApiError(401, "expired"));
 
     await expect(requireUser()).rejects.toThrow("redirect:/login");
   });

@@ -1,9 +1,9 @@
 // @vitest-environment jsdom
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { PublicHeader } from "@/app/components/PublicHeader";
-import { OrganizationPicker } from "@/app/organizations/OrganizationPicker";
+import { OrganizationSwitcher } from "@/app/components/OrganizationSwitcher";
 
 describe("public navigation", () => {
   it("supports keyboard access to the main links", async () => {
@@ -30,25 +30,28 @@ describe("organization selection", () => {
 
   it("supports pointer selection and keyboard navigation with Escape", async () => {
     const user = userEvent.setup();
+    const action = vi.fn(async (_formData: FormData) => {});
     render(
-      <OrganizationPicker
+      <OrganizationSwitcher
         organizations={organizations}
-        initialOrganizationId=""
-        action={async () => {}}
+        currentOrganizationId={organizations[0].organizationId}
+        action={action}
       />,
     );
 
-    const picker = screen.getByRole("combobox", { name: "Organization Select an organization" });
+    const picker = screen.getByRole("combobox", { name: "Organization Acme" });
     await user.click(picker);
-    await user.click(screen.getByRole("option", { name: "Acme" }));
-    expect(picker.textContent).toContain("Acme");
-    expect(document.querySelector<HTMLInputElement>('input[name="organizationId"]')?.value).toBe(
-      organizations[0].organizationId,
-    );
+    await user.click(screen.getByRole("option", { name: "Northwind" }));
+    expect(action).toHaveBeenCalledOnce();
+    expect(action.mock.calls[0]?.[0].get("organizationId")).toBe(organizations[1].organizationId);
 
     await user.click(picker);
-    await user.keyboard("{ArrowDown}{Enter}");
-    expect(picker.textContent).toContain("Northwind");
+    await user.keyboard("{ArrowDown}");
+    expect(picker.getAttribute("aria-activedescendant")).toBe(
+      `${picker.getAttribute("aria-controls")}-option-1`,
+    );
+    await user.keyboard("{Enter}");
+    expect(action).toHaveBeenCalledTimes(2);
     expect(document.activeElement).toBe(picker);
 
     await user.click(picker);
