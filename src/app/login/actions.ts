@@ -5,44 +5,51 @@ import { redirect } from "next/navigation";
 import { destroyAuthSession, setSessionCookie } from "@/lib/auth";
 import { clientIpFromHeaders } from "@/lib/privacy";
 import { clearLoginAccountAttempts, isLoginRateLimited } from "@/lib/login-rate-limit";
-import { setVisitoringWorkspaceCookies } from "@/lib/workspace-cookies";
+import { setVisitoringOrganizationCookies } from "@/lib/organization-cookies";
 import {
   loginWithPerminister,
   PerministerApiError,
   revokePerministerSession,
-  visitoringUserForWorkspace,
+  hasVisitoringOrganization,
 } from "@/lib/perminister";
 
+const ORGANIZATION_ID_PATTERN =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
 export async function startPerministerLoginAction(formData: FormData): Promise<void> {
-  const workspaceSlug = String(formData.get("workspace") ?? "")
+  const organizationId = String(formData.get("organizationId") ?? "")
     .trim()
     .toLowerCase();
-  if (!/^[a-z0-9][a-z0-9_-]{0,79}$/.test(workspaceSlug)) {
-    redirect("/login?error=workspace");
+  if (!ORGANIZATION_ID_PATTERN.test(organizationId)) {
+    redirect("/login?error=organization");
   }
-  redirect(`/auth/perminister/start?workspace=${encodeURIComponent(workspaceSlug)}`);
+  redirect(`/auth/perminister/start?organizationId=${encodeURIComponent(organizationId)}`);
 }
 
 export async function loginAction(formData: FormData): Promise<void> {
   const email = String(formData.get("email") ?? "")
     .trim()
     .toLowerCase();
-  const workspaceSlug = String(formData.get("workspace") ?? "")
+  const organizationId = String(formData.get("organizationId") ?? "")
     .trim()
     .toLowerCase();
   const password = String(formData.get("password") ?? "");
-  if (!email || !workspaceSlug || !password || password.length > 1024)
+  if (
+    !email ||
+    !ORGANIZATION_ID_PATTERN.test(organizationId) ||
+    !password ||
+    password.length > 1024
+  )
     redirect("/login?error=invalid");
 
   const ip = clientIpFromHeaders(await headers());
-  if (await isLoginRateLimited({ email, workspaceSlug, ip })) redirect("/login?error=invalid");
+  if (await isLoginRateLimited({ email, organizationId, ip })) redirect("/login?error=invalid");
 
   let token: string | null = null;
   let loginError: "invalid" | "unavailable" | null = null;
   try {
     const session = await loginWithPerminister(email, password);
-    const user = await visitoringUserForWorkspace(session, workspaceSlug);
-    if (!user) {
+    if (!hasVisitoringOrganization(session, organizationId)) {
       try {
         await revokePerministerSession(session.sessionToken);
       } catch {
@@ -59,10 +66,10 @@ export async function loginAction(formData: FormData): Promise<void> {
   if (loginError) redirect(`/login?error=${loginError}`);
   if (!token) redirect("/login?error=invalid");
 
-  await clearLoginAccountAttempts({ email, workspaceSlug });
+  await clearLoginAccountAttempts({ email, organizationId });
   await setSessionCookie(token);
-  await setVisitoringWorkspaceCookies(workspaceSlug);
-  redirect("/dashboard");
+  await setVisitoringOrganizationCookies(organizationId);
+  redirect("/projects");
 }
 
 export async function logoutAction(): Promise<void> {

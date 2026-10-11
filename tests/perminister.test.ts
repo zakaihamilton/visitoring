@@ -18,6 +18,7 @@ import {
   readPerministerSession,
   requestPerminister,
   visitoringUserForWorkspace,
+  visitoringWorkspacesForOrganization,
 } from "@/lib/perminister";
 
 function configureEnvironment(): void {
@@ -123,13 +124,24 @@ describe("Visitoring Perminister client", () => {
     expect(new Headers(init.headers).get("Authorization")).toBe("Bearer opaque-session-token");
   });
 
-  it("maps only a matching active workspace role into Visitoring context", async () => {
+  it("lists accessible workspaces and maps a selected workspace into Visitoring context", async () => {
     dbLimit
       .mockResolvedValueOnce([
         {
           id: "workspace-id",
-          name: "Acme",
-          slug: "acme",
+          name: "ShiftingFront",
+          organizationId: "11111111-1111-4111-8111-111111111111",
+        },
+        {
+          id: "other-workspace-id",
+          name: "Puzzimori",
+          organizationId: "11111111-1111-4111-8111-111111111111",
+        },
+      ])
+      .mockResolvedValueOnce([
+        {
+          id: "workspace-id",
+          name: "ShiftingFront",
           organizationId: "11111111-1111-4111-8111-111111111111",
         },
       ])
@@ -153,21 +165,53 @@ describe("Visitoring Perminister client", () => {
               role: "viewer",
               actions: ["visitoring:workspace:read"],
             },
+            {
+              scope: {
+                kind: "workspace",
+                organizationId: "11111111-1111-4111-8111-111111111111",
+                productId: "visitoring",
+                workspaceId: "other-workspace-id",
+              },
+              role: "admin",
+              actions: ["visitoring:workspace:read"],
+            },
           ],
         },
       ],
     };
 
-    await expect(visitoringUserForWorkspace(auth, "ACME")).resolves.toEqual({
+    await expect(
+      visitoringWorkspacesForOrganization(auth, "11111111-1111-4111-8111-111111111111"),
+    ).resolves.toEqual([
+      {
+        id: "other-workspace-id",
+        name: "Puzzimori",
+        organizationId: "11111111-1111-4111-8111-111111111111",
+        organizationName: "Acme Organization",
+        role: "admin",
+      },
+      {
+        id: "workspace-id",
+        name: "ShiftingFront",
+        organizationId: "11111111-1111-4111-8111-111111111111",
+        organizationName: "Acme Organization",
+        role: "viewer",
+      },
+    ]);
+
+    await expect(
+      visitoringUserForWorkspace(auth, "11111111-1111-4111-8111-111111111111", "workspace-id"),
+    ).resolves.toEqual({
       id: "subject-id",
       workspaceId: "workspace-id",
-      workspaceName: "Acme",
-      workspaceSlug: "acme",
+      workspaceName: "ShiftingFront",
       organizationId: "11111111-1111-4111-8111-111111111111",
       organizationName: "Acme Organization",
       email: null,
       role: "viewer",
     });
-    await expect(visitoringUserForWorkspace(auth, "missing")).resolves.toBeNull();
+    await expect(
+      visitoringUserForWorkspace(auth, "11111111-1111-4111-8111-111111111111", "missing"),
+    ).resolves.toBeNull();
   });
 });

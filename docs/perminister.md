@@ -29,19 +29,31 @@ operations go through Perminister; there is no local authentication fallback.
 Create a Visitoring workspace record:
 
 ```sh
-npm run workspaces:provision -- --workspace "Acme" --slug acme --organization-id "<organization-uuid>"
+npm run workspaces:provision -- --workspace "ShiftingFront" --organization-id "<organization-uuid>"
 ```
 
-The command stores the selected organization UUID with the workspace and prints the workspace UUID. In Perminister, grant the initial account the `admin` role for that workspace resource under the same organization’s Visitoring product. Workspace login uses this mapping to select the organization and validate its grant. After the first administrator can sign in,
-they can add accounts, change roles, reset passwords, deactivate members, and remove workspace
-access from **Settings → Users**. New accounts created there cannot self-register, and an existing
-Perminister identity keeps its current password.
+The command associates the named Visitoring project with the selected organization and prints its
+workspace UUID. In Perminister, grant the initial account the `admin` role for that workspace
+resource under the same organization’s Visitoring product. Run the command again for each Visitoring
+project you want in the organization. After the first administrator can sign in, they can add
+accounts, change roles, reset passwords, deactivate members, and remove workspace access from
+**Settings → Users**. New accounts created there cannot self-register, and an existing Perminister
+identity keeps its current password.
 
-Visitoring's login form takes the workspace slug and the member's email. After Perminister confirms
-the account session, Visitoring verifies that the account has an active `admin` or `viewer` grant for
-the selected workspace before opening the dashboard. **Sign in with Perminister** uses the same
-workspace slug and completes a short-lived, PKCE-protected authorization-code flow before setting the
-Visitoring session cookie.
+Visitoring's login form takes the Perminister organization ID and the member's email. After
+Perminister confirms the account session, Visitoring shows the account's accessible workspaces for
+that organization. The member chooses a workspace to open its dashboard. **Sign in with Perminister**
+uses the same organization ID and completes a short-lived, PKCE-protected authorization-code flow
+before showing the workspace picker.
+
+## Attribute analytics to a project
+
+Create a site under the project in **Settings → Sites**. Visitoring issues a tracking key for that
+site. The collector looks up the site by the key, checks the request's domain against the site's
+allowed domains, and saves the event with both the site ID and its owning workspace ID. The browser
+does not need to send a separate Perminister product or organization ID with each event. If
+ShiftingFront and Puzzimori both use Visitoring, create their sites under their respective project
+workspaces so their keys and analytics remain separate.
 
 ## Data migration and storage
 

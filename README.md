@@ -35,10 +35,12 @@ Visitoring uses Perminister for identities, passwords, sessions, and workspace a
 Create a workspace after running `db:migrate`:
 
 ```sh
-npm run workspaces:provision -- --workspace "Acme" --slug acme --organization-id "<organization-uuid>"
+npm run workspaces:provision -- --workspace "ShiftingFront" --organization-id "<organization-uuid>"
 ```
 
-The command stores the Perminister organization UUID on the workspace and prints the workspace UUID. In Perminister, grant the initial administrator the `admin` role for that Visitoring workspace under that organization. They can then add accounts and manage roles in **Settings → Users**. Sign in with the workspace slug entered with `--slug`, your email, and password. The workspace record selects its Perminister organization. For example, a workspace created with `--slug acme` uses `acme` in the **Workspace** field. To limit password guessing, repeated sign-in attempts are temporarily restricted. Administrators can open **Settings → Sites** to add websites and manage their tracking keys, and **Settings → Setup** for tracker instructions. A tracking key appears only when it is created or replaced, so copy it then. Add every website address that will use the tracker, separated by commas, such as `example.com, www.example.com`. Each address must match exactly; include a port for local development, such as `localhost:3000`.
+The command associates the named project with a Perminister organization and prints its workspace UUID. In Perminister, grant the initial administrator the `admin` role for that Visitoring workspace. They can then add accounts and manage roles in **Settings → Users**. Sign in with the organization ID, email, and password. Visitoring shows the workspaces in that organization that your account can access; choose one to open its analytics. Repeat the provisioning command for each project in the organization. To limit password guessing, repeated sign-in attempts are temporarily restricted. Administrators can open **Settings → Sites** to add websites and manage their tracking keys, and **Settings → Setup** for tracker instructions. A tracking key appears only when it is created or replaced, so copy it then. Add every website address that will use the tracker, separated by commas, such as `example.com, www.example.com`. Each address must match exactly; include a port for local development, such as `localhost:3000`.
+
+Each Visitoring site gets a tracking key and belongs to one project. The collector uses that key to look up the site, checks that the request comes from an approved domain, then records the event with the site's and project's IDs. For example, ShiftingFront and Puzzimori can each have a site under the same organization; their separate keys keep their analytics attributed to the right project.
 
 ## Add Visitoring to a website
 

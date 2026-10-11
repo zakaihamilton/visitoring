@@ -8,7 +8,7 @@ type Props = { searchParams: Promise<{ error?: string }> };
 
 export default async function LoginPage({ searchParams }: Props) {
   const [{ error }, cookieStore] = await Promise.all([searchParams, cookies()]);
-  const lastProject = cookieStore.get("visitoring_last_project")?.value;
+  const lastOrganizationId = cookieStore.get("visitoring_last_organization")?.value;
   return (
     <main className={styles.page}>
       <section className={styles.panel}>
@@ -32,26 +32,28 @@ export default async function LoginPage({ searchParams }: Props) {
       <section className={styles.formSide}>
         <form action={loginAction} className={styles.form}>
           <div className="eyebrow">Welcome back</div>
-          <h2>Sign in to your workspace</h2>
+          <h2>Sign in to Visitoring</h2>
           <p className={styles.sub}>
-            Enter the workspace slug and account provided by your administrator. The workspace
-            selects the organization that owns this data.
+            Enter the organization ID and account provided by your administrator. Visitoring uses
+            the ID to find a workspace you can access.
           </p>
           <div className={styles.field}>
             <div className={styles.labelRow}>
-              <label htmlFor="workspace">Workspace</label>
+              <label htmlFor="organizationId">Organization ID</label>
               <Tooltip
-                label="Workspace"
-                content="Enter the workspace slug provided by your administrator, such as acme."
+                label="Organization ID"
+                content="Enter the Perminister organization UUID provided by your administrator."
               />
             </div>
             <input
-              id="workspace"
-              name="workspace"
-              autoComplete="organization"
+              id="organizationId"
+              name="organizationId"
+              autoComplete="off"
+              autoCapitalize="none"
+              spellCheck={false}
               required
-              placeholder="visitoring"
-              defaultValue={lastProject}
+              placeholder="Organization UUID"
+              defaultValue={lastOrganizationId}
             />
           </div>
           <button
@@ -90,11 +92,11 @@ export default async function LoginPage({ searchParams }: Props) {
             <p className={styles.error} role="alert">
               {error === "unavailable"
                 ? "Sign-in is temporarily unavailable. Please try again shortly."
-                : error === "workspace"
-                  ? "Enter your workspace slug before signing in with Perminister."
+                : error === "organization"
+                  ? "Enter your organization ID before signing in with Perminister."
                   : error === "sso"
                     ? "Perminister sign-in could not be completed. Please try again."
-                    : "We couldn't find a match for that project, email, or password."}
+                    : "We couldn't find a match for that organization ID, email, or password."}
             </p>
           ) : null}
           <button type="submit" className="button buttonPrimary">

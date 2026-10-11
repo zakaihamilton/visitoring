@@ -43,7 +43,6 @@ suite("PostgreSQL collector integration", () => {
       .insert(workspaces)
       .values({
         name: "Integration workspace",
-        slug: `it-${crypto.randomUUID().slice(0, 8)}`,
         organizationId: "660601f6-c1c3-42b0-9118-c2285d7659a3",
       })
       .returning();
@@ -51,7 +50,6 @@ suite("PostgreSQL collector integration", () => {
       .insert(workspaces)
       .values({
         name: "Other workspace",
-        slug: `it-${crypto.randomUUID().slice(0, 8)}`,
         organizationId: "660601f6-c1c3-42b0-9118-c2285d7659a3",
       })
       .returning();
