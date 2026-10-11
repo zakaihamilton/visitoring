@@ -36,9 +36,7 @@ export function ActivityChart({ data }: { data: DashboardData }) {
                 className={styles.bar}
                 style={{ height: `${Math.max(day.total ? 5 : 0, (day.total / maxTrend) * 100)}%` }}
               >
-                <span
-                  style={{ height: `${day.total ? (day.pageViews / day.total) * 100 : 0}%` }}
-                />
+                <span style={{ height: `${day.total ? (day.pageViews / day.total) * 100 : 0}%` }} />
               </div>
             </Tooltip>
           ))}

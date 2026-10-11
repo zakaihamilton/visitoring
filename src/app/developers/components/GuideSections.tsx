@@ -22,8 +22,8 @@ export function SiteSetupSection() {
       </div>
       <ol className={styles.steps}>
         <li>
-          <strong>Sign in and add a site.</strong> An administrator can open{" "}
-          <b>Settings → Sites</b> and create a site for each website you want to measure.
+          <strong>Sign in and add a site.</strong> An administrator can open <b>Settings → Sites</b>{" "}
+          and create a site for each website you want to measure.
         </li>
         <li>
           <strong>Add the website addresses.</strong> Enter each address that should send data, such

@@ -38,10 +38,7 @@ export function DashboardMetrics({ data }: { data: DashboardData }) {
       <article className={styles.metric}>
         <div className={styles.metricLabel}>
           <span>Custom events</span>
-          <Tooltip
-            label="Custom events"
-            content="Events other than page_view, such as a signup."
-          />
+          <Tooltip label="Custom events" content="Events other than page_view, such as a signup." />
         </div>
         <strong>{formatNumber(data.customEvents)}</strong>
         <small>{formatNumber(data.total)} total, including page views</small>

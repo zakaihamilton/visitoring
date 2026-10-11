@@ -1,8 +1,4 @@
-import {
-  deactivateUserAction,
-  deleteUserAction,
-  resetUserPasswordAction,
-} from "../actions";
+import { deactivateUserAction, deleteUserAction, resetUserPasswordAction } from "../actions";
 import type { ManagedUser } from "../user-types";
 import { ReactivateUserForm } from "./ReactivateUserForm";
 import { UserActionDialog } from "./UserActionDialog";

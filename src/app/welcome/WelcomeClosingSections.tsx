@@ -45,7 +45,9 @@ export function PrivacySection() {
       <div className={styles.privacyCopy}>
         <div className={styles.privacyEyebrow}>Privacy by design</div>
         <h2 id="privacy-title">Useful context. Less personal data.</h2>
-        <p>Get a practical view of your traffic without collecting more detail than the job needs.</p>
+        <p>
+          Get a practical view of your traffic without collecting more detail than the job needs.
+        </p>
       </div>
       <ul className={styles.privacyPoints}>
         <li>
@@ -58,7 +60,8 @@ export function PrivacySection() {
         </li>
         <li>
           <span aria-hidden="true">✓</span>
-          Browser details are reduced to broad categories, and Do Not Track is respected. <Tooltip
+          Browser details are reduced to broad categories, and Do Not Track is respected.{" "}
+          <Tooltip
             label="Do Not Track"
             content="Visitoring honors the browser preference by not collecting events when it is enabled."
           />

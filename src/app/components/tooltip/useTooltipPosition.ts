@@ -1,7 +1,7 @@
 import { useLayoutEffect, useState } from "react";
 import type { RefObject } from "react";
 
-export type TooltipPosition = {
+type TooltipPosition = {
   left: number;
   top: number;
   width?: number;

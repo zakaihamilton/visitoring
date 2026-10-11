@@ -3,10 +3,7 @@
 import { useActionState, useEffect, useRef, useState } from "react";
 import { Tooltip } from "@/app/components/Tooltip";
 import { guardConfirmableSubmit } from "@/app/components/confirmable-form";
-import {
-  rotateSiteKeyAction,
-  updateDomainsAction,
-} from "@/app/sites/actions";
+import { rotateSiteKeyAction, updateDomainsAction } from "@/app/sites/actions";
 import dialogStyles from "../../confirm-dialog.module.css";
 import { ActionNotice } from "./ActionNotice";
 import { initialState } from "./initialState";
