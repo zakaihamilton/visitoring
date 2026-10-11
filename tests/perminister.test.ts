@@ -20,6 +20,7 @@ import {
   readPerministerSession,
   revokeVisitoringWorkspaceGrants,
   requestPerminister,
+  visitoringOrganizations,
   visitoringUserForWorkspace,
   visitoringWorkspacesForOrganization,
 } from "@/lib/perminister";
@@ -77,6 +78,54 @@ describe("Visitoring Perminister client", () => {
       identifier: "person@example.com",
       password: "legacy-password",
     });
+  });
+
+  it("lists the unique Visitoring organizations in name order", () => {
+    const auth = {
+      authenticated: true as const,
+      account: { subjectId: "subject-id", email: null },
+      organizations: [
+        {
+          organizationId: "22222222-2222-4222-8222-222222222222",
+          organizationName: "Northwind",
+          organizationRole: "member" as const,
+          productId: "visitoring",
+          resourceRoles: [],
+        },
+        {
+          organizationId: "11111111-1111-4111-8111-111111111111",
+          organizationName: "Acme",
+          organizationRole: "owner" as const,
+          productId: "visitoring",
+          resourceRoles: [],
+        },
+        {
+          organizationId: "33333333-3333-4333-8333-333333333333",
+          organizationName: "Other product",
+          organizationRole: "admin" as const,
+          productId: "other-product",
+          resourceRoles: [],
+        },
+        {
+          organizationId: "22222222-2222-4222-8222-222222222222",
+          organizationName: "Duplicate",
+          organizationRole: "member" as const,
+          productId: "visitoring",
+          resourceRoles: [],
+        },
+      ],
+    };
+
+    expect(visitoringOrganizations(auth)).toEqual([
+      {
+        organizationId: "11111111-1111-4111-8111-111111111111",
+        organizationName: "Acme",
+      },
+      {
+        organizationId: "22222222-2222-4222-8222-222222222222",
+        organizationName: "Northwind",
+      },
+    ]);
   });
 
   it("uses the current opaque session for protected calls and returns API errors safely", async () => {

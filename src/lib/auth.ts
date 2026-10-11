@@ -8,6 +8,7 @@ import {
   readPerministerSession,
   revokePerministerSession,
   visitoringOrganizationForId,
+  visitoringOrganizations,
   visitoringUserForWorkspace,
   visitoringWorkspacesForOrganization,
   type VisitoringCurrentUser,
@@ -40,11 +41,9 @@ async function getCurrentUser(): Promise<CurrentUser | null> {
   }
 }
 
-async function requireOrganizationSession() {
-  const jar = await cookies();
-  const token = jar.get(SESSION_COOKIE)?.value;
-  const organizationId = jar.get(ACTIVE_ORGANIZATION_COOKIE)?.value;
-  if (!token || !organizationId) redirect("/login");
+export async function requirePerministerSession() {
+  const token = (await cookies()).get(SESSION_COOKIE)?.value;
+  if (!token) redirect("/login");
 
   let session: Awaited<ReturnType<typeof readPerministerSession>>;
   try {
@@ -53,21 +52,41 @@ async function requireOrganizationSession() {
     if (error instanceof PerministerApiError && error.status === 401) redirect("/login");
     throw error;
   }
+  if (!session.authenticated) redirect("/login");
+  return session;
+}
+
+export async function requireVisitoringOrganizations() {
+  const session = await requirePerministerSession();
+  const organizations = visitoringOrganizations(session);
+  if (organizations.length === 0) redirect("/login?error=invalid");
+  return { session, organizations };
+}
+
+async function requireOrganizationSession() {
+  const jar = await cookies();
+  const organizationId = jar.get(ACTIVE_ORGANIZATION_COOKIE)?.value;
+  const session = await requirePerministerSession();
+  if (!organizationId) redirect("/organizations");
 
   const organization = visitoringOrganizationForId(session, organizationId);
-  if (!organization) redirect("/login?error=invalid");
+  if (!organization) redirect("/organizations?error=invalid");
   return { session, organization };
 }
 
 export async function requireUser(): Promise<CurrentUser> {
   const user = await getCurrentUser();
-  if (!user) {
-    const jar = await cookies();
-    if (jar.get(SESSION_COOKIE)?.value && jar.get(ACTIVE_ORGANIZATION_COOKIE)?.value)
-      redirect("/projects");
-    redirect("/login");
+  if (user) return user;
+
+  const jar = await cookies();
+  if (!jar.get(SESSION_COOKIE)?.value) redirect("/login");
+  const session = await requirePerministerSession();
+  const organizationId = jar.get(ACTIVE_ORGANIZATION_COOKIE)?.value;
+  if (!organizationId) {
+    if (visitoringOrganizations(session).length === 0) redirect("/login?error=invalid");
+    redirect("/organizations");
   }
-  return user;
+  redirect("/projects");
 }
 
 export async function requireOrganizationWorkspaces(): Promise<{

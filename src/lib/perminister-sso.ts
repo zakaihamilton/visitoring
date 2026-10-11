@@ -13,16 +13,14 @@ export function perministerSsoCookieName(state: string): string | null {
 type PerministerSsoTransaction = {
   state: string;
   verifier: string;
-  organizationId: string;
 };
 
-export function createPerministerSsoTransaction(organizationId: string) {
+export function createPerministerSsoTransaction() {
   const state = randomBytes(32).toString("base64url");
   const verifier = randomBytes(32).toString("base64url");
   return {
     state,
     verifier,
-    organizationId,
     challenge: createHash("sha256").update(verifier).digest("base64url"),
   };
 }
@@ -50,24 +48,18 @@ export function readPerministerSsoTransaction(
     const parsed = JSON.parse(Buffer.from(payload, "base64url").toString("utf8")) as {
       state?: unknown;
       verifier?: unknown;
-      organizationId?: unknown;
     };
     if (
       typeof parsed.state !== "string" ||
       !/^[A-Za-z0-9_-]{43}$/.test(parsed.state) ||
       typeof parsed.verifier !== "string" ||
-      !/^[A-Za-z0-9_-]{43}$/.test(parsed.verifier) ||
-      typeof parsed.organizationId !== "string" ||
-      !/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
-        parsed.organizationId,
-      )
+      !/^[A-Za-z0-9_-]{43}$/.test(parsed.verifier)
     ) {
       return null;
     }
     return {
       state: parsed.state,
       verifier: parsed.verifier,
-      organizationId: parsed.organizationId.toLowerCase(),
     };
   } catch {
     return null;

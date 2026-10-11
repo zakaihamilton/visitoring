@@ -1,14 +1,11 @@
 import { loginAction, startPerministerLoginAction } from "./actions";
-import { cookies } from "next/headers";
 import { BrandIcon } from "@/app/components/BrandIcon";
-import { Tooltip } from "@/app/components/Tooltip";
 import styles from "./login.module.css";
 
 type Props = { searchParams: Promise<{ error?: string }> };
 
 export default async function LoginPage({ searchParams }: Props) {
-  const [{ error }, cookieStore] = await Promise.all([searchParams, cookies()]);
-  const lastOrganizationId = cookieStore.get("visitoring_last_organization")?.value;
+  const { error } = await searchParams;
   return (
     <main className={styles.page}>
       <section className={styles.panel}>
@@ -30,82 +27,59 @@ export default async function LoginPage({ searchParams }: Props) {
         </div>
       </section>
       <section className={styles.formSide}>
-        <form action={loginAction} className={styles.form}>
+        <div className={styles.form}>
           <div className="eyebrow">Welcome back</div>
           <h2>Sign in to Visitoring</h2>
           <p className={styles.sub}>
-            Enter the organization ID and account provided by your administrator. Visitoring uses
-            the ID to find a workspace you can access.
+            Sign in with your account, then choose the Visitoring organization you want to open.
           </p>
-          <div className={styles.field}>
-            <div className={styles.labelRow}>
-              <label htmlFor="organizationId">Organization ID</label>
-              <Tooltip
-                label="Organization ID"
-                content="Enter the Perminister organization UUID provided by your administrator."
-              />
-            </div>
-            <input
-              id="organizationId"
-              name="organizationId"
-              autoComplete="off"
-              autoCapitalize="none"
-              spellCheck={false}
-              required
-              placeholder="Organization UUID"
-              defaultValue={lastOrganizationId}
-            />
-          </div>
-          <button
-            type="submit"
-            formAction={startPerministerLoginAction}
-            formNoValidate
-            className={`button buttonQuiet ${styles.ssoButton}`}
-          >
-            Sign in with Perminister <span aria-hidden>↗</span>
-          </button>
+          <form action={startPerministerLoginAction} className={styles.ssoForm}>
+            <button type="submit" className={`button buttonQuiet ${styles.ssoButton}`}>
+              Sign in with Perminister <span aria-hidden>↗</span>
+            </button>
+          </form>
           <div className={styles.authDivider}>
             <span>or sign in with email and password</span>
           </div>
-          <label>
-            Email
-            <input
-              id="email"
-              name="email"
-              type="email"
-              autoComplete="username"
-              required
-              placeholder="you@example.com"
-            />
-          </label>
-          <label>
-            Password
-            <input
-              id="password"
-              name="password"
-              type="password"
-              autoComplete="current-password"
-              required
-            />
-          </label>
-          {error ? (
-            <p className={styles.error} role="alert">
-              {error === "unavailable"
-                ? "Sign-in is temporarily unavailable. Please try again shortly."
-                : error === "organization"
-                  ? "Enter your organization ID before signing in with Perminister."
+          <form action={loginAction} className={styles.credentialsForm}>
+            <label htmlFor="email">
+              Email
+              <input
+                id="email"
+                name="email"
+                type="email"
+                autoComplete="username"
+                required
+                placeholder="you@example.com"
+              />
+            </label>
+            <label htmlFor="password">
+              Password
+              <input
+                id="password"
+                name="password"
+                type="password"
+                autoComplete="current-password"
+                required
+              />
+            </label>
+            {error ? (
+              <p className={styles.error} role="alert">
+                {error === "unavailable"
+                  ? "Sign-in is temporarily unavailable. Please try again shortly."
                   : error === "sso"
                     ? "Perminister sign-in could not be completed. Please try again."
-                    : "We couldn't find a match for that organization ID, email, or password."}
-            </p>
-          ) : null}
-          <button type="submit" className="button buttonPrimary">
-            Continue <span aria-hidden>↗</span>
-          </button>
+                    : "We couldn't find a match for that email or password, or your account doesn't have Visitoring access."}
+              </p>
+            ) : null}
+            <button type="submit" className="button buttonPrimary">
+              Continue <span aria-hidden>↗</span>
+            </button>
+          </form>
           <p className={styles.foot}>
             Need access? Ask your project administrator to create an account.
           </p>
-        </form>
+        </div>
       </section>
     </main>
   );

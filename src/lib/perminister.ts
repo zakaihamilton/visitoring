@@ -16,6 +16,10 @@ export type VisitoringWorkspaceChoice = {
   organizationName: string;
   role: VisitoringRole;
 };
+export type VisitoringOrganizationChoice = {
+  organizationId: string;
+  organizationName: string;
+};
 type VisitoringWorkspaceMember = {
   id: string;
   email: string | null;
@@ -222,8 +226,24 @@ export async function revokePerministerSession(token: string): Promise<void> {
   });
 }
 
-export function hasVisitoringOrganization(auth: ConsumerSession, organizationId: string): boolean {
-  return visitoringOrganizationForId(auth, organizationId) !== null;
+export function visitoringOrganizations(auth: ConsumerSession): VisitoringOrganizationChoice[] {
+  const config = configuration();
+  const organizations = new Map<string, VisitoringOrganizationChoice>();
+  for (const organization of auth.organizations) {
+    if (organization.productId !== config.productId) continue;
+    const organizationId = organization.organizationId.toLowerCase();
+    if (!organizations.has(organizationId)) {
+      organizations.set(organizationId, {
+        organizationId,
+        organizationName: organization.organizationName,
+      });
+    }
+  }
+  return [...organizations.values()].sort(
+    (left, right) =>
+      left.organizationName.localeCompare(right.organizationName) ||
+      left.organizationId.localeCompare(right.organizationId),
+  );
 }
 
 export function visitoringOrganizationForId(
