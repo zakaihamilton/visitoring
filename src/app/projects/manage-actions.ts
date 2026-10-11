@@ -20,6 +20,23 @@ function workspaceIdFrom(formData: FormData): string {
   return String(formData.get("workspaceId") ?? "").trim();
 }
 
+type ProjectStatus = "active" | "archived" | "deletion-pending";
+
+function projectStatusCondition(
+  workspaceId: string,
+  organizationId: string,
+  status: ProjectStatus,
+) {
+  return and(
+    eq(workspaces.id, workspaceId),
+    eq(workspaces.organizationId, organizationId),
+    status === "active" ? isNull(workspaces.archivedAt) : isNotNull(workspaces.archivedAt),
+    status === "deletion-pending"
+      ? isNotNull(workspaces.deletionPendingAt)
+      : isNull(workspaces.deletionPendingAt),
+  );
+}
+
 export async function createProjectAction(
   _state: ProjectActionState,
   formData: FormData,
@@ -43,14 +60,7 @@ export async function createProjectAction(
     const activated = await db
       .update(workspaces)
       .set({ archivedAt: null, deletionPendingAt: null })
-      .where(
-        and(
-          eq(workspaces.id, workspaceId),
-          eq(workspaces.organizationId, admin.organizationId),
-          isNotNull(workspaces.archivedAt),
-          isNotNull(workspaces.deletionPendingAt),
-        ),
-      )
+      .where(projectStatusCondition(workspaceId, admin.organizationId, "deletion-pending"))
       .returning({ id: workspaces.id });
     if (activated.length === 0) throw new Error("The workspace could not be activated.");
   } catch {
@@ -110,14 +120,7 @@ export async function manageProjectAction(
     const archived = await db
       .update(workspaces)
       .set({ archivedAt: new Date() })
-      .where(
-        and(
-          eq(workspaces.id, workspaceId),
-          eq(workspaces.organizationId, admin.organizationId),
-          isNull(workspaces.archivedAt),
-          isNull(workspaces.deletionPendingAt),
-        ),
-      )
+      .where(projectStatusCondition(workspaceId, admin.organizationId, "active"))
       .returning({ id: workspaces.id });
     if (archived.length === 0) return failure("Project status changed. Refresh and try again.");
     revalidatePath("/projects");
@@ -131,14 +134,7 @@ export async function manageProjectAction(
     const restored = await db
       .update(workspaces)
       .set({ archivedAt: null })
-      .where(
-        and(
-          eq(workspaces.id, workspaceId),
-          eq(workspaces.organizationId, admin.organizationId),
-          isNotNull(workspaces.archivedAt),
-          isNull(workspaces.deletionPendingAt),
-        ),
-      )
+      .where(projectStatusCondition(workspaceId, admin.organizationId, "archived"))
       .returning({ id: workspaces.id });
     if (restored.length === 0) return failure("Project status changed. Refresh and try again.");
     revalidatePath("/projects");
@@ -152,14 +148,7 @@ export async function manageProjectAction(
     const marked = await db
       .update(workspaces)
       .set({ deletionPendingAt: new Date() })
-      .where(
-        and(
-          eq(workspaces.id, workspaceId),
-          eq(workspaces.organizationId, admin.organizationId),
-          isNotNull(workspaces.archivedAt),
-          isNull(workspaces.deletionPendingAt),
-        ),
-      )
+      .where(projectStatusCondition(workspaceId, admin.organizationId, "archived"))
       .returning({ id: workspaces.id });
     if (marked.length === 0) return failure("Project status changed. Refresh and try again.");
   }
@@ -177,14 +166,7 @@ export async function manageProjectAction(
   try {
     deleted = await db
       .delete(workspaces)
-      .where(
-        and(
-          eq(workspaces.id, workspaceId),
-          eq(workspaces.organizationId, admin.organizationId),
-          isNotNull(workspaces.archivedAt),
-          isNotNull(workspaces.deletionPendingAt),
-        ),
-      )
+      .where(projectStatusCondition(workspaceId, admin.organizationId, "deletion-pending"))
       .returning({ id: workspaces.id });
   } catch {
     revalidatePath("/projects");

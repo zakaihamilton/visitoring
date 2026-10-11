@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState, useEffect, useId, useRef, useState } from "react";
+import { guardConfirmableSubmit } from "@/app/components/confirmable-form";
 import {
   createProjectAction,
   manageProjectAction,
@@ -78,15 +79,7 @@ function ProjectControls({ project }: { project: ManagedProject }) {
           <form
             id={formId}
             action={action}
-            onSubmit={(event) => {
-              if (confirmedRef.current) {
-                confirmedRef.current = false;
-                setConfirmOpen(false);
-                return;
-              }
-              event.preventDefault();
-              setConfirmOpen(true);
-            }}
+            onSubmit={(event) => guardConfirmableSubmit(event, confirmedRef, setConfirmOpen)}
           >
             <input type="hidden" name="workspaceId" value={project.id} />
             <input type="hidden" name="operation" value="delete" />
@@ -100,7 +93,7 @@ function ProjectControls({ project }: { project: ManagedProject }) {
           </form>
           <dialog
             ref={dialogRef}
-            className={styles.confirmDialog}
+            className={`confirmationDialogSurface ${styles.confirmDialog}`}
             aria-labelledby={`delete-project-title-${project.id}`}
             aria-describedby={`delete-project-description-${project.id}`}
             onCancel={(event) => {

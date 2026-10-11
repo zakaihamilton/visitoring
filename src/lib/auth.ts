@@ -4,7 +4,6 @@ import { redirect } from "next/navigation";
 import {
   PERMINISTER_SESSION_COOKIE,
   PerministerApiError,
-  hasVisitoringOrganization,
   isVisitoringOrganizationAdmin,
   readPerministerSession,
   revokePerministerSession,
@@ -41,6 +40,25 @@ async function getCurrentUser(): Promise<CurrentUser | null> {
   }
 }
 
+async function requireOrganizationSession() {
+  const jar = await cookies();
+  const token = jar.get(SESSION_COOKIE)?.value;
+  const organizationId = jar.get(ACTIVE_ORGANIZATION_COOKIE)?.value;
+  if (!token || !organizationId) redirect("/login");
+
+  let session: Awaited<ReturnType<typeof readPerministerSession>>;
+  try {
+    session = await readPerministerSession(token);
+  } catch (error) {
+    if (error instanceof PerministerApiError && error.status === 401) redirect("/login");
+    throw error;
+  }
+
+  const organization = visitoringOrganizationForId(session, organizationId);
+  if (!organization) redirect("/login?error=invalid");
+  return { session, organization };
+}
+
 export async function requireUser(): Promise<CurrentUser> {
   const user = await getCurrentUser();
   if (!user) {
@@ -58,27 +76,13 @@ export async function requireOrganizationWorkspaces(): Promise<{
   canManageProjects: boolean;
   workspaces: VisitoringWorkspaceChoice[];
 }> {
-  const jar = await cookies();
-  const token = jar.get(SESSION_COOKIE)?.value;
-  const organizationId = jar.get(ACTIVE_ORGANIZATION_COOKIE)?.value;
-  if (!token || !organizationId) redirect("/login");
-
-  let session: Awaited<ReturnType<typeof readPerministerSession>>;
-  try {
-    session = await readPerministerSession(token);
-  } catch (error) {
-    if (error instanceof PerministerApiError && error.status === 401) redirect("/login");
-    throw error;
-  }
-
-  const organization = visitoringOrganizationForId(session, organizationId);
-  if (!organization) redirect("/login?error=invalid");
+  const { session, organization } = await requireOrganizationSession();
 
   return {
     organizationId: organization.organizationId,
     organizationName: organization.organizationName,
-    canManageProjects: isVisitoringOrganizationAdmin(session, organizationId),
-    workspaces: await visitoringWorkspacesForOrganization(session, organizationId),
+    canManageProjects: isVisitoringOrganizationAdmin(session, organization.organizationId),
+    workspaces: await visitoringWorkspacesForOrganization(session, organization.organizationId),
   };
 }
 
@@ -88,22 +92,8 @@ export async function requireOrganizationAdmin(): Promise<{
   organizationId: string;
   organizationName: string;
 }> {
-  const jar = await cookies();
-  const token = jar.get(SESSION_COOKIE)?.value;
-  const organizationId = jar.get(ACTIVE_ORGANIZATION_COOKIE)?.value;
-  if (!token || !organizationId) redirect("/login");
-
-  let session: Awaited<ReturnType<typeof readPerministerSession>>;
-  try {
-    session = await readPerministerSession(token);
-  } catch (error) {
-    if (error instanceof PerministerApiError && error.status === 401) redirect("/login");
-    throw error;
-  }
-
-  const organization = visitoringOrganizationForId(session, organizationId);
-  if (!organization) redirect("/login?error=invalid");
-  if (!isVisitoringOrganizationAdmin(session, organizationId))
+  const { session, organization } = await requireOrganizationSession();
+  if (!isVisitoringOrganizationAdmin(session, organization.organizationId))
     redirect("/projects?error=forbidden");
 
   return {
@@ -115,21 +105,8 @@ export async function requireOrganizationAdmin(): Promise<{
 }
 
 export async function selectVisitoringWorkspace(workspaceId: string): Promise<void> {
-  const jar = await cookies();
-  const token = jar.get(SESSION_COOKIE)?.value;
-  const organizationId = jar.get(ACTIVE_ORGANIZATION_COOKIE)?.value;
-  if (!token || !organizationId) redirect("/login");
-
-  let session: Awaited<ReturnType<typeof readPerministerSession>>;
-  try {
-    session = await readPerministerSession(token);
-  } catch (error) {
-    if (error instanceof PerministerApiError && error.status === 401) redirect("/login");
-    throw error;
-  }
-
-  if (!hasVisitoringOrganization(session, organizationId)) redirect("/login?error=invalid");
-  const user = await visitoringUserForWorkspace(session, organizationId, workspaceId);
+  const { session, organization } = await requireOrganizationSession();
+  const user = await visitoringUserForWorkspace(session, organization.organizationId, workspaceId);
   if (!user) redirect("/projects?error=access");
   await setVisitoringWorkspaceCookie(workspaceId);
 }

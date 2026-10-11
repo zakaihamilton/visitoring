@@ -8,7 +8,7 @@ export const PERMINISTER_SESSION_COOKIE = "visitoring_session";
 const VISITORING_PRODUCT_ID = "visitoring";
 
 export type VisitoringRole = "admin" | "viewer";
-export type VisitoringOrganizationRole = "owner" | "admin" | "member";
+type VisitoringOrganizationRole = "owner" | "admin" | "member";
 export type VisitoringWorkspaceChoice = {
   id: string;
   name: string;
@@ -229,11 +229,7 @@ export function hasVisitoringOrganization(auth: ConsumerSession, organizationId:
 export function visitoringOrganizationForId(
   auth: ConsumerSession,
   organizationId: string,
-): {
-  organizationId: string;
-  organizationName: string;
-  organizationRole: VisitoringOrganizationRole;
-} | null {
+): ConsumerOrganization | null {
   const config = configuration();
   const normalizedOrganizationId = organizationId.trim().toLowerCase();
   const organization = auth.organizations.find(
@@ -241,13 +237,7 @@ export function visitoringOrganizationForId(
       item.organizationId.toLowerCase() === normalizedOrganizationId &&
       item.productId === config.productId,
   );
-  return organization
-    ? {
-        organizationId: organization.organizationId,
-        organizationName: organization.organizationName,
-        organizationRole: organization.organizationRole,
-      }
-    : null;
+  return organization ?? null;
 }
 
 export function isVisitoringOrganizationAdmin(
@@ -323,11 +313,7 @@ export async function visitoringWorkspacesForOrganization(
 ): Promise<VisitoringWorkspaceChoice[]> {
   const config = configuration();
   const normalizedOrganizationId = organizationId.trim().toLowerCase();
-  const organization = auth.organizations.find(
-    (item) =>
-      item.organizationId.toLowerCase() === normalizedOrganizationId &&
-      item.productId === config.productId,
-  );
+  const organization = visitoringOrganizationForId(auth, organizationId);
   if (!organization) return [];
 
   const workspaceIds = [
