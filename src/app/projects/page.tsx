@@ -47,9 +47,7 @@ export default async function ProjectsPage({ searchParams }: Props) {
     await Promise.all([requireOrganizationWorkspaces(), searchParams]);
 
   const emptyStateProjects =
-    canManageProjects && workspaces.length === 0
-      ? await getManagedProjectRows(organizationId)
-      : [];
+    canManageProjects && workspaces.length === 0 ? await getManagedProjectRows(organizationId) : [];
   const hasActiveManagedProjects = emptyStateProjects.some((project) => !project.archivedAt);
   const hasArchivedManagedProjects = emptyStateProjects.some((project) => project.archivedAt);
   const emptyState = canManageProjects

@@ -1,5 +1,10 @@
 import styles from "./loading.module.css";
 
+const cardSkeletons = [
+  { id: "first", rows: ["first", "second"] },
+  { id: "second", rows: ["first", "second", "third"] },
+];
+
 export default function Loading() {
   return (
     <>
@@ -17,17 +22,14 @@ export default function Loading() {
         <div className={styles.eyebrow}>Workspace settings</div>
         <h1>Loading settings…</h1>
         <p>Checking access and loading workspace details.</p>
-        <section className={styles.card} aria-hidden="true">
-          <span className={`${styles.line} ${styles.titleLine}`} />
-          <span className={`${styles.line} ${styles.contentLine}`} />
-          <span className={`${styles.line} ${styles.contentLine}`} />
-        </section>
-        <section className={styles.card} aria-hidden="true">
-          <span className={`${styles.line} ${styles.titleLine}`} />
-          <span className={`${styles.line} ${styles.contentLine}`} />
-          <span className={`${styles.line} ${styles.contentLine}`} />
-          <span className={`${styles.line} ${styles.contentLine}`} />
-        </section>
+        {cardSkeletons.map((card) => (
+          <section className={styles.card} aria-hidden="true" key={card.id}>
+            <span className={`${styles.line} ${styles.titleLine}`} />
+            {card.rows.map((row) => (
+              <span className={`${styles.line} ${styles.contentLine}`} key={row} />
+            ))}
+          </section>
+        ))}
       </main>
     </>
   );
