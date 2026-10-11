@@ -1,3 +1,5 @@
+"use client";
+
 import { useActionState, useEffect, useRef, useState } from "react";
 import { DropdownSelect } from "@/app/components/DropdownSelect";
 import { createUserAction } from "../actions";

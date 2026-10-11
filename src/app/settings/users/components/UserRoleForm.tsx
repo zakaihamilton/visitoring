@@ -1,3 +1,5 @@
+"use client";
+
 import { useActionState, useEffect, useState } from "react";
 import { DropdownSelect } from "@/app/components/DropdownSelect";
 import { changeUserRoleAction } from "../actions";

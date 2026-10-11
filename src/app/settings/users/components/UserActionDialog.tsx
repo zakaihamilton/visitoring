@@ -1,3 +1,5 @@
+"use client";
+
 import { useActionState, useEffect, useId, useRef, useState } from "react";
 import type { UserAction } from "../user-types";
 import type { ManagedUser } from "../user-types";

@@ -441,9 +441,17 @@ export async function consumerWorkspaceScope(workspaceId: string) {
 
 export async function listPerministerWorkspaceMembers(
   workspaceId: string,
+  knownOrganizationId?: string,
 ): Promise<VisitoringWorkspaceMember[]> {
   configuration();
-  const params = new URLSearchParams(await consumerWorkspaceScope(workspaceId));
+  const scope = knownOrganizationId
+    ? {
+        organizationId: knownOrganizationId,
+        scopeKind: "workspace",
+        resourceId: workspaceId,
+      }
+    : await consumerWorkspaceScope(workspaceId);
+  const params = new URLSearchParams(scope);
   const result = await requestPerminister<{ members: Array<Record<string, unknown>> }>(
     `/api/auth/consumer/members?${params.toString()}`,
   );

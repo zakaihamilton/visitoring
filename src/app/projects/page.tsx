@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Suspense } from "react";
 import { asc, eq } from "drizzle-orm";
 import { db } from "@/db";
 import { workspaces as workspacesTable } from "@/db/schema";
@@ -15,24 +16,42 @@ export const dynamic = "force-dynamic";
 
 type Props = { searchParams: Promise<{ error?: string }> };
 
+function getManagedProjectRows(organizationId: string) {
+  return db
+    .select({
+      id: workspacesTable.id,
+      name: workspacesTable.name,
+      archivedAt: workspacesTable.archivedAt,
+      deletionPendingAt: workspacesTable.deletionPendingAt,
+    })
+    .from(workspacesTable)
+    .where(eq(workspacesTable.organizationId, organizationId))
+    .orderBy(asc(workspacesTable.name));
+}
+
+async function ManagedProjectsSection({ organizationId }: { organizationId: string }) {
+  const managedProjects = await getManagedProjectRows(organizationId);
+  return (
+    <ProjectManager
+      projects={managedProjects.map((project) => ({
+        ...project,
+        archivedAt: project.archivedAt?.toISOString() ?? null,
+        deletionPendingAt: project.deletionPendingAt?.toISOString() ?? null,
+      }))}
+    />
+  );
+}
+
 export default async function ProjectsPage({ searchParams }: Props) {
   const [{ organizationId, organizations, canManageProjects, workspaces }, { error }] =
     await Promise.all([requireOrganizationWorkspaces(), searchParams]);
 
-  const managedProjects = canManageProjects
-    ? await db
-        .select({
-          id: workspacesTable.id,
-          name: workspacesTable.name,
-          archivedAt: workspacesTable.archivedAt,
-          deletionPendingAt: workspacesTable.deletionPendingAt,
-        })
-        .from(workspacesTable)
-        .where(eq(workspacesTable.organizationId, organizationId))
-        .orderBy(asc(workspacesTable.name))
-    : [];
-  const hasActiveManagedProjects = managedProjects.some((project) => !project.archivedAt);
-  const hasArchivedManagedProjects = managedProjects.some((project) => project.archivedAt);
+  const emptyStateProjects =
+    canManageProjects && workspaces.length === 0
+      ? await getManagedProjectRows(organizationId)
+      : [];
+  const hasActiveManagedProjects = emptyStateProjects.some((project) => !project.archivedAt);
+  const hasArchivedManagedProjects = emptyStateProjects.some((project) => project.archivedAt);
   const emptyState = canManageProjects
     ? hasActiveManagedProjects
       ? {
@@ -124,14 +143,26 @@ export default async function ProjectsPage({ searchParams }: Props) {
           </div>
         )}
 
-        {canManageProjects ? (
+        {canManageProjects && workspaces.length === 0 ? (
           <ProjectManager
-            projects={managedProjects.map((project) => ({
+            projects={emptyStateProjects.map((project) => ({
               ...project,
               archivedAt: project.archivedAt?.toISOString() ?? null,
               deletionPendingAt: project.deletionPendingAt?.toISOString() ?? null,
             }))}
           />
+        ) : canManageProjects ? (
+          <Suspense
+            fallback={
+              <section className={styles.manager} aria-busy="true">
+                <div className="eyebrow">Organization administration</div>
+                <h2>Manage Visitoring projects</h2>
+                <p className={styles.managerEmpty}>Loading project controls…</p>
+              </section>
+            }
+          >
+            <ManagedProjectsSection organizationId={organizationId} />
+          </Suspense>
         ) : null}
       </section>
     </main>
