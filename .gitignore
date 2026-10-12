@@ -1,5 +1,7 @@
 node_modules/
 .next/
+.next-visual-tests/
+.next-authenticated-ui/
 coverage/
 *.tsbuildinfo
 .env

@@ -101,7 +101,7 @@
 }
 .moreHint {
   margin: 8px 0 0;
-  color: #849191;
+  color: #5f7070;
   font-size: var(--type-body);
   line-height: 1.45;
 }
@@ -161,7 +161,7 @@
 .metric small {
   margin-top: auto;
   padding-top: 11px;
-  color: #8a9697;
+  color: #5f7070;
   font-size: var(--type-compact);
 }
 .primaryGrid {
@@ -203,12 +203,12 @@
   letter-spacing: -0.02em;
 }
 .cardTitle p {
-  color: #849191;
+  color: #5f7070;
   margin: 5px 0 0;
   font-size: var(--type-compact);
 }
 .cardTitle > span {
-  color: #869394;
+  color: #5f7070;
   font-size: var(--type-compact);
   white-space: nowrap;
 }
@@ -256,7 +256,7 @@
   display: grid;
   place-content: center;
   text-align: center;
-  color: #889594;
+  color: #5f7070;
   font-size: var(--type-body);
 }
 .chartEmpty span {
@@ -271,7 +271,7 @@
   display: flex;
   gap: 20px;
   padding-top: 13px;
-  color: #788586;
+  color: #5f7070;
   font-size: var(--type-compact);
 }
 .chartLegend span {
@@ -335,7 +335,7 @@
 }
 .noData {
   margin: 18px 0 5px;
-  color: #8a9697;
+  color: #5f7070;
   font-size: var(--type-body);
 }
 .breakdownGrid {
@@ -361,6 +361,9 @@
   overflow: auto;
   margin: 0 -20px;
 }
+.mobileEvents {
+  display: none;
+}
 .eventCard table {
   width: 100%;
   border-collapse: collapse;
@@ -368,7 +371,7 @@
   text-align: left;
 }
 .eventCard th {
-  color: #909b9b;
+  color: #5f7070;
   font-size: var(--type-compact);
   font-weight: 650;
   letter-spacing: 0.06em;
@@ -407,29 +410,33 @@
   max-width: 270px;
 }
 .properties span {
-  color: #718080;
+  color: #5f7070;
   overflow-wrap: anywhere;
 }
 .properties b {
   color: #435657;
   font-weight: 650;
 }
+.properties .propertyMore {
+  color: #435657;
+  font-weight: 650;
+}
 .muted {
-  color: #a0aaaa;
+  color: #5f7070;
 }
 .eventCard code {
-  color: #70807e;
+  color: #526464;
   font-size: var(--type-compact);
 }
 .timeCell {
   white-space: nowrap;
-  color: #83908f;
+  color: #5f7070;
   font-size: var(--type-compact);
 }
 .tableEmpty {
   padding: 32px;
   text-align: center;
-  color: #849191;
+  color: #5f7070;
   font-size: var(--type-body);
 }
 .footer {
@@ -437,7 +444,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 20px;
-  color: #859190;
+  color: #5f7070;
   font-size: var(--type-compact);
   padding: 20px 4px 0;
 }
@@ -616,6 +623,65 @@
   .footer {
     align-items: flex-start;
     flex-direction: column;
+  }
+  .tableWrap {
+    display: none;
+  }
+  .mobileEvents {
+    display: grid;
+    margin: 0 -4px;
+  }
+  .mobileEvent {
+    min-width: 0;
+    padding: 15px 4px;
+    border-top: 1px solid #f0f2ef;
+  }
+  .mobileEventHeader {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 10px;
+  }
+  .mobileEventHeader .eventPill {
+    min-width: 0;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+  .mobileEventHeader .timeCell {
+    white-space: normal;
+    text-align: right;
+  }
+  .mobileEventDetails {
+    display: grid;
+    gap: 12px;
+    margin: 14px 0 0;
+  }
+  .mobileEventDetails > div {
+    display: grid;
+    gap: 4px;
+    min-width: 0;
+  }
+  .mobileEventDetails dt {
+    color: #5f7070;
+    font-size: var(--type-compact);
+    font-weight: 650;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .mobileEventDetails dd {
+    min-width: 0;
+    margin: 0;
+    color: #526264;
+    font-size: var(--type-compact);
+    overflow-wrap: anywhere;
+  }
+  .mobileEventDetails .properties {
+    max-width: none;
+  }
+  .mobileVisitorId {
+    display: block;
+    overflow-wrap: anywhere;
+    word-break: break-all;
   }
 }
 @media (prefers-reduced-motion: reduce) {

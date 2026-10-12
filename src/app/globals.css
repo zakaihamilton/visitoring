@@ -3,9 +3,9 @@
   --background: #f5f7f4;
   --surface: #fff;
   --ink: #173638;
-  --muted: #758383;
+  --muted: #5f7070;
   --line: #e4eae5;
-  --accent: #348b72;
+  --accent: #286b56;
   --type-compact: 0.875rem;
   --type-section-label: 1rem;
   --type-body: 1.0625rem;
@@ -93,7 +93,7 @@ summary:focus-visible {
   object-fit: contain;
 }
 .eyebrow {
-  color: #40856f;
+  color: #326d5a;
   text-transform: uppercase;
   font-size: var(--type-section-label);
   font-weight: 700;

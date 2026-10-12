@@ -100,7 +100,9 @@ export function CustomEventsSection() {
       <p className={styles.note}>
         Use this as your signup-success handler and call it only after your app confirms the signup.
         The tracker uses <code>defer</code>, so it is available for normal user actions after page
-        parsing finishes. Choose your own event name and details to compare activity later.
+        parsing finishes. Choose your own event name and details to compare activity later. Avoid
+        names, email addresses, account IDs, or other personal data. Use broad values such as plan
+        type.
       </p>
     </section>
   );
