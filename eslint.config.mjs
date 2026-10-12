@@ -18,6 +18,8 @@ export default [
   {
     ignores: [
       ".next/**",
+      ".next-visual-tests/**",
+      ".next-authenticated-ui/**",
       "node_modules/**",
       "next-env.d.ts",
       "coverage/**",

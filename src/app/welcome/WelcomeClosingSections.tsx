@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Tooltip } from "@/app/components/Tooltip";
+import { DashboardSignInLink } from "./DashboardSignInLink";
 import styles from "../welcome.module.css";
 
 export function CustomEventsSection() {
@@ -33,7 +34,10 @@ export function CustomEventsSection() {
             );
           </code>
         </pre>
-        <p>Choose an event name and include only the details that help you.</p>
+        <p>
+          Choose an event name and include only the details that help you. Avoid names, email
+          addresses, account IDs, or other personal data. Use broad values such as plan type.
+        </p>
       </div>
     </section>
   );
@@ -126,9 +130,7 @@ export function ClosingCta() {
         <p>Sign in to view your dashboard, or visit the guide to see how setup works.</p>
       </div>
       <div className={styles.ctaActions}>
-        <Link href="/login" className={`button ${styles.ctaPrimary}`}>
-          Go to your dashboard <span aria-hidden="true">↗</span>
-        </Link>
+        <DashboardSignInLink className={`button ${styles.ctaPrimary}`} />
         <Link href="/developers" className={styles.ctaSecondary}>
           See the developer guide
         </Link>

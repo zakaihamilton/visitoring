@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { DashboardSignInLink } from "./DashboardSignInLink";
 import styles from "../welcome.module.css";
 
 export function WelcomeHero() {
@@ -19,9 +20,7 @@ export function WelcomeHero() {
           thoughtful data collection.
         </p>
         <div className={styles.heroActions}>
-          <Link href="/login" className={`button buttonPrimary ${styles.heroPrimary}`}>
-            Go to your dashboard <span aria-hidden="true">↗</span>
-          </Link>
+          <DashboardSignInLink className={`button buttonPrimary ${styles.heroPrimary}`} />
           <Link href="/developers" className={styles.heroSecondary}>
             See how it works <span aria-hidden="true">↓</span>
           </Link>
