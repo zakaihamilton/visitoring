@@ -55,12 +55,10 @@ a {
   color: inherit;
 }
 button,
-input,
-select {
+input {
   font: inherit;
 }
-input,
-select {
+input {
   min-height: 39px;
   padding: 9px 11px;
   color: var(--ink);
@@ -69,13 +67,7 @@ select {
   background: #fff;
   outline: none;
 }
-select {
-  appearance: none;
-  padding-right: 44px;
-  cursor: pointer;
-}
-input:focus,
-select:focus {
+input:focus {
   border-color: #66a88e;
   box-shadow: 0 0 0 3px #66a88e20;
 }

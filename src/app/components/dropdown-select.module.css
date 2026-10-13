@@ -5,20 +5,118 @@
   min-width: 0;
 }
 
+.trigger,
+.comboboxInput {
+  width: 100%;
+  min-width: 0;
+  min-height: 39px;
+  border: 1px solid #dfe6e0;
+  border-radius: 8px;
+  color: var(--ink);
+  background: #fff;
+  font: inherit;
+  font-size: var(--type-compact);
+}
+
+.trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 9px 11px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.trigger:hover:not(:disabled),
+.trigger[aria-expanded="true"] {
+  border-color: #c8d9ce;
+  background: #f8fbf9;
+}
+
+.trigger:disabled {
+  color: #758382;
+  background: #f4f6f4;
+  cursor: not-allowed;
+}
+
+.value {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .chevron {
-  position: absolute;
-  top: 50%;
-  right: 15px;
+  display: block;
   width: 14px;
   height: 14px;
+  flex: 0 0 auto;
   color: #536768;
   pointer-events: none;
-  transform: translateY(-50%);
   transition: transform 160ms ease;
 }
 
-.control select:open + .chevron {
-  transform: translateY(-50%) rotate(180deg);
+.trigger[aria-expanded="true"] .chevron {
+  transform: rotate(180deg);
+}
+
+.comboboxInput {
+  padding: 9px 10px;
+}
+
+.options {
+  position: absolute;
+  z-index: 60;
+  top: calc(100% + 5px);
+  left: 0;
+  width: max-content;
+  min-width: 100%;
+  max-width: min(320px, calc(100vw - 32px));
+  max-height: min(320px, 60vh);
+  overflow: auto;
+  padding: 6px;
+  border: 1px solid var(--line);
+  border-radius: 11px;
+  background: #fff;
+  box-shadow: 0 12px 32px rgb(25 44 39 / 14%);
+}
+
+.options[hidden] {
+  display: none;
+}
+
+.option {
+  display: flex;
+  width: 100%;
+  min-height: 40px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 8px 10px;
+  border: 0;
+  border-radius: 7px;
+  color: var(--ink-soft, #354f4f);
+  background: #fff;
+  font: inherit;
+  font-size: var(--type-compact);
+  text-align: left;
+  cursor: pointer;
+}
+
+.option[data-active="true"],
+.option:hover:not(:disabled) {
+  background: #edf5f0;
+}
+
+.option:disabled {
+  color: #879290;
+  cursor: not-allowed;
+}
+
+.option:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: -2px;
 }
 
 @media (prefers-reduced-motion: reduce) {

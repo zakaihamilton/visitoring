@@ -17,8 +17,7 @@
   display: flex;
   align-items: center;
 }
-.field input,
-.field select {
+.field input {
   width: 100%;
   min-width: 0;
 }
@@ -145,10 +144,6 @@
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   gap: 6px;
-}
-.roleForm select {
-  min-width: 0;
-  width: 100%;
 }
 .roleForm button {
   min-height: 39px;
