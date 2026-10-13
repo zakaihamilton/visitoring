@@ -440,6 +440,10 @@
 }
 
 .tocHelp a {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
   color: #28745f;
   font-size: var(--type-compact);
   font-weight: 700;
@@ -495,6 +499,10 @@
   grid-template-columns: 38px minmax(0, 1fr);
   gap: 13px;
   align-items: start;
+}
+
+.reactPackageHeading {
+  margin-top: 28px;
 }
 
 .sectionHeading > span {

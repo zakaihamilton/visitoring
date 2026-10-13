@@ -114,7 +114,7 @@ export function TrackerSection() {
         The tracker records a page view when a page opens and when a web app changes pages without
         reloading, including back and forward navigation.
       </p>
-      <div className={styles.sectionHeading}>
+      <div className={`${styles.sectionHeading} ${styles.reactPackageHeading}`}>
         <span>R</span>
         <div>
           <h2>Use the React package</h2>
