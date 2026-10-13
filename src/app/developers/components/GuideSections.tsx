@@ -9,6 +9,43 @@ const eventSnippet = `function onSignupSuccess() {
     plan: "starter"
   });
 }`;
+const reactRootSnippet = `import { VisitoringProvider } from "@visitoring/react";
+import { createRoot } from "react-dom/client";
+import App from "./App";
+
+createRoot(document.getElementById("root")!).render(
+  <VisitoringProvider siteKey="vk_YOUR_SITE_KEY">
+    <App />
+  </VisitoringProvider>
+);`;
+const nextRootSnippet = `import type { ReactNode } from "react";
+import { VisitoringProvider } from "@visitoring/react";
+
+export default function RootLayout({ children }: Readonly<{ children: ReactNode }>) {
+  return (
+    <html lang="en">
+      <body>
+        <VisitoringProvider
+          siteKey={process.env.NEXT_PUBLIC_VISITORING_SITE_KEY ?? ""}
+        >
+          {children}
+        </VisitoringProvider>
+      </body>
+    </html>
+  );
+}`;
+const reactEventSnippet = `"use client";
+
+import { useVisitoring } from "@visitoring/react";
+
+export function SignupButton() {
+  const { track } = useVisitoring();
+  async function onSignup() {
+    const result = await completeSignup();
+    if (result.ok) track("signup", { plan: "starter" });
+  }
+  return <button type="button" onClick={onSignup}>Sign up</button>;
+}`;
 
 export function SiteSetupSection() {
   return (
@@ -60,7 +97,10 @@ export function TrackerSection() {
               content="The deferred script records page views and exposes the custom event API after it loads."
             />
           </div>
-          <p>Place this snippet on the pages you want to measure.</p>
+          <p>
+            For a non-React site, place this snippet on the pages you want to measure. For a React
+            app, use the provider below instead; do not install both integrations.
+          </p>
         </div>
       </div>
       <pre className={styles.codeBlock}>
@@ -73,6 +113,38 @@ export function TrackerSection() {
       <p className={styles.note}>
         The tracker records a page view when a page opens and when a web app changes pages without
         reloading, including back and forward navigation.
+      </p>
+      <div className={styles.sectionHeading}>
+        <span>R</span>
+        <div>
+          <h2>Use the React package</h2>
+          <p>Install the typed provider once around your app.</p>
+        </div>
+      </div>
+      <pre className={styles.codeBlock}>
+        <code>npm install @visitoring/react</code>
+      </pre>
+      <p className={styles.note}>
+        For Vite or React Router, put the provider above your app/router:
+      </p>
+      <pre className={styles.codeBlock}>
+        <code>{reactRootSnippet}</code>
+      </pre>
+      <p className={styles.note}>
+        For Next.js App Router, put the provider in the root layout and set
+        <code> NEXT_PUBLIC_VISITORING_SITE_KEY</code> in the environment:
+      </p>
+      <pre className={styles.codeBlock}>
+        <code>{nextRootSnippet}</code>
+      </pre>
+      <p className={styles.note}>Use the hook from a client component after an action succeeds:</p>
+      <pre className={styles.codeBlock}>
+        <code>{reactEventSnippet}</code>
+      </pre>
+      <p className={styles.note}>
+        The provider queues events while the tracker loads. SPA page views are automatic; do not add
+        another route-change page-view effect. Visitoring records the pathname and omits query
+        strings and fragments.
       </p>
     </section>
   );

@@ -5,6 +5,9 @@
   "engines": {
     "node": ">=22"
   },
+  "workspaces": [
+    "packages/react"
+  ],
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -29,7 +32,8 @@
     "health:visual": "if [ \"$RUN_VISUAL_REGRESSION\" = \"1\" ] || [ \"$(uname)\" = \"Darwin\" ]; then playwright test tests/e2e/guardrails.spec.ts --project=chromium; else echo \"Visual regression runs in the macOS guardrail job.\"; fi",
     "health:interactions": "vitest run tests/ui/user-interactions.test.tsx",
     "health:styles": "stylelint --formatter json \"**/*.{css,pcss,postcss}\"",
-    "db:migrate:deploy": "tsx scripts/migrate-deploy.ts"
+    "db:migrate:deploy": "tsx scripts/migrate-deploy.ts",
+    "build:react": "npm run build --workspace @visitoring/react"
   },
   "dependencies": {
     "@neon/config": "^1.8.3",
