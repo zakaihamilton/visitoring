@@ -1,4 +1,4 @@
-import { loginAction, startPerministerLoginAction } from "./actions";
+import { loginAction } from "./actions";
 import { BrandIcon } from "@/app/components/BrandIcon";
 import styles from "./login.module.css";
 
@@ -31,7 +31,7 @@ export default async function LoginPage({ searchParams }: Props) {
           <div className="eyebrow">Welcome back</div>
           <h2>Sign in to Visitoring</h2>
           <p className={styles.sub}>Sign in with your account to open your Visitoring projects.</p>
-          <form action={startPerministerLoginAction} className={styles.ssoForm}>
+          <form action="/auth/perminister/start" method="get" className={styles.ssoForm}>
             <button type="submit" className={`button buttonQuiet ${styles.ssoButton}`}>
               Sign in with Perminister <span aria-hidden>↗</span>
             </button>

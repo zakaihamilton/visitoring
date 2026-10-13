@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { perministerAuthorizationUrl, perministerClientSecretForSso } from "@/lib/perminister";
+import { makeVisitoringLastOrganizationCookieAvailable } from "@/lib/organization-cookies";
 import {
   createPerministerSsoTransaction,
   perministerSsoCookieName,
@@ -17,6 +18,7 @@ function redirectToLogin(request: Request, error: string) {
 export async function GET(request: Request) {
   const url = new URL(request.url);
   try {
+    await makeVisitoringLastOrganizationCookieAvailable();
     const transaction = createPerministerSsoTransaction();
     const secret = perministerClientSecretForSso();
     const destination = perministerAuthorizationUrl(
