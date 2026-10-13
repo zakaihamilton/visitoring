@@ -65,6 +65,65 @@ Each Visitoring site gets a tracking key and belongs to one project. The collect
 
 For the visual quick start, visit the public [Developers guide](https://visitoring.vercel.app/developers).
 
+### React apps
+
+Install the React integration:
+
+```sh
+npm install @visitoring/react
+```
+
+Wrap your application once. In a Next.js App Router app, render the provider in the root layout and
+set `NEXT_PUBLIC_VISITORING_SITE_KEY` in the app environment:
+
+```tsx
+import type { ReactNode } from "react";
+import { VisitoringProvider } from "@visitoring/react";
+
+export default function RootLayout({ children }: Readonly<{ children: ReactNode }>) {
+  return (
+    <html lang="en">
+      <body>
+        <VisitoringProvider siteKey={process.env.NEXT_PUBLIC_VISITORING_SITE_KEY ?? ""}>
+          {children}
+        </VisitoringProvider>
+      </body>
+    </html>
+  );
+}
+```
+
+For Vite or React Router, put the provider above the app/router when creating the React root. Use
+`import.meta.env.VITE_VISITORING_SITE_KEY` for a Vite environment variable. The key is a public
+browser identifier, not a private credential.
+
+In a client component, use `useVisitoring()` to track an action after it succeeds:
+
+```tsx
+"use client";
+
+import { useVisitoring } from "@visitoring/react";
+
+export function SignupButton() {
+  const { track } = useVisitoring();
+  async function onSignup() {
+    const result = await completeSignup();
+    if (result.ok) track("signup", { plan: "starter" });
+  }
+  return (
+    <button type="button" onClick={onSignup}>Sign up</button>
+  );
+}
+```
+
+The provider loads the tracker once and buffers up to 100 events while it loads. Its status is
+`loading`, `ready`, or `error`. SPA page views are automatic, including back and forward navigation;
+do not add another route-change page-view effect. Visitoring records the pathname only and omits
+query strings and page fragments. The [React package guide](packages/react/README.md) includes
+custom-host options and more examples.
+
+### Other websites
+
 Add this script to each page, replacing the host with your Visitoring address and the key with the site's tracking key:
 
 ```html

@@ -1,0 +1,36 @@
+{
+  "name": "@visitoring/react",
+  "version": "0.1.0",
+  "description": "React integration for Visitoring analytics",
+  "type": "module",
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "sideEffects": false,
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "lint": "biome lint src && eslint src",
+    "format:check": "biome format .",
+    "test": "npm --prefix ../.. run test -- tests/react-sdk.test.tsx tests/react-sdk-ssr.test.tsx",
+    "prepack": "npm run build"
+  },
+  "peerDependencies": {
+    "react": ">=18.0.0 <20"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.7",
+    "typescript": "^5.9.3"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

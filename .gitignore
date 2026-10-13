@@ -1,4 +1,5 @@
 node_modules/
+packages/react/dist/
 .next/
 .next-visual-tests/
 .next-authenticated-ui/

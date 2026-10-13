@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Tooltip } from "@/app/components/Tooltip";
 import { Topbar } from "@/app/components/Topbar";
 import { requireAdmin } from "@/lib/auth";
@@ -37,8 +38,8 @@ export default async function SettingsSetupPage() {
               />
             </div>
             <p>
-              Add this script to each page you want to measure. Replace the sample key with the full
-              key shown when you add a site or replace its key.
+              For a non-React website, add this script to each page you want to measure. Replace the
+              sample key with the full key shown when you add a site or replace its key.
             </p>
             <pre>
               <code>{trackerSnippet}</code>
@@ -64,8 +65,8 @@ export default async function SettingsSetupPage() {
               />
             </div>
             <p>
-              Call this from your app’s success handler after the action completes. Only send an
-              event once it has actually happened.
+              For the plain script integration, call this from the success handler after the action
+              completes. React apps can use <code>useVisitoring()</code> below.
             </p>
             <pre>
               <code>{'window.Visitoring.track("signup", { plan: "starter" })'}</code>
@@ -76,6 +77,37 @@ export default async function SettingsSetupPage() {
             </p>
           </section>
         </div>
+        <section className={styles.setupCard} aria-labelledby="react-integration-title">
+          <div className={styles.sectionHeading}>
+            <h2 id="react-integration-title">3. Integrate a React app</h2>
+            <Tooltip
+              label="React integration"
+              content="The provider loads the tracker once, queues early events, and exposes a typed hook."
+            />
+          </div>
+          <p>
+            Install <code>@visitoring/react</code>, then put the provider once around your app or
+            router. The tracking key is a public browser identifier.
+          </p>
+          <pre>
+            <code>{"npm install @visitoring/react"}</code>
+          </pre>
+          <pre>
+            <code>
+              {`import { VisitoringProvider } from "@visitoring/react";
+
+<VisitoringProvider siteKey="vk_YOUR_SITE_KEY">
+  <App />
+</VisitoringProvider>`}
+            </code>
+          </pre>
+          <p>
+            Use <code>useVisitoring()</code> in a client component to track actions after they
+            succeed. See the <Link href="/developers#tracker">React examples</Link> for Next.js and
+            React Router. The tracker already records SPA route changes; avoid adding a second
+            page-view effect. Query strings are not recorded.
+          </p>
+        </section>
       </main>
     </>
   );
