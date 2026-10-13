@@ -1,9 +1,9 @@
-# @visitoring/react
+# visitoring
 
 Add Visitoring analytics to a React 18 or React 19 application.
 
 ```sh
-npm install @visitoring/react
+npm install visitoring
 ```
 
 ## Add the provider
@@ -13,7 +13,7 @@ until the tracker is ready.
 
 ```tsx
 import type { ReactNode } from "react";
-import { VisitoringProvider } from "@visitoring/react";
+import { VisitoringProvider } from "visitoring";
 
 export function AppRoot({ children }: { children: ReactNode }) {
   return <VisitoringProvider siteKey="vk_YOUR_SITE_KEY">{children}</VisitoringProvider>;
@@ -25,7 +25,7 @@ Component and can be rendered from the Server Component layout:
 
 ```tsx
 import type { ReactNode } from "react";
-import { VisitoringProvider } from "@visitoring/react";
+import { VisitoringProvider } from "visitoring";
 
 export default function RootLayout({ children }: Readonly<{ children: ReactNode }>) {
   return (
@@ -53,7 +53,7 @@ Replace `completeSignup` with your app's form action.
 ```tsx
 "use client";
 
-import { useVisitoring } from "@visitoring/react";
+import { useVisitoring } from "visitoring";
 
 export function SignupButton() {
   const { track, status } = useVisitoring();

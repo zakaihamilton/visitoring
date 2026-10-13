@@ -501,8 +501,8 @@
   align-items: start;
 }
 
-.reactPackageHeading {
-  margin-top: 28px;
+.sectionHeadingNoNumber {
+  grid-template-columns: minmax(0, 1fr);
 }
 
 .sectionHeading > span {
@@ -569,6 +569,8 @@
 
 .codeBlock {
   overflow-x: auto;
+  min-width: 0;
+  max-width: 100%;
   margin: 20px 0 12px;
   padding: 16px 18px;
   border: 1px solid #284d49;
@@ -579,6 +581,88 @@
   font-size: var(--type-compact);
   line-height: 1.7;
   tab-size: 2;
+}
+
+.integrationTabs {
+  display: inline-flex;
+  gap: 4px;
+  margin: 22px 0 18px;
+  padding: 4px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: #f0f5f1;
+}
+
+.integrationTab {
+  min-height: 40px;
+  padding: 9px 16px;
+  border: 0;
+  border-radius: 8px;
+  color: #526365;
+  background: transparent;
+  font: inherit;
+  font-size: var(--type-body);
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.integrationTab[aria-selected="true"] {
+  color: #215e4c;
+  background: #fff;
+  box-shadow: 0 1px 4px #10252b15;
+}
+
+.integrationTab:hover {
+  color: #215e4c;
+}
+
+.integrationTab:focus-visible,
+.integrationPanel:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.integrationPanel {
+  min-width: 0;
+}
+
+.integrationContent {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 27px;
+  min-width: 0;
+}
+
+.integrationContent > * {
+  min-width: 0;
+}
+
+.integrationPanelHeading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 7px;
+}
+
+.integrationPanelHeading h3 {
+  margin: 0;
+  font-size: var(--type-card-title);
+  letter-spacing: -0.04em;
+}
+
+.integrationPanel .note {
+  margin: 0;
+}
+
+.integrationPanel .codeBlock {
+  margin-top: 14px;
+}
+
+.integrationBehavior {
+  margin: 20px 0 0;
+  color: var(--muted);
+  font-size: var(--type-body);
+  line-height: 1.65;
 }
 
 .privacyList {
@@ -775,6 +859,17 @@
   .editorHint {
     margin-left: 28px;
     font-size: var(--type-compact);
+  }
+
+  .integrationTabs {
+    display: flex;
+    width: 100%;
+  }
+
+  .integrationTab {
+    flex: 1;
+    padding-right: 8px;
+    padding-left: 8px;
   }
 
   .editorBadge {

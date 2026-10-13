@@ -24,13 +24,14 @@ async function main(): Promise<void> {
       workspaceId,
       name,
       allowedDomains: domains,
+      siteKey: key,
       siteKeyHash: sha256(key),
       siteKeyPrefix: key.slice(0, 11),
     })
     .returning({ id: sites.id });
   if (!site) throw new Error("Site was not created.");
   console.log(`Site created: ${name} (id=${site.id})`);
-  console.log(`Copy this key now. It is only shown once: ${key}`);
+  console.log(`Tracking key (also available in Settings → Sites): ${key}`);
 }
 
 main()

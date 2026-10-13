@@ -39,11 +39,12 @@ export async function createSiteAction(
     workspaceId: user.workspaceId,
     name,
     allowedDomains: domains,
+    siteKey: key,
     siteKeyHash: sha256(key),
     siteKeyPrefix: key.slice(0, 11),
   });
   revalidatePath("/settings/sites");
-  return { message: "Site added. Copy your tracking key now; it is shown only once.", key };
+  return { message: "Site added. Your tracking key is available in Settings → Sites.", key };
 }
 
 export async function updateDomainsAction(
@@ -82,6 +83,7 @@ export async function rotateSiteKeyAction(
   const [updated] = await db
     .update(sites)
     .set({
+      siteKey: key,
       siteKeyHash: sha256(key),
       siteKeyPrefix: key.slice(0, 11),
       updatedAt: new Date(),
@@ -89,7 +91,8 @@ export async function rotateSiteKeyAction(
     .where(and(eq(sites.id, siteId), eq(sites.workspaceId, user.workspaceId)))
     .returning({ id: sites.id });
   return siteUpdateResult(updated, {
-    message: "Tracking key replaced. Update your site now; the old key no longer works.",
+    message:
+      "Tracking key replaced. The new key is available in Settings → Sites; update your site now.",
     key,
   });
 }

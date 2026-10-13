@@ -55,7 +55,7 @@ function clearLoaderState() {
   delete window.Visitoring;
 }
 
-describe("@visitoring/react", () => {
+describe("visitoring React integration", () => {
   beforeEach(() => {
     clearLoaderState();
   });
