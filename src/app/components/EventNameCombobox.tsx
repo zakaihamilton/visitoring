@@ -1,7 +1,9 @@
 "use client";
 
 import { useEffect, useRef, useState, type ChangeEvent, type KeyboardEvent } from "react";
+import { useDismissOnOutsidePointer } from "./useDismissOnOutsidePointer";
 import styles from "./dropdown-select.module.css";
+import listboxStyles from "./listbox.module.css";
 
 type Props = {
   id: string;
@@ -31,18 +33,7 @@ export function EventNameCombobox({
 
   useEffect(() => setValue(defaultValue), [defaultValue]);
 
-  useEffect(() => {
-    if (!open) return;
-
-    function closeOnOutsidePointer(event: PointerEvent) {
-      if (event.target instanceof Node && !containerRef.current?.contains(event.target)) {
-        setOpen(false);
-      }
-    }
-
-    document.addEventListener("pointerdown", closeOnOutsidePointer);
-    return () => document.removeEventListener("pointerdown", closeOnOutsidePointer);
-  }, [open]);
+  useDismissOnOutsidePointer(open, containerRef, setOpen);
 
   const query = value.trim().toLocaleLowerCase();
   const filteredOptions = options
@@ -131,7 +122,7 @@ export function EventNameCombobox({
         id={listboxId}
         role="listbox"
         aria-label={`${label} suggestions`}
-        className={styles.options}
+        className={`${styles.options} ${listboxStyles.menu}`}
         hidden={!hasOptions}
       >
         {filteredOptions.map((option, index) => (
@@ -143,7 +134,7 @@ export function EventNameCombobox({
             tabIndex={-1}
             aria-selected={option === value}
             data-active={index === safeActiveIndex || undefined}
-            className={styles.option}
+            className={listboxStyles.option}
             onMouseDown={(event) => event.preventDefault()}
             onMouseEnter={() => setActiveIndex(index)}
             onClick={() => chooseOption(option)}

@@ -3,6 +3,7 @@
 import type { VisitoringOrganizationChoice } from "@/lib/perminister";
 import { useOrganizationSwitcher } from "./organization-switcher/useOrganizationSwitcher";
 import styles from "./organization-switcher.module.css";
+import listboxStyles from "./listbox.module.css";
 
 type Props = {
   organizations: VisitoringOrganizationChoice[];
@@ -67,7 +68,7 @@ export function OrganizationSwitcher({ organizations, currentOrganizationId, act
           id={listboxId}
           role="listbox"
           aria-labelledby={labelId}
-          className={styles.options}
+          className={`${styles.options} ${listboxStyles.menu}`}
           hidden={!open}
         >
           {organizations.map((organization, index) => (
@@ -83,7 +84,9 @@ export function OrganizationSwitcher({ organizations, currentOrganizationId, act
               role="option"
               tabIndex={-1}
               aria-selected={organization.organizationId === currentOrganizationId}
-              className={index === activeIndex ? styles.activeOption : styles.option}
+              className={`${listboxStyles.option} ${
+                index === activeIndex ? styles.activeOption : ""
+              }`}
               onMouseEnter={() => setActiveIndex(index)}
               onClick={(event) => {
                 if (organization.organizationId === currentOrganizationId) {

@@ -1,9 +1,11 @@
 "use client";
 
 import { useEffect, useRef, useState, type KeyboardEvent } from "react";
+import { useDismissOnOutsidePointer } from "./useDismissOnOutsidePointer";
 import styles from "./dropdown-select.module.css";
+import listboxStyles from "./listbox.module.css";
 
-export type DropdownOption = {
+type DropdownOption = {
   value: string;
   label: string;
   disabled?: boolean;
@@ -54,18 +56,7 @@ export function DropdownSelect({
     }
   }, [defaultValue, options, uncontrolledValue, value]);
 
-  useEffect(() => {
-    if (!open) return;
-
-    function closeOnOutsidePointer(event: PointerEvent) {
-      if (event.target instanceof Node && !containerRef.current?.contains(event.target)) {
-        setOpen(false);
-      }
-    }
-
-    document.addEventListener("pointerdown", closeOnOutsidePointer);
-    return () => document.removeEventListener("pointerdown", closeOnOutsidePointer);
-  }, [open]);
+  useDismissOnOutsidePointer(open, containerRef, setOpen);
 
   useEffect(() => {
     if (!open) return;
@@ -212,7 +203,7 @@ export function DropdownSelect({
         ref={listboxRef}
         role="listbox"
         aria-label={ariaLabel ? `${ariaLabel} options` : "Options"}
-        className={styles.options}
+        className={`${styles.options} ${listboxStyles.menu}`}
         hidden={!open}
       >
         {options.map((option, index) => (
@@ -226,7 +217,7 @@ export function DropdownSelect({
             aria-selected={option.value === resolvedValue}
             aria-disabled={option.disabled || undefined}
             data-active={index === activeIndex || undefined}
-            className={styles.option}
+            className={listboxStyles.option}
             onMouseDown={(event) => event.preventDefault()}
             onMouseEnter={() => {
               if (!option.disabled) setActiveIndex(index);
