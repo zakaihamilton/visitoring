@@ -17,6 +17,10 @@
   },
   "scripts": {
     "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "lint": "biome lint src && eslint src",
+    "format:check": "biome format .",
+    "test": "npm --prefix ../.. run test -- tests/react-sdk.test.tsx tests/react-sdk-ssr.test.tsx",
     "prepack": "npm run build"
   },
   "peerDependencies": {

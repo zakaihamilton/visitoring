@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({
   cookies: vi.fn(),
+  makeVisitoringLastOrganizationCookieAvailable: vi.fn(),
   authorizationUrl: vi.fn(),
   clientSecret: vi.fn(),
   exchangeAuthorizationCode: vi.fn(),
@@ -22,6 +23,8 @@ vi.mock("@/lib/perminister", () => ({
 }));
 vi.mock("@/lib/auth", () => ({ setSessionCookie: mocks.setSessionCookie }));
 vi.mock("@/lib/organization-cookies", () => ({
+  makeVisitoringLastOrganizationCookieAvailable:
+    mocks.makeVisitoringLastOrganizationCookieAvailable,
   setInitialVisitoringOrganization: mocks.setInitialVisitoringOrganization,
 }));
 
