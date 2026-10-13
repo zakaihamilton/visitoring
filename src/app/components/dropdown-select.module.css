@@ -5,20 +5,92 @@
   min-width: 0;
 }
 
+.trigger,
+.comboboxInput {
+  width: 100%;
+  min-width: 0;
+  min-height: 39px;
+  border: 1px solid #dfe6e0;
+  border-radius: 8px;
+  color: var(--ink);
+  background: #fff;
+  font: inherit;
+  font-size: var(--type-compact);
+}
+
+.trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 9px 11px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.trigger:hover:not(:disabled),
+.trigger[aria-expanded="true"] {
+  border-color: #c8d9ce;
+  background: #f8fbf9;
+}
+
+.trigger:disabled {
+  color: #758382;
+  background: #f4f6f4;
+  cursor: not-allowed;
+}
+
+.value {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .chevron {
-  position: absolute;
-  top: 50%;
-  right: 15px;
+  display: block;
   width: 14px;
   height: 14px;
+  flex: 0 0 auto;
   color: #536768;
   pointer-events: none;
-  transform: translateY(-50%);
   transition: transform 160ms ease;
 }
 
-.control select:open + .chevron {
-  transform: translateY(-50%) rotate(180deg);
+.trigger[aria-expanded="true"] .chevron {
+  transform: rotate(180deg);
+}
+
+.comboboxInput {
+  padding: 9px 10px;
+}
+
+.options {
+  position: absolute;
+  z-index: 60;
+  top: calc(100% + 5px);
+  left: 0;
+  width: max-content;
+  min-width: 100%;
+  max-width: min(320px, calc(100vw - 32px));
+}
+
+.options[hidden] {
+  display: none;
+}
+
+.options > [data-active="true"] {
+  background: #edf5f0;
+}
+
+.options > :disabled {
+  color: #879290;
+  cursor: not-allowed;
+}
+
+.options > :focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: -2px;
 }
 
 @media (prefers-reduced-motion: reduce) {

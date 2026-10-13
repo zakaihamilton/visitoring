@@ -1,4 +1,5 @@
 import { DropdownSelect } from "@/app/components/DropdownSelect";
+import { EventNameCombobox } from "@/app/components/EventNameCombobox";
 import { FilterLabel } from "./FilterLabel";
 import type { DashboardData, DashboardSite } from "./types";
 import styles from "../dashboard.module.css";
@@ -22,13 +23,13 @@ export function CoreDashboardFilters({
           htmlFor="filter-site"
           help="Choose which website’s events to include in the dashboard."
         />
-        <DropdownSelect id="filter-site" name="site" defaultValue={siteId}>
-          {sites.map((site) => (
-            <option key={site.id} value={site.id}>
-              {site.name}
-            </option>
-          ))}
-        </DropdownSelect>
+        <DropdownSelect
+          id="filter-site"
+          name="site"
+          aria-label="Site"
+          defaultValue={siteId}
+          options={sites.map((site) => ({ value: site.id, label: site.name }))}
+        />
       </div>
       <div className={styles.filterField}>
         <FilterLabel
@@ -52,19 +53,15 @@ export function CoreDashboardFilters({
           htmlFor="filter-event"
           help="Enter an exact event name to filter results. Clear the field to include all event types."
         />
-        <input
+        <EventNameCombobox
           id="filter-event"
           name="event"
-          list="event-name-options"
+          label="Event type"
+          options={data.eventNames}
           defaultValue={filters.event}
           maxLength={128}
           placeholder="All events"
         />
-        <datalist id="event-name-options">
-          {data.eventNames.map((name) => (
-            <option key={name} value={name} />
-          ))}
-        </datalist>
       </div>
       <div className={styles.filterField}>
         <FilterLabel

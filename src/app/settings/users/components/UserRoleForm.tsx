@@ -25,12 +25,13 @@ export function UserRoleForm({ user }: { user: ManagedUser }) {
         id={roleId}
         name="role"
         value={role}
-        onChange={(event) => setRole(event.currentTarget.value as "admin" | "viewer")}
+        onValueChange={(value) => setRole(value as "admin" | "viewer")}
         disabled={pending}
-      >
-        <option value="viewer">Viewer</option>
-        <option value="admin">Admin</option>
-      </DropdownSelect>
+        options={[
+          { value: "viewer", label: "Viewer" },
+          { value: "admin", label: "Admin" },
+        ]}
+      />
       <button type="submit" className="button buttonQuiet" disabled={pending || role === user.role}>
         {pending ? "Saving…" : "Save"}
       </button>

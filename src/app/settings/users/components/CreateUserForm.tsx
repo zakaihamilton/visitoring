@@ -57,11 +57,12 @@ export function CreateUserForm() {
           id="new-user-role"
           name="role"
           value={role}
-          onChange={(event) => setRole(event.currentTarget.value as "admin" | "viewer")}
-        >
-          <option value="viewer">Viewer</option>
-          <option value="admin">Admin</option>
-        </DropdownSelect>
+          onValueChange={(value) => setRole(value as "admin" | "viewer")}
+          options={[
+            { value: "viewer", label: "Viewer" },
+            { value: "admin", label: "Admin" },
+          ]}
+        />
       </div>
       <button type="submit" className="button buttonPrimary" disabled={pending}>
         {pending ? "Adding…" : "Add user"}
