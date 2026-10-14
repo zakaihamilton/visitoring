@@ -16,6 +16,11 @@ export type ProjectActionState = { message: string; error?: boolean };
 const failure = (message: string): ProjectActionState => ({ message, error: true });
 const success = (message: string): ProjectActionState => ({ message });
 
+function revalidateProjectManagement() {
+  revalidatePath("/organization/admin");
+  revalidatePath("/projects");
+}
+
 function workspaceIdFrom(formData: FormData): string {
   return String(formData.get("workspaceId") ?? "").trim();
 }
@@ -82,13 +87,13 @@ export async function createProjectAction(
     } catch {
       // Keep the archived row so an organization admin can retry external cleanup.
     }
-    revalidatePath("/projects");
+    revalidateProjectManagement();
     return failure(
       "We couldn't finish adding this project. Check the connection and try again. If it appears under pending deletion, retry the cleanup there.",
     );
   }
 
-  revalidatePath("/projects");
+  revalidateProjectManagement();
   return success(`${name} added. You now have admin access to its workspace.`);
 }
 
@@ -123,7 +128,7 @@ export async function manageProjectAction(
       .where(projectStatusCondition(workspaceId, admin.organizationId, "active"))
       .returning({ id: workspaces.id });
     if (archived.length === 0) return failure("Project status changed. Refresh and try again.");
-    revalidatePath("/projects");
+    revalidateProjectManagement();
     revalidatePath("/dashboard");
     return success("Project archived. Collection is paused and its analytics are retained.");
   }
@@ -137,7 +142,7 @@ export async function manageProjectAction(
       .where(projectStatusCondition(workspaceId, admin.organizationId, "archived"))
       .returning({ id: workspaces.id });
     if (restored.length === 0) return failure("Project status changed. Refresh and try again.");
-    revalidatePath("/projects");
+    revalidateProjectManagement();
     revalidatePath("/dashboard");
     return success("Project restored. Its existing tracking keys are active again.");
   }
@@ -156,7 +161,7 @@ export async function manageProjectAction(
   try {
     await revokeVisitoringWorkspaceGrants(admin.organizationId, workspaceId);
   } catch {
-    revalidatePath("/projects");
+    revalidateProjectManagement();
     return failure(
       "Project access cleanup is still pending. Its analytics are retained; retry deletion when Perminister is available.",
     );
@@ -169,17 +174,17 @@ export async function manageProjectAction(
       .where(projectStatusCondition(workspaceId, admin.organizationId, "deletion-pending"))
       .returning({ id: workspaces.id });
   } catch {
-    revalidatePath("/projects");
+    revalidateProjectManagement();
     return failure(
       "Access was revoked, but Visitoring could not finish deleting the project. Retry deletion.",
     );
   }
   if (deleted.length === 0) {
-    revalidatePath("/projects");
+    revalidateProjectManagement();
     return failure("Project cleanup is ready. Retry deletion to finish removing its analytics.");
   }
 
-  revalidatePath("/projects");
+  revalidateProjectManagement();
   revalidatePath("/dashboard");
   return success("Project and its Visitoring analytics were permanently deleted.");
 }

@@ -1,14 +1,9 @@
 import Link from "next/link";
-import { Suspense } from "react";
-import { asc, eq } from "drizzle-orm";
-import { db } from "@/db";
-import { workspaces as workspacesTable } from "@/db/schema";
 import { BrandIcon } from "@/app/components/BrandIcon";
 import { OrganizationSwitcher } from "@/app/components/OrganizationSwitcher";
 import { logoutAction } from "@/app/login/actions";
 import { selectOrganizationAction } from "@/app/organizations/actions";
 import { requireOrganizationWorkspaces } from "@/lib/auth";
-import { ProjectManager } from "./ProjectManager";
 import styles from "./projects.module.css";
 import { selectWorkspaceAction } from "./actions";
 
@@ -16,62 +11,9 @@ export const dynamic = "force-dynamic";
 
 type Props = { searchParams: Promise<{ error?: string }> };
 
-function getManagedProjectRows(organizationId: string) {
-  return db
-    .select({
-      id: workspacesTable.id,
-      name: workspacesTable.name,
-      archivedAt: workspacesTable.archivedAt,
-      deletionPendingAt: workspacesTable.deletionPendingAt,
-    })
-    .from(workspacesTable)
-    .where(eq(workspacesTable.organizationId, organizationId))
-    .orderBy(asc(workspacesTable.name));
-}
-
-async function ManagedProjectsSection({ organizationId }: { organizationId: string }) {
-  const managedProjects = await getManagedProjectRows(organizationId);
-  return (
-    <ProjectManager
-      projects={managedProjects.map((project) => ({
-        ...project,
-        archivedAt: project.archivedAt?.toISOString() ?? null,
-        deletionPendingAt: project.deletionPendingAt?.toISOString() ?? null,
-      }))}
-    />
-  );
-}
-
 export default async function ProjectsPage({ searchParams }: Props) {
   const [{ organizationId, organizations, canManageProjects, workspaces }, { error }] =
     await Promise.all([requireOrganizationWorkspaces(), searchParams]);
-
-  const emptyStateProjects =
-    canManageProjects && workspaces.length === 0 ? await getManagedProjectRows(organizationId) : [];
-  const hasActiveManagedProjects = emptyStateProjects.some((project) => !project.archivedAt);
-  const hasArchivedManagedProjects = emptyStateProjects.some((project) => project.archivedAt);
-  const emptyState = canManageProjects
-    ? hasActiveManagedProjects
-      ? {
-          title: "No accessible projects",
-          message:
-            "This organization has active projects, but your account does not have access to them. Ask a project admin to grant access, or add a project below.",
-        }
-      : hasArchivedManagedProjects
-        ? {
-            title: "No active projects",
-            message:
-              "Restore an archived project below or add a new project to start using analytics.",
-          }
-        : {
-            title: "No projects yet",
-            message: "Create a project below to start using Visitoring analytics.",
-          }
-    : {
-        title: "No accessible projects",
-        message:
-          "Your account is signed in, but it does not have access to a Visitoring project in this organization. Ask an administrator to grant access.",
-      };
 
   return (
     <main className={styles.page}>
@@ -88,6 +30,11 @@ export default async function ProjectsPage({ searchParams }: Props) {
               action={selectOrganizationAction}
             />
           </div>
+          {canManageProjects ? (
+            <Link href="/organization/admin" className="button buttonQuiet">
+              Admin
+            </Link>
+          ) : null}
           <form action={logoutAction}>
             <button type="submit" className="button buttonQuiet">
               Sign out
@@ -136,32 +83,14 @@ export default async function ProjectsPage({ searchParams }: Props) {
           </div>
         ) : (
           <div className={styles.empty}>
-            <h2>{emptyState.title}</h2>
-            <p>{emptyState.message}</p>
+            <h2>No accessible projects</h2>
+            <p>
+              {canManageProjects
+                ? "Open organization administration to create, restore, or manage Visitoring projects."
+                : "Your account is signed in, but it does not have access to a Visitoring project in this organization. Ask an administrator to grant access."}
+            </p>
           </div>
         )}
-
-        {canManageProjects && workspaces.length === 0 ? (
-          <ProjectManager
-            projects={emptyStateProjects.map((project) => ({
-              ...project,
-              archivedAt: project.archivedAt?.toISOString() ?? null,
-              deletionPendingAt: project.deletionPendingAt?.toISOString() ?? null,
-            }))}
-          />
-        ) : canManageProjects ? (
-          <Suspense
-            fallback={
-              <section className={styles.manager} aria-busy="true">
-                <div className="eyebrow">Organization administration</div>
-                <h2>Manage Visitoring projects</h2>
-                <p className={styles.managerEmpty}>Loading project controls…</p>
-              </section>
-            }
-          >
-            <ManagedProjectsSection organizationId={organizationId} />
-          </Suspense>
-        ) : null}
       </section>
     </main>
   );
