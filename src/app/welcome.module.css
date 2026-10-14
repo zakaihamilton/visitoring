@@ -16,12 +16,12 @@
   grid-template-columns: minmax(0, 1.04fr) minmax(360px, 0.96fr);
   align-items: center;
   gap: clamp(28px, 5vw, 72px);
-  min-height: 600px;
+  min-height: var(--public-hero-min-height);
   overflow: hidden;
   margin-top: 24px;
-  padding: clamp(38px, 6vw, 76px);
+  padding: var(--public-hero-padding);
   border: 1px solid #ffffff12;
-  border-radius: 30px;
+  border-radius: var(--public-hero-radius);
   color: #f8fbf6;
   background:
     radial-gradient(ellipse at 82% 30%, #347e6e6b, transparent 34%),
@@ -87,7 +87,7 @@
 
 .hero h1 {
   margin: 22px 0 21px;
-  font-size: clamp(3.3rem, 6vw, 5.4rem);
+  font-size: var(--public-hero-title-size);
   font-weight: 650;
   letter-spacing: -0.075em;
   line-height: 0.99;
@@ -112,12 +112,12 @@
   flex-wrap: wrap;
   align-items: center;
   gap: 18px 24px;
-  margin-top: 29px;
+  margin-top: var(--public-hero-actions-margin);
 }
 
 .heroPrimary {
-  min-height: 47px;
-  padding: 12px 17px;
+  min-height: var(--public-hero-action-min-height);
+  padding: var(--public-hero-action-padding);
   border-color: #a3d7c0;
   color: #123434;
   background: #a3d7c0;
@@ -1058,12 +1058,12 @@
   .hero {
     grid-template-columns: minmax(0, 1fr) minmax(330px, 0.85fr);
     gap: 28px;
-    min-height: 560px;
+    min-height: var(--public-hero-min-height);
     padding: 48px;
   }
 
   .hero h1 {
-    font-size: clamp(3.2rem, 6.2vw, 4.7rem);
+    font-size: var(--public-hero-title-size);
   }
 
   .floatingNote {
@@ -1138,7 +1138,7 @@
 
   .hero h1 {
     margin: 18px 0 16px;
-    font-size: clamp(2.8rem, 12vw, 4rem);
+    font-size: var(--public-hero-title-size);
   }
 
   .heroCopy > p {

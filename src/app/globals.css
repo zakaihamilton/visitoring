@@ -11,6 +11,26 @@
   --type-body: 1.0625rem;
   --type-body-large: 1.125rem;
   --type-card-title: 1.25rem;
+  --public-hero-min-height: 600px;
+  --public-hero-padding: clamp(38px, 6vw, 76px);
+  --public-hero-radius: 30px;
+  --public-hero-title-size: clamp(3.3rem, 6vw, 5.4rem);
+  --public-hero-actions-margin: 29px;
+  --public-hero-action-min-height: 47px;
+  --public-hero-action-padding: 12px 17px;
+}
+
+@media (max-width: 1000px) {
+  :root {
+    --public-hero-min-height: 560px;
+    --public-hero-title-size: clamp(3.2rem, 6.2vw, 4.7rem);
+  }
+}
+
+@media (max-width: 520px) {
+  :root {
+    --public-hero-title-size: clamp(2.8rem, 12vw, 4rem);
+  }
 }
 
 * {

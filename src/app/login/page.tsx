@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { loginAction } from "./actions";
 import { BrandIcon } from "@/app/components/BrandIcon";
 import styles from "./login.module.css";
@@ -9,10 +10,10 @@ export default async function LoginPage({ searchParams }: Props) {
   return (
     <main className={styles.page}>
       <section className={styles.panel}>
-        <div className={styles.brand}>
+        <Link href="/" className={styles.brand} aria-label="Visitoring home">
           <BrandIcon />
           <span>Visitoring</span>
-        </div>
+        </Link>
         <div className={styles.copy}>
           <div className="eyebrow">Private analytics</div>
           <h1>
@@ -32,7 +33,7 @@ export default async function LoginPage({ searchParams }: Props) {
           <h2>Sign in to Visitoring</h2>
           <p className={styles.sub}>Sign in with your account to open your Visitoring projects.</p>
           <form action="/auth/perminister/start" method="get" className={styles.ssoForm}>
-            <button type="submit" className={`button buttonQuiet ${styles.ssoButton}`}>
+            <button type="submit" className={`button buttonPrimary ${styles.ssoButton}`}>
               Sign in with Perminister <span aria-hidden>↗</span>
             </button>
           </form>
@@ -70,7 +71,7 @@ export default async function LoginPage({ searchParams }: Props) {
                     : "We couldn't find a match for that email or password, or your account doesn't have Visitoring access."}
               </p>
             ) : null}
-            <button type="submit" className="button buttonPrimary">
+            <button type="submit" className="button buttonQuiet">
               Continue <span aria-hidden>↗</span>
             </button>
           </form>
