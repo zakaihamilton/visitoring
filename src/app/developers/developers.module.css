@@ -420,10 +420,20 @@
   background: #eef5f0;
 }
 
+.toc > a[aria-current="location"] {
+  color: #245f4d;
+  background: #eef5f0;
+  font-weight: 650;
+}
+
 .toc > a > span {
   color: #91a39a;
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: var(--type-compact);
+}
+
+.toc > a[aria-current="location"] > span {
+  color: #245f4d;
 }
 
 .tocHelp {
