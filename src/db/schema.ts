@@ -43,6 +43,7 @@ export const sites = pgTable(
       .references(() => workspaces.id, { onDelete: "cascade" }),
     name: varchar("name", { length: 120 }).notNull(),
     allowedDomains: text("allowed_domains").array().notNull().default([]),
+    siteKey: varchar("site_key", { length: 64 }),
     siteKeyHash: varchar("site_key_hash", { length: 64 }).notNull(),
     siteKeyPrefix: varchar("site_key_prefix", { length: 16 }).notNull(),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),

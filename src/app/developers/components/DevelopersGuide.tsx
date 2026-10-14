@@ -5,8 +5,8 @@ import {
   GuideFooterCallout,
   PrivacySection,
   SiteSetupSection,
-  TrackerSection,
 } from "./GuideSections";
+import { TrackerSection } from "./TrackerSection";
 
 export function DevelopersGuide() {
   return (

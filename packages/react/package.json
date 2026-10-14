@@ -1,7 +1,23 @@
 {
-  "name": "@visitoring/react",
+  "name": "visitoring",
   "version": "0.1.0",
-  "description": "React integration for Visitoring analytics",
+  "description": "React integration for Visitoring website analytics",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zakaihamilton/visitoring.git",
+    "directory": "packages/react"
+  },
+  "homepage": "https://visitoring.vercel.app/developers",
+  "bugs": {
+    "url": "https://github.com/zakaihamilton/visitoring/issues"
+  },
+  "keywords": [
+    "analytics",
+    "visitoring",
+    "react",
+    "web-analytics",
+    "typescript"
+  ],
   "type": "module",
   "files": [
     "dist",

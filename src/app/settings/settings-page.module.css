@@ -102,16 +102,28 @@
 }
 .siteHeading h2 {
   font-size: var(--type-card-title);
+  overflow-wrap: anywhere;
 }
 .keySummary {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 9px;
+  min-width: 0;
+  max-width: 100%;
   color: var(--muted);
   font-size: var(--type-compact);
 }
 .keySummary code {
   color: #526668;
+  overflow-wrap: anywhere;
+}
+.keyUnavailable {
+  display: grid;
+  gap: 3px;
+  max-width: 100%;
+  color: var(--muted);
+  line-height: 1.4;
 }
 .domainList {
   display: flex;

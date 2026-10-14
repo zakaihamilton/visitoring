@@ -53,8 +53,9 @@ npm run workspaces:provision -- --workspace "ShiftingFront" --organization-id "<
 The command associates the named project with a Perminister organization and prints its workspace
 UUID. Grant an initial administrator the `admin` role for that Visitoring workspace in Perminister.
 To limit password guessing, repeated sign-in attempts are temporarily restricted. Administrators can
-open **Settings → Sites** to add websites and manage their tracking keys, and **Settings → Setup** for
-tracker instructions. A tracking key appears only when it is created or replaced, so copy it then.
+open **Settings → Sites** to add websites and view or copy their public tracking keys, and
+**Settings → Setup** for tracker instructions. Sites created before key values were stored need a
+one-time key replacement before their full value can appear in the dashboard.
 Add every website address that will use the tracker, separated by commas, such as
 `example.com, www.example.com`. Each address must match exactly; include a port for local
 development, such as `localhost:3000`.
@@ -70,7 +71,7 @@ For the visual quick start, visit the public [Developers guide](https://visitori
 Install the React integration:
 
 ```sh
-npm install @visitoring/react
+npm install visitoring
 ```
 
 Wrap your application once. In a Next.js App Router app, render the provider in the root layout and
@@ -78,7 +79,7 @@ set `NEXT_PUBLIC_VISITORING_SITE_KEY` in the app environment:
 
 ```tsx
 import type { ReactNode } from "react";
-import { VisitoringProvider } from "@visitoring/react";
+import { VisitoringProvider } from "visitoring";
 
 export default function RootLayout({ children }: Readonly<{ children: ReactNode }>) {
   return (
@@ -102,7 +103,7 @@ In a client component, use `useVisitoring()` to track an action after it succeed
 ```tsx
 "use client";
 
-import { useVisitoring } from "@visitoring/react";
+import { useVisitoring } from "visitoring";
 
 export function SignupButton() {
   const { track } = useVisitoring();

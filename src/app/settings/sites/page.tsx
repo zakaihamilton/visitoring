@@ -3,10 +3,10 @@ import { desc, eq } from "drizzle-orm";
 import { db } from "@/db";
 import { sites } from "@/db/schema";
 import { Topbar } from "@/app/components/Topbar";
-import { Tooltip } from "@/app/components/Tooltip";
 import { requireAdmin } from "@/lib/auth";
 import { SettingsNavigation } from "../SettingsNavigation";
 import { CreateSiteForm } from "./components/CreateSiteForm";
+import { SiteKeyDisplay } from "./components/SiteKeyDisplay";
 import { SiteControls } from "./components/SiteControls";
 import styles from "../settings-page.module.css";
 
@@ -19,6 +19,7 @@ async function SiteList({ workspaceId }: { workspaceId: string }) {
       id: sites.id,
       name: sites.name,
       allowedDomains: sites.allowedDomains,
+      siteKey: sites.siteKey,
       siteKeyPrefix: sites.siteKeyPrefix,
     })
     .from(sites)
@@ -34,14 +35,7 @@ async function SiteList({ workspaceId }: { workspaceId: string }) {
               <div className={styles.siteHeading}>
                 <h2 id={`site-${site.id}`}>{site.name}</h2>
               </div>
-              <div className={styles.keySummary}>
-                <span>Tracking key</span>
-                <code>{site.siteKeyPrefix}••••••</code>
-                <Tooltip
-                  label="Tracking key"
-                  content="The full key is shown only when it is created or replaced."
-                />
-              </div>
+              <SiteKeyDisplay siteKey={site.siteKey} siteKeyPrefix={site.siteKeyPrefix} />
             </div>
             <ul className={styles.domainList} aria-label="Approved website addresses">
               {site.allowedDomains.map((domain) => (
