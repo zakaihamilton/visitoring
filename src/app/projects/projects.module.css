@@ -64,7 +64,7 @@
 }
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr));
   gap: 16px;
   margin-top: 34px;
 }
@@ -307,7 +307,7 @@
 }
 .loadingAccount {
   width: 190px;
-  height: 36px;
+  height: 42px;
 }
 .loadingCard {
   cursor: default;
