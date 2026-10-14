@@ -30,8 +30,10 @@
   display: flex;
   align-items: center;
   gap: 10px;
+  color: inherit;
   font-weight: 700;
   letter-spacing: -0.02em;
+  text-decoration: none;
 }
 .copy {
   position: relative;
@@ -135,11 +137,7 @@
 }
 .form .ssoButton {
   justify-content: center;
-  min-height: 46px;
-  background: #fff;
-}
-.form .ssoButton:hover {
-  background: #e0eee6;
+  min-height: 48px;
 }
 .error {
   background: #fff0ee;
