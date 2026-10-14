@@ -15,7 +15,7 @@ export default async function LoginPage({ searchParams }: Props) {
           <span>Visitoring</span>
         </Link>
         <div className={styles.copy}>
-          <div className="eyebrow">Private analytics</div>
+          <div className="eyebrow">Private website analytics</div>
           <h1>
             Know your traffic.
             <br />
