@@ -87,7 +87,6 @@ export function TrackerSection({ numbered = true }: { numbered?: boolean }) {
         id="standard-integration-panel"
         role="tabpanel"
         aria-labelledby="standard-integration-tab"
-        tabIndex={0}
         hidden={activeTab !== "standard"}
         className={styles.integrationPanel}
       >
@@ -133,7 +132,6 @@ export function TrackerSection({ numbered = true }: { numbered?: boolean }) {
         id="react-integration-panel"
         role="tabpanel"
         aria-labelledby="react-integration-tab"
-        tabIndex={0}
         hidden={activeTab !== "react"}
         className={styles.integrationPanel}
       >
@@ -151,7 +149,11 @@ export function TrackerSection({ numbered = true }: { numbered?: boolean }) {
               <code>VisitoringProvider</code> loads the tracker once and buffers up to 100 events
               while it loads. <code>useVisitoring()</code> exposes a typed <code>track</code>{" "}
               function and <code>loading</code>, <code>ready</code>, or <code>error</code> status.{" "}
-              <Link href="https://www.npmjs.com/package/visitoring" target="_blank" rel="noreferrer">
+              <Link
+                href="https://www.npmjs.com/package/visitoring"
+                target="_blank"
+                rel="noreferrer"
+              >
                 View the package on npm
               </Link>
               .
@@ -182,7 +184,9 @@ export function TrackerSection({ numbered = true }: { numbered?: boolean }) {
             <div className={styles.integrationPanelHeading}>
               <h3>Track an action</h3>
             </div>
-            <p className={styles.note}>Use the hook from a client component after an action succeeds:</p>
+            <p className={styles.note}>
+              Use the hook from a client component after an action succeeds:
+            </p>
             <pre className={styles.codeBlock}>
               <code>{reactEventSnippet}</code>
             </pre>
