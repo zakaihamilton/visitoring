@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { logoutAction } from "@/app/login/actions";
 import { selectOrganizationAction } from "@/app/organizations/actions";
-import type { CurrentUser } from "@/lib/auth";
+import type { CurrentUser, OrganizationAdmin } from "@/lib/auth";
 import { BrandIcon } from "./BrandIcon";
 import { OrganizationSwitcher } from "./OrganizationSwitcher";
 import styles from "./topbar.module.css";
@@ -10,20 +10,27 @@ export function Topbar({
   user,
   section,
 }: {
-  user: CurrentUser;
-  section: "dashboard" | "settings";
+  user: CurrentUser | OrganizationAdmin;
+  section: "dashboard" | "settings" | "organization-admin";
 }) {
+  const workspaceUser = "workspaceName" in user ? user : null;
+  const canManageOrganization = workspaceUser ? workspaceUser.canManageOrganization : true;
+
   return (
     <header className={styles.header}>
       <div className={styles.left}>
-        <Link href="/dashboard" className={styles.brand}>
+        <Link href={workspaceUser ? "/dashboard" : "/projects"} className={styles.brand}>
           <BrandIcon />
           <span>Visitoring</span>
         </Link>
-        <span className={styles.divider} />
-        <Link href="/projects" className={styles.workspace} title="Switch project">
-          {user.workspaceName}
-        </Link>
+        {workspaceUser ? (
+          <>
+            <span className={styles.divider} />
+            <Link href="/projects" className={styles.workspace} title="Switch project">
+              {workspaceUser.workspaceName}
+            </Link>
+          </>
+        ) : null}
         <span className={styles.divider} />
         <OrganizationSwitcher
           organizations={user.organizations}
@@ -32,12 +39,22 @@ export function Topbar({
         />
       </div>
       <nav className={styles.nav} aria-label="Main navigation">
-        <Link href="/dashboard" aria-current={section === "dashboard" ? "page" : undefined}>
-          Overview
-        </Link>
-        {user.role === "admin" ? (
+        {workspaceUser ? (
+          <Link href="/dashboard" aria-current={section === "dashboard" ? "page" : undefined}>
+            Overview
+          </Link>
+        ) : null}
+        {workspaceUser?.role === "admin" ? (
           <Link href="/settings/sites" aria-current={section === "settings" ? "page" : undefined}>
             Settings
+          </Link>
+        ) : null}
+        {canManageOrganization ? (
+          <Link
+            href="/organization/admin"
+            aria-current={section === "organization-admin" ? "page" : undefined}
+          >
+            Admin
           </Link>
         ) : null}
       </nav>

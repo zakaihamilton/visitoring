@@ -24,6 +24,15 @@ const SESSION_DURATION_MS = 1000 * 60 * 60 * 24 * 30;
 
 export type CurrentUser = VisitoringCurrentUser & {
   organizations: VisitoringOrganizationChoice[];
+  canManageOrganization: boolean;
+};
+
+export type OrganizationAdmin = {
+  actorId: string;
+  email: string | null;
+  organizationId: string;
+  organizationName: string;
+  organizations: VisitoringOrganizationChoice[];
 };
 
 async function getCurrentUser(): Promise<CurrentUser | null> {
@@ -40,7 +49,11 @@ async function getCurrentUser(): Promise<CurrentUser | null> {
     if (!visitoringOrganizationForId(session, organizationId)) return null;
     const user = await visitoringUserForWorkspace(session, organizationId, workspaceId);
     if (!user) return null;
-    return { ...user, organizations: visitoringOrganizations(session) };
+    return {
+      ...user,
+      organizations: visitoringOrganizations(session),
+      canManageOrganization: isVisitoringOrganizationAdmin(session, organizationId),
+    };
   } catch (error) {
     if (error instanceof PerministerApiError && error.status === 401) return null;
     throw error;
@@ -112,12 +125,7 @@ export async function requireOrganizationWorkspaces(): Promise<{
   };
 }
 
-export async function requireOrganizationAdmin(): Promise<{
-  actorId: string;
-  email: string | null;
-  organizationId: string;
-  organizationName: string;
-}> {
+export async function requireOrganizationAdmin(): Promise<OrganizationAdmin> {
   const { session, organization } = await requireOrganizationSession();
   if (!isVisitoringOrganizationAdmin(session, organization.organizationId))
     redirect("/projects?error=forbidden");
@@ -127,6 +135,7 @@ export async function requireOrganizationAdmin(): Promise<{
     email: session.account.email,
     organizationId: organization.organizationId,
     organizationName: organization.organizationName,
+    organizations: visitoringOrganizations(session),
   };
 }
 

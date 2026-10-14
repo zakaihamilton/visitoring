@@ -45,6 +45,11 @@
   width: min(100%, 1080px);
   margin: clamp(64px, 13vh, 132px) auto 0;
 }
+.adminPage {
+  max-width: 1060px;
+  margin: 0 auto;
+  padding: 39px 28px 76px;
+}
 .content h1 {
   margin: 12px 0 0;
   font-size: clamp(2.25rem, 5vw, 3.75rem);
@@ -155,14 +160,14 @@
   line-height: 1.6;
 }
 .manager {
-  margin-top: 46px;
+  margin-top: 0;
   padding: 24px;
   border: 1px solid var(--line);
   border-radius: 18px;
   background: rgb(255 255 255 / 82%);
   box-shadow: 0 10px 32px rgb(29 61 52 / 5%);
 }
-.managerHeading h2 {
+.managerHeading h1 {
   margin: 8px 0 0;
   font-size: clamp(1.5rem, 3vw, 2rem);
   letter-spacing: -0.04em;
@@ -335,6 +340,9 @@
   .page {
     padding: 20px 18px 56px;
   }
+  .adminPage {
+    padding: 28px 18px 56px;
+  }
   .header {
     align-items: center;
     flex-wrap: wrap;
@@ -342,6 +350,8 @@
   }
   .account {
     align-items: flex-end;
+    flex-wrap: wrap;
+    justify-content: flex-end;
     margin-left: auto;
     gap: 12px;
   }
@@ -357,7 +367,7 @@
     margin-top: 72px;
   }
   .manager {
-    margin-top: 36px;
+    margin-top: 0;
     padding: 18px;
   }
   .createProjectForm {

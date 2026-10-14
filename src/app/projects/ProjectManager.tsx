@@ -12,7 +12,7 @@ export function ProjectManager({ projects }: { projects: ManagedProject[] }) {
       <div className={styles.managerHeading}>
         <div>
           <div className="eyebrow">Organization administration</div>
-          <h2 id="manage-projects-title">Manage Visitoring projects</h2>
+          <h1 id="manage-projects-title">Manage Visitoring projects</h1>
           <p>Add a project for a website or product. You’ll be its first project admin.</p>
         </div>
       </div>
