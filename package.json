@@ -59,7 +59,7 @@
     "knip": "^5.70.0",
     "repnix": "^1.1.0",
     "tsx": "^4.20.6",
-    "typescript": "^5.9.3",
+    "typescript": "npm:@typescript/typescript6@^6.0.2",
     "vitest": "^4.0.15",
     "@axe-core/playwright": "^4.13.0",
     "@playwright/test": "^1.63.0",
@@ -71,6 +71,7 @@
     "jsdom": "^26.1.0",
     "stylelint": "^17.11.1",
     "stylelint-config-standard": "^40.0.0",
-    "@typescript-eslint/parser": "^8.71.0"
+    "@typescript-eslint/parser": "^8.71.0",
+    "@typescript/native": "npm:typescript@^7.0.2"
   }
 }
