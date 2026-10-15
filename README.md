@@ -12,17 +12,17 @@ Records older than the rolling 24-month window are pruned daily.
 
 ## Run locally
 
-Requirements: Node.js 22+, npm, and Docker Compose (or a local PostgreSQL 15+ database).
+Requirements: Node.js 22+, pnpm 10.33.0, and Docker Compose (or a local PostgreSQL 15+ database).
 
 ```sh
 cp .env.example .env
 docker compose up -d db
-npm ci
-npm run db:migrate
-npm run dev
+pnpm install --frozen-lockfile
+pnpm run db:migrate
+pnpm run dev
 ```
 
-Use `npm run db:migrate` to apply migrations locally. It serializes migrations and supports the
+Use `pnpm run db:migrate` to apply migrations locally. It serializes migrations and supports the
 explicitly marked concurrent-index migrations used for production-safe index builds.
 
 The Compose database listens on host port `5433` to avoid colliding with a local PostgreSQL server. If using your existing local PostgreSQL instead, set `DATABASE_URL` to that server (commonly port `5432`) and skip `docker compose up -d db`.
@@ -47,7 +47,7 @@ it removes the project’s Visitoring sites, tracking keys, analytics, and Permi
 For a manual or scripted workspace bootstrap, run `db:migrate` and then:
 
 ```sh
-npm run workspaces:provision -- --workspace "ShiftingFront" --organization-id "<organization-uuid>"
+pnpm run workspaces:provision -- --workspace "ShiftingFront" --organization-id "<organization-uuid>"
 ```
 
 The command associates the named project with a Perminister organization and prints its workspace
@@ -160,7 +160,7 @@ Bowser is used to reduce user-agent strings to `desktop/mobile/tablet/other`, br
 Vercel runs the fixed rolling 24-month retention prune daily at 04:00 UTC through a protected cron route. Expired events are deleted in restart-safe batches of 10,000; the job also removes stale collection and login rate-limit buckets. The `CRON_SECRET` production environment variable protects that endpoint. To run the same job manually:
 
 ```sh
-npm run retention:prune
+pnpm run retention:prune
 ```
 
 `GET /api/health/live` returns process liveness. `GET /api/health/ready` returns success only while PostgreSQL is reachable and production proxy, rate-limit secret, and collector cap configuration are valid.
@@ -168,7 +168,7 @@ npm run retention:prune
 Repnix is configured as the repository health gate, with required type, lint, format, test, dead-code, and duplication checks. Greenfield adoption intentionally has no baseline:
 
 ```sh
-npm run health
+pnpm run health
 ```
 
 CI starts PostgreSQL, applies the checked-in database migrations, and runs the same health command. Its integration suite checks collection, rejected origins, rate limiting, Do Not Track, privacy sanitization, retention batching, and workspace isolation.

@@ -47,7 +47,7 @@ while deletion is pending.
 For manual or scripted setup, create a Visitoring workspace record with:
 
 ```sh
-npm run workspaces:provision -- --workspace "ShiftingFront" --organization-id "<organization-uuid>"
+pnpm run workspaces:provision -- --workspace "ShiftingFront" --organization-id "<organization-uuid>"
 ```
 
 The command associates the named project with the selected organization and prints its workspace

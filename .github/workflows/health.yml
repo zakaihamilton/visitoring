@@ -28,11 +28,11 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 24
-          cache: npm
-      - run: npm ci
-      - run: npm run db:migrate
-      - run: npx playwright install --with-deps chromium
-      - run: npm run health
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm run db:migrate
+      - run: pnpm exec playwright install --with-deps chromium
+      - run: pnpm run health
 
   visual-regression:
     runs-on: macos-latest
@@ -41,10 +41,10 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 24
-          cache: npm
-      - run: npm ci
-      - run: npx playwright install chromium
-      - run: npm run health:visual
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm exec playwright install chromium
+      - run: pnpm run health:visual
         env:
           RUN_VISUAL_REGRESSION: "1"
 
@@ -58,6 +58,9 @@ jobs:
           POSTGRES_USER: visitoring
           POSTGRES_PASSWORD: visitoring
         ports:
+          - uses: pnpm/action-setup@v4
+            with:
+              version: 10.33.0
           - 5432:5432
         options: >-
           --health-cmd "pg_isready -U visitoring -d visitoring"
@@ -72,11 +75,11 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 24
-          cache: npm
-      - run: npm ci
-      - run: npm run db:migrate
-      - run: npx playwright install --with-deps chromium
-      - run: npm run health:authenticated
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm run db:migrate
+      - run: pnpm exec playwright install --with-deps chromium
+      - run: pnpm run health:authenticated
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -84,3 +87,6 @@ jobs:
           path: test-results/authenticated-ui/
           if-no-files-found: ignore
           retention-days: 14
+          - uses: pnpm/action-setup@v4
+            with:
+              version: 10.33.0

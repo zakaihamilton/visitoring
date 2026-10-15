@@ -1,6 +1,6 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "buildCommand": "if [ \"$VERCEL_ENV\" = \"production\" ] && [ -n \"$VERCEL_GIT_PROVIDER\" ]; then npm run db:migrate:deploy; fi && npm run build",
+  "buildCommand": "if [ \"$VERCEL_ENV\" = \"production\" ] && [ -n \"$VERCEL_GIT_PROVIDER\" ]; then pnpm run db:migrate:deploy; fi && pnpm run build",
   "crons": [
     {
       "path": "/api/cron/retention",
