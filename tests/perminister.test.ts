@@ -149,6 +149,80 @@ describe("Visitoring Perminister client", () => {
     });
   });
 
+  it("logs upstream failures with safe operation metadata", async () => {
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValue(
+        Response.json({ error: "failure for person@example.com" }, { status: 503 }),
+      );
+    const log = vi.spyOn(console, "error").mockImplementation(() => undefined);
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(
+      requestPerminister("/api/auth/consumer/session", { token: "private-session-token" }),
+    ).rejects.toMatchObject({ status: 503 });
+
+    expect(log).toHaveBeenCalledOnce();
+    const entry = JSON.parse(String(log.mock.calls[0]?.[0])) as Record<string, unknown>;
+    expect(entry).toMatchObject({
+      event: "perminister_request_failed",
+      dependency: "perminister",
+      operation: "session",
+      method: "GET",
+      failure: "upstream",
+      status: 503,
+    });
+    expect(entry.durationMs).toEqual(expect.any(Number));
+    expect(JSON.stringify(entry)).not.toContain("a-secret-value");
+    expect(JSON.stringify(entry)).not.toContain("private-session-token");
+    expect(JSON.stringify(entry)).not.toContain("person@example.com");
+  });
+
+  it("distinguishes timeouts and transport failures without logging request data", async () => {
+    const timeout = Object.assign(new Error("private-session-token timed out"), {
+      name: "TimeoutError",
+    });
+    const fetchMock = vi
+      .fn()
+      .mockRejectedValueOnce(timeout)
+      .mockRejectedValueOnce(new TypeError("offline"));
+    const log = vi.spyOn(console, "error").mockImplementation(() => undefined);
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(
+      requestPerminister("/api/auth/consumer/session", { token: "private-session-token" }),
+    ).rejects.toMatchObject({ status: 503 });
+    await expect(
+      requestPerminister("/api/auth/consumer/session", { token: "private-session-token" }),
+    ).rejects.toMatchObject({ status: 503 });
+
+    const bodyTimeout = Object.assign(new Error("private-session-token timed out"), {
+      name: "TimeoutError",
+    });
+    vi.spyOn(AbortSignal, "timeout").mockReturnValue({
+      aborted: true,
+      reason: bodyTimeout,
+    } as AbortSignal);
+    fetchMock.mockResolvedValueOnce({
+      ok: true,
+      status: 200,
+      json: () => Promise.reject(bodyTimeout),
+    } as Response);
+    await expect(
+      requestPerminister("/api/auth/consumer/session", { token: "private-session-token" }),
+    ).rejects.toMatchObject({ status: 503 });
+
+    expect(log).toHaveBeenCalledTimes(3);
+    const entries = log.mock.calls.map(([message]) => JSON.parse(String(message)));
+    expect(entries.map((entry) => entry.failure)).toEqual(["timeout", "transport", "timeout"]);
+    expect(entries.map((entry) => entry.status)).toEqual([null, null, 200]);
+    for (const entry of entries) {
+      expect(entry.durationMs).toEqual(expect.any(Number));
+      expect(JSON.stringify(entry)).not.toContain("a-secret-value");
+      expect(JSON.stringify(entry)).not.toContain("private-session-token");
+    }
+  });
+
   it("lists only the requested workspace through the authenticated member API", async () => {
     const fetchMock = vi.fn().mockResolvedValue(
       Response.json({

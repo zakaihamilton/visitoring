@@ -88,6 +88,10 @@ export function PrivacySection() {
           />
         </li>
         <li>Only the page path is sent; query strings and page fragments are left out.</li>
+        <li>
+          Page path segments and custom event properties are stored as sent; do not put personal or
+          sensitive data there.
+        </li>
         <li>The website that brought someone is shown by name only, not its full address.</li>
         <li>IP addresses and full browser details are not stored.</li>
       </ul>

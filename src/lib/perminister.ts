@@ -85,6 +85,38 @@ type PerministerRequestOptions = {
   token?: string | null;
 };
 
+type PerministerFailure = "timeout" | "transport" | "upstream" | "invalid_response";
+
+function operationForPath(path: string): string {
+  const pathname = new URL(path, "https://perminister.invalid").pathname;
+  if (pathname.endsWith("/consumer/login")) return "login";
+  if (pathname.endsWith("/consumer/token")) return "token_exchange";
+  if (pathname.endsWith("/consumer/session")) return "session";
+  if (pathname.endsWith("/consumer/members")) return "members";
+  if (pathname.includes("/consumer/workspaces")) return "workspace_grants";
+  return "other";
+}
+
+function logPerministerFailure(input: {
+  operation: string;
+  method: string;
+  failure: PerministerFailure;
+  status: number | null;
+  startedAt: number;
+}): void {
+  console.error(
+    JSON.stringify({
+      event: "perminister_request_failed",
+      dependency: "perminister",
+      operation: input.operation,
+      method: input.method,
+      failure: input.failure,
+      status: input.status,
+      durationMs: Math.max(0, Date.now() - input.startedAt),
+    }),
+  );
+}
+
 function configuration() {
   const baseUrl = process.env.PERMINISTER_BASE_URL?.trim() || "https://www.perminister.com";
   const clientId = process.env.PERMINISTER_APP_CLIENT_ID?.trim() ?? "";
@@ -144,6 +176,8 @@ export async function requestPerminister<T>(
   options: PerministerRequestOptions = {},
 ): Promise<T> {
   const config = configuration();
+  const method = options.method ?? "GET";
+  const operation = operationForPath(path);
   let token = options.token;
   if (token === undefined) {
     token = (await cookies()).get(PERMINISTER_SESSION_COOKIE)?.value ?? null;
@@ -158,28 +192,68 @@ export async function requestPerminister<T>(
   if (options.body !== undefined) headers.set("Content-Type", "application/json");
   if (token) headers.set("Authorization", `Bearer ${token}`);
 
+  const timeoutSignal = AbortSignal.timeout(10_000);
+  const startedAt = Date.now();
   let response: Response;
   try {
     response = await fetch(new URL(path, config.baseUrl), {
-      method: options.method ?? "GET",
+      method,
       headers,
       ...(options.body === undefined ? {} : { body: JSON.stringify(options.body) }),
       cache: "no-store",
       redirect: "error",
-      signal: AbortSignal.timeout(10_000),
+      signal: timeoutSignal,
     });
-  } catch {
+  } catch (error) {
+    const failure =
+      timeoutSignal.aborted || (error instanceof Error && error.name === "TimeoutError")
+        ? "timeout"
+        : "transport";
+    logPerministerFailure({
+      operation,
+      method,
+      failure,
+      status: null,
+      startedAt,
+    });
     throw new PerministerApiError(503, "Perminister is temporarily unavailable.");
   }
 
   let payload: unknown = null;
   try {
     payload = await response.json();
-  } catch {
-    if (response.ok)
-      throw new PerministerApiError(503, "Perminister returned an invalid response.");
+  } catch (error) {
+    if (response.ok) {
+      const failure: PerministerFailure = timeoutSignal.aborted
+        ? "timeout"
+        : error instanceof SyntaxError
+          ? "invalid_response"
+          : "transport";
+      logPerministerFailure({
+        operation,
+        method,
+        failure,
+        status: response.status,
+        startedAt,
+      });
+      throw new PerministerApiError(
+        503,
+        failure === "invalid_response"
+          ? "Perminister returned an invalid response."
+          : "Perminister is temporarily unavailable.",
+      );
+    }
   }
   if (!response.ok) {
+    if (response.status >= 500) {
+      logPerministerFailure({
+        operation,
+        method,
+        failure: "upstream",
+        status: response.status,
+        startedAt,
+      });
+    }
     const message =
       typeof payload === "object" &&
       payload !== null &&

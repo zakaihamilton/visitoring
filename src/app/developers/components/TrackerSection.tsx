@@ -119,7 +119,9 @@ export function TrackerSection({ numbered = true }: { numbered?: boolean }) {
               />
             </div>
             <p className={styles.note}>
-              Call this from the success handler after your app confirms the action.
+              Call this from the success handler after your app confirms the action. Do not include
+              personal or sensitive data in the page path or event properties; Visitoring does not
+              automatically redact those values.
             </p>
             <pre className={styles.codeBlock}>
               <code>{eventSnippet}</code>
