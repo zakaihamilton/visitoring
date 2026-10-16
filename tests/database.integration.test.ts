@@ -1,4 +1,4 @@
-import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import { and, eq } from "drizzle-orm";
 import { db, pool } from "@/db";
 import { siteEvents, sites, workspaces } from "@/db/schema";
@@ -112,29 +112,35 @@ suite("PostgreSQL collector integration", () => {
     );
     expect(custom.status).toBe(204);
 
-    const data = await getAnalyticsData({
-      workspaceId,
-      siteId,
-      from: new Date(Date.now() - 86_400_000).toISOString(),
-      to: new Date(Date.now() + 86_400_000).toISOString(),
-      event: "page_view",
-      path: "/pricing",
-      property: "tier",
-      propertyValue: "free",
-      visitor: "integration-visitor",
-      session: "integration-session",
-    });
-    expect(data).toMatchObject({
-      total: 1,
-      pageViews: 1,
-      visitors: 1,
-      sessions: 1,
-      customEvents: 0,
-    });
-    expect(data.devices[0]).toMatchObject({ label: "Unknown", count: 1 });
-    expect(data.countries[0]).toMatchObject({ label: "Unknown", count: 1 });
-    expect(data.pages[0]).toMatchObject({ label: "/pricing", count: 1 });
-    expect(data.referrers[0]).toMatchObject({ label: "search.example", count: 1 });
+    const querySpy = vi.spyOn(pool, "query");
+    try {
+      const data = await getAnalyticsData({
+        workspaceId,
+        siteId,
+        from: new Date(Date.now() - 86_400_000).toISOString(),
+        to: new Date(Date.now() + 86_400_000).toISOString(),
+        event: "page_view",
+        path: "/pricing",
+        property: "tier",
+        propertyValue: "free",
+        visitor: "integration-visitor",
+        session: "integration-session",
+      });
+      expect(querySpy).toHaveBeenCalledTimes(6);
+      expect(data).toMatchObject({
+        total: 1,
+        pageViews: 1,
+        visitors: 1,
+        sessions: 1,
+        customEvents: 0,
+      });
+      expect(data.devices[0]).toMatchObject({ label: "Unknown", count: 1 });
+      expect(data.countries[0]).toMatchObject({ label: "Unknown", count: 1 });
+      expect(data.pages[0]).toMatchObject({ label: "/pricing", count: 1 });
+      expect(data.referrers[0]).toMatchObject({ label: "search.example", count: 1 });
+    } finally {
+      querySpy.mockRestore();
+    }
 
     const customData = await getAnalyticsData({
       workspaceId,
@@ -144,6 +150,99 @@ suite("PostgreSQL collector integration", () => {
       event: "signup",
     });
     expect(customData).toMatchObject({ total: 1, pageViews: 0, customEvents: 1 });
+  });
+
+  it("applies dashboard date, event, path, property, visitor, and session filters", async () => {
+    const rangeStart = Date.now() + 100 * 86_400_000;
+    const inRangeAt = (offsetMs: number) => new Date(rangeStart - offsetMs).toISOString();
+    await db.insert(siteEvents).values([
+      {
+        workspaceId,
+        siteId,
+        visitorId: "filter-visitor",
+        sessionId: "filter-session",
+        eventName: "filter_action",
+        path: "/filter-target",
+        properties: { cohort: "alpha" },
+        createdAt: inRangeAt(60_000),
+      },
+      {
+        workspaceId,
+        siteId,
+        visitorId: "filter-visitor",
+        sessionId: "other-session",
+        eventName: "filter_action",
+        path: "/filter-target",
+        properties: { cohort: "alpha" },
+        createdAt: inRangeAt(50_000),
+      },
+      {
+        workspaceId,
+        siteId,
+        visitorId: "other-visitor",
+        sessionId: "filter-session",
+        eventName: "filter_action",
+        path: "/filter-target",
+        properties: { cohort: "alpha" },
+        createdAt: inRangeAt(40_000),
+      },
+      {
+        workspaceId,
+        siteId,
+        visitorId: "filter-visitor",
+        sessionId: "filter-session",
+        eventName: "filter_action",
+        path: "/other-path",
+        properties: { cohort: "alpha" },
+        createdAt: inRangeAt(30_000),
+      },
+      {
+        workspaceId,
+        siteId,
+        visitorId: "filter-visitor",
+        sessionId: "filter-session",
+        eventName: "filter_action",
+        path: "/filter-target",
+        properties: { cohort: "beta" },
+        createdAt: inRangeAt(20_000),
+      },
+      {
+        workspaceId,
+        siteId,
+        visitorId: "filter-visitor",
+        sessionId: "filter-session",
+        eventName: "other_action",
+        path: "/filter-target",
+        properties: { cohort: "alpha" },
+        createdAt: inRangeAt(10_000),
+      },
+      {
+        workspaceId,
+        siteId,
+        visitorId: "filter-visitor",
+        sessionId: "filter-session",
+        eventName: "filter_action",
+        path: "/filter-target",
+        properties: { cohort: "alpha" },
+        createdAt: new Date(rangeStart - 86_400_000).toISOString(),
+      },
+    ]);
+
+    const from = new Date(rangeStart - 60 * 60_000).toISOString();
+    const to = new Date(rangeStart + 60 * 60_000).toISOString();
+    const base = { workspaceId, siteId, from, to };
+    const dated = await getAnalyticsData(base);
+    expect(dated.total).toBe(6);
+    for (const filter of [
+      { event: "filter_action" },
+      { path: "/filter-target" },
+      { property: "cohort", propertyValue: "alpha" },
+      { visitor: "filter-visitor" },
+      { session: "filter-session" },
+    ]) {
+      const filtered = await getAnalyticsData({ ...base, ...filter });
+      expect(filtered.total).toBe(5);
+    }
   });
 
   it("rejects unapproved origins and invalid payloads without inserting events", async () => {
@@ -229,6 +328,36 @@ suite("PostgreSQL collector integration", () => {
     });
     expect(data.total).toBe(0);
     expect(data.pageViews).toBe(0);
+
+    const [otherSite] = await db
+      .insert(sites)
+      .values({
+        workspaceId,
+        name: "Other integration site",
+        allowedDomains: ["other-analytics-test.example"],
+        siteKeyHash: sha256(createSiteKey()),
+        siteKeyPrefix: "vk_other_site",
+      })
+      .returning();
+    if (!otherSite) throw new Error("Could not create the other integration site.");
+    const isolatedAt = new Date(Date.now() + 100 * 86_400_000).toISOString();
+    await db.insert(siteEvents).values({
+      workspaceId,
+      siteId: otherSite.id,
+      visitorId: "other-site-visitor",
+      sessionId: "other-site-session",
+      eventName: "page_view",
+      path: "/other-site",
+      properties: {},
+      createdAt: isolatedAt,
+    });
+    const siteScoped = await getAnalyticsData({
+      workspaceId,
+      siteId,
+      from: isolatedAt,
+      to: isolatedAt,
+    });
+    expect(siteScoped.total).toBe(0);
   });
 
   it("prunes more than one batch of expired events while retaining newer events", async () => {

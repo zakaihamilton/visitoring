@@ -79,6 +79,9 @@ The tracker records page views on initial load and common SPA history navigation
 forward. Do not add a second route-change page-view effect unless you disable the tracker's automatic
 page views. Visitoring records the pathname only; query strings and fragments are omitted.
 
+Visitoring does not automatically redact page path segments or custom event properties. Do not send
+names, email addresses, account IDs, secrets, or other personal or sensitive data in those values.
+
 The `scriptUrl` prop changes the tracker script URL when using a custom Visitoring host. The optional
 `endpoint` prop sets the collector URL independently. If neither prop is needed, the default
 Visitoring host is used.

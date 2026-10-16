@@ -8,11 +8,13 @@ Visitoring saves each page view and event in PostgreSQL and associates it with a
 
 Visitoring never saves raw IP addresses. It checks an IP briefly for approximate location and may use a temporary one-way code to limit repeated requests. Browser details are reduced to broad categories before saving. Visitoring records only the referring website name and page path, not full addresses or query details. It does not use cookies; anonymous visitor and session codes are kept in the browser.
 
+Visitoring does not automatically redact data sent in page path segments or custom event properties. Do not include names, email addresses, account IDs, secrets, or other personal or sensitive data in either field.
+
 Records older than the rolling 24-month window are pruned daily.
 
 ## Run locally
 
-Requirements: Node.js 22+, pnpm 10.33.0, and Docker Compose (or a local PostgreSQL 15+ database).
+Requirements: Node.js 24.22.0 or later within the 24.x line, pnpm 10.33.0, and Docker Compose (or a local PostgreSQL 15+ database).
 
 ```sh
 cp .env.example .env
@@ -141,6 +143,8 @@ function onSignupSuccess() {
 
 The tracker script uses `defer`, so call the API after it has loaded; do not call it while the browser is still parsing the page.
 
+The tracker removes query strings and fragments, but page path segments and custom event properties are stored as sent. Do not put personal or sensitive data in those values.
+
 The tracker respects Do Not Track and sends data without blocking the page. It keeps anonymous visitor and session codes in the browser, lists the website that brought someone by name rather than full address, and sends events to `POST /api/collect`. The site must have a tracking key and an approved website address. Use HTTPS for Visitoring when your site uses HTTPS.
 
 The collector accepts events with `visitorId`, `sessionId`, `eventName`, `path`, optional `referrerHost` and `properties`. Pass the Visitoring key in `?key=...` (including on preflight) or the `siteKey` field.
@@ -164,6 +168,8 @@ pnpm run retention:prune
 ```
 
 `GET /api/health/live` returns process liveness. `GET /api/health/ready` returns success only while PostgreSQL is reachable and production proxy, rate-limit secret, and collector cap configuration are valid.
+
+Perminister transport failures, timeouts, and server errors are written to deployment logs as JSON events named `perminister_request_failed`. Monitor repeated events to detect authentication-provider problems; these events contain operation, method, failure type, HTTP status when available, and request duration, but no credentials, session tokens, or user data.
 
 Repnix is configured as the repository health gate, with required type, lint, format, test, dead-code, and duplication checks. Greenfield adoption intentionally has no baseline:
 

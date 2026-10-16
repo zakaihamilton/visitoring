@@ -25,6 +25,9 @@ jobs:
       DATABASE_URL: postgres://visitoring:visitoring@localhost:5432/visitoring
     steps:
       - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.33.0
       - uses: actions/setup-node@v4
         with:
           node-version: 24
@@ -36,17 +39,37 @@ jobs:
 
   visual-regression:
     runs-on: macos-latest
+    env:
+      DATABASE_URL: postgres://visitoring:visitoring@localhost:5432/visitoring
+      RUN_VISUAL_REGRESSION: "1"
     steps:
       - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.33.0
       - uses: actions/setup-node@v4
         with:
           node-version: 24
           cache: pnpm
+      # The Darwin screenshot baselines require macOS; start PostgreSQL natively here.
+      - name: Set up PostgreSQL
+        run: |
+          brew install postgresql@17
+          pg_bin="$(brew --prefix postgresql@17)/bin"
+          brew services start postgresql@17
+          for _ in {1..30}; do
+            if "$pg_bin/pg_isready" --host=127.0.0.1 --dbname=postgres --timeout=1; then
+              break
+            fi
+            sleep 2
+          done
+          "$pg_bin/pg_isready" --host=127.0.0.1 --dbname=postgres
+          "$pg_bin/psql" --dbname=postgres --command "CREATE ROLE visitoring LOGIN PASSWORD 'visitoring';"
+          "$pg_bin/createdb" --owner=visitoring visitoring
       - run: pnpm install --frozen-lockfile
+      - run: pnpm run db:migrate
       - run: pnpm exec playwright install chromium
       - run: pnpm run health:visual
-        env:
-          RUN_VISUAL_REGRESSION: "1"
 
   authenticated-ui:
     runs-on: ubuntu-latest
@@ -58,9 +81,6 @@ jobs:
           POSTGRES_USER: visitoring
           POSTGRES_PASSWORD: visitoring
         ports:
-          - uses: pnpm/action-setup@v4
-            with:
-              version: 10.33.0
           - 5432:5432
         options: >-
           --health-cmd "pg_isready -U visitoring -d visitoring"
@@ -72,6 +92,9 @@ jobs:
       CI: "true"
     steps:
       - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.33.0
       - uses: actions/setup-node@v4
         with:
           node-version: 24
@@ -87,6 +110,3 @@ jobs:
           path: test-results/authenticated-ui/
           if-no-files-found: ignore
           retention-days: 14
-          - uses: pnpm/action-setup@v4
-            with:
-              version: 10.33.0
