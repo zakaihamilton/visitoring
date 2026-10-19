@@ -386,6 +386,10 @@ function visitoringRoleForWorkspace(
   organizationId: string,
   workspaceId: string,
 ): VisitoringRole | null {
+  if (organization.organizationRole === "owner" || organization.organizationRole === "admin") {
+    return "admin";
+  }
+
   const config = configuration();
   const grants = organization.resourceRoles.filter(
     (item) =>
@@ -410,40 +414,55 @@ export async function visitoringWorkspacesForOrganization(
   const organization = visitoringOrganizationForId(auth, organizationId);
   if (!organization) return [];
 
-  const workspaceIds = [
-    ...new Set(
-      organization.resourceRoles
-        .filter(
-          (item) =>
-            item.scope.kind === "workspace" &&
-            item.scope.organizationId?.toLowerCase() === normalizedOrganizationId &&
-            item.scope.productId === config.productId &&
-            typeof item.scope.workspaceId === "string" &&
-            (item.role === "admin" || item.role === "viewer") &&
-            item.actions.includes("visitoring:workspace:read"),
-        )
-        .map((item) => item.scope.workspaceId)
-        .filter((workspaceId): workspaceId is string => typeof workspaceId === "string"),
-    ),
-  ];
-  if (workspaceIds.length === 0) return [];
+  const isOrganizationAdmin =
+    organization.organizationRole === "owner" || organization.organizationRole === "admin";
+  const workspaceIds = isOrganizationAdmin
+    ? []
+    : [
+        ...new Set(
+          organization.resourceRoles
+            .filter(
+              (item) =>
+                item.scope.kind === "workspace" &&
+                item.scope.organizationId?.toLowerCase() === normalizedOrganizationId &&
+                item.scope.productId === config.productId &&
+                typeof item.scope.workspaceId === "string" &&
+                (item.role === "admin" || item.role === "viewer") &&
+                item.actions.includes("visitoring:workspace:read"),
+            )
+            .map((item) => item.scope.workspaceId)
+            .filter((workspaceId): workspaceId is string => typeof workspaceId === "string"),
+        ),
+      ];
+  if (!isOrganizationAdmin && workspaceIds.length === 0) return [];
 
-  const accessibleWorkspaces = await db
-    .select({
-      id: workspaces.id,
-      name: workspaces.name,
-      organizationId: workspaces.organizationId,
-    })
-    .from(workspaces)
-    .where(
-      and(
-        inArray(workspaces.id, workspaceIds),
-        eq(workspaces.organizationId, normalizedOrganizationId),
-        isNull(workspaces.archivedAt),
-        isNull(workspaces.deletionPendingAt),
-      ),
-    )
-    .limit(workspaceIds.length);
+  const activeWorkspaces = () =>
+    db
+      .select({
+        id: workspaces.id,
+        name: workspaces.name,
+        organizationId: workspaces.organizationId,
+      })
+      .from(workspaces);
+  const accessibleWorkspaces = isOrganizationAdmin
+    ? await activeWorkspaces()
+        .where(
+          and(
+            eq(workspaces.organizationId, normalizedOrganizationId),
+            isNull(workspaces.archivedAt),
+            isNull(workspaces.deletionPendingAt),
+          ),
+        )
+    : await activeWorkspaces()
+        .where(
+          and(
+            inArray(workspaces.id, workspaceIds),
+            eq(workspaces.organizationId, normalizedOrganizationId),
+            isNull(workspaces.archivedAt),
+            isNull(workspaces.deletionPendingAt),
+          ),
+        )
+        .limit(workspaceIds.length);
 
   return accessibleWorkspaces
     .map((workspace) => {

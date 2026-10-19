@@ -38,9 +38,10 @@ Visitoring uses Perminister for identities, passwords, sessions, and workspace a
 ## Manage projects, add accounts, and set up a site
 
 Organization owners and admins can add projects from the project picker, including when they do not
-currently have a project selected. The creator receives admin access to the new workspace. Project
-members and roles are managed from **Settings → Users**. Other organization members can open projects
-they have been granted access to.
+currently have a project selected. Owners and admins have admin access to every active project in
+their organization, and the creator receives admin access to the new workspace. Project members and
+roles are managed from **Settings → Users**. Other organization members can open projects they have
+been granted access to.
 
 Archiving a project pauses tracking and dashboard access while retaining its analytics and keys.
 Restore it to resume collection and access. Permanent deletion is available only after archiving;

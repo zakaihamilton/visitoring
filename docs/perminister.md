@@ -32,10 +32,11 @@ deletion-pending fields leave existing workspaces active.
 
 Organization owners and admins can add projects from Visitoring's project picker, even when they do
 not have a project selected. Visitoring creates the workspace under the selected organization, and
-Perminister grants its creator the workspace `admin` role. Organization members can open only
-projects for which they have a workspace grant. Workspace members and roles continue to be managed
-from **Settings → Users**. New accounts created there cannot self-register, and an existing
-Perminister identity keeps its current password.
+Perminister grants its creator the workspace `admin` role. Organization owners and admins can open
+all active projects in their organization; other organization members can open only projects for
+which they have a workspace grant. Workspace members and roles continue to be managed from
+**Settings → Users**. New accounts created there cannot self-register, and an existing Perminister
+identity keeps its current password.
 
 Archiving a project pauses Visitoring dashboard access and event collection while retaining its
 sites, keys, and analytics. Restoring it resumes access and collection. Permanent deletion is
