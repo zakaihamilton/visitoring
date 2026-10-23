@@ -110,6 +110,22 @@ async function seedDatabase() {
     [siteId, workspaceId, createHash("sha256").update(siteKey).digest("hex"), siteKey.slice(0, 11)],
   );
 
+  await pool.query(
+    `INSERT INTO sites (id, workspace_id, name, allowed_domains, site_key_hash, site_key_prefix, created_at)
+     VALUES ('3758c8a9-0171-43dc-b15e-d58b55b8dba9', $1, 'New site', ARRAY['new.example.test'], $2, 'vk_empty', '2020-01-01')`,
+    [workspaceId, createHash("sha256").update("vk_e2e_empty_traffic_site").digest("hex")],
+  );
+  await pool.query(
+    `INSERT INTO site_events (workspace_id, site_id, visitor_id, session_id, event_name, path, referrer_host, device, created_at)
+     SELECT $1, $2, 'trend-visitor-' || (n % 12), 'trend-session-' || (n % 20), 'page_view',
+       CASE WHEN n % 3 = 0 THEN '/pricing' ELSE '/features' END,
+       CASE WHEN n % 2 = 0 THEN 'search.example' ELSE NULL END,
+       CASE WHEN n % 3 = 0 THEN 'mobile' ELSE 'desktop' END,
+       '2026-09-01T08:00:00Z'::timestamptz + (n % 40) * interval '1 day'
+     FROM generate_series(1, 80) AS n`,
+    [workspaceId, siteId],
+  );
+
   const events = [
     {
       visitorId: "e2e-visitor-abcdef1234567890",

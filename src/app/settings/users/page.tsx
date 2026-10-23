@@ -1,3 +1,4 @@
+import { MembersSkeleton } from "../SettingsLoading";
 import { Suspense } from "react";
 import { Topbar } from "@/app/components/Topbar";
 import { listPerministerWorkspaceMembers } from "@/lib/perminister";
@@ -7,10 +8,8 @@ import pageStyles from "../settings-page.module.css";
 import { UsersManager } from "./UsersManager";
 import { UserList } from "./components/UserList";
 import type { ManagedUser } from "./user-types";
-import styles from "./users.module.css";
 
 export const dynamic = "force-dynamic";
-const loadingUserRows = ["first", "second", "third"];
 
 async function WorkspaceUsers({
   workspaceId,
@@ -29,22 +28,6 @@ async function WorkspaceUsers({
   return <UserList users={users} currentUserId={currentUserId} />;
 }
 
-function UserListLoading() {
-  return (
-    <section className={`${pageStyles.card} ${styles.usersCard}`} aria-busy="true">
-      <div className={pageStyles.cardHeading}>
-        <h2>Workspace members</h2>
-      </div>
-      <p className={styles.introCopy}>Loading workspace members…</p>
-      <div className={styles.loadingUserRows} aria-hidden="true">
-        {loadingUserRows.map((row) => (
-          <span className={styles.loadingUserRow} key={row} />
-        ))}
-      </div>
-    </section>
-  );
-}
-
 export default async function SettingsUsersPage() {
   const admin = await requireAdmin();
 
@@ -61,7 +44,7 @@ export default async function SettingsUsersPage() {
           </div>
         </div>
         <UsersManager />
-        <Suspense fallback={<UserListLoading />}>
+        <Suspense fallback={<MembersSkeleton />}>
           <WorkspaceUsers
             workspaceId={admin.workspaceId}
             organizationId={admin.organizationId}

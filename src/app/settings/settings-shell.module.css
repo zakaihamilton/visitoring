@@ -51,6 +51,9 @@
   background: #348b72;
 }
 @media (max-width: 760px) {
+  .navLabel {
+    display: none;
+  }
   .navInner {
     min-height: 50px;
     padding: 0 18px;

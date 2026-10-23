@@ -1,63 +1,124 @@
-import { Tooltip } from "@/app/components/Tooltip";
+"use client";
+
+import Link from "next/link";
+import {
+  chartMeasures as measures,
+  chartMetricOptions as metricOptions,
+  chartInterval,
+  type ChartMetric,
+} from "./chart-data";
+import { DropdownSelect } from "@/app/components/DropdownSelect";
+import { useState } from "react";
+import { useTrafficMetric } from "./TrafficMetric";
+import { TrafficPlot } from "./TrafficPlot";
 import styles from "../dashboard.module.css";
 import { formatNumber, type DashboardData } from "./types";
 
-export function ActivityChart({ data }: { data: DashboardData }) {
-  const maxTrend = Math.max(1, ...data.trend.map((day) => day.total));
-
+export function ActivityChart({
+  data,
+  siteId,
+  filters,
+  initialMetric = "visitors",
+}: {
+  data: Pick<DashboardData, "trend" | "period" | "total" | "previous">;
+  siteId: string;
+  filters: Record<string, string>;
+  initialMetric?: ChartMetric;
+}) {
+  const { metric: measure, setMetric: setMeasure } = useTrafficMetric(initialMetric);
+  const [active, setActive] = useState(Math.max(0, data.trend.length - 1));
+  const activeIndex = Math.min(active, data.trend.length - 1);
+  const selected = data.trend[activeIndex];
+  const hourly = data.period.granularity === "hour";
+  const interval = (from: string, to: string) => chartInterval(from, to, hourly);
+  const tableQuery = new URLSearchParams({ ...filters, site: siteId, metric: measure });
   return (
-    <section className={`${styles.card} ${styles.chartCard}`}>
+    <section className={`${styles.card} ${styles.trendCard}`} aria-label="Traffic trend">
       <div className={styles.cardTitle}>
         <div>
-          <div className={styles.chartHeading}>
-            <h2>Activity over time</h2>
-            <Tooltip
-              label="Activity over time"
-              content="Each bar shows total events and page views for one day. Dates use UTC."
-            />
-          </div>
-          <p>Daily events and page views · UTC</p>
+          <h2>Traffic over time</h2>
+          <p>
+            {data.period.granularity === "hour"
+              ? "Hourly"
+              : data.period.granularity === "day"
+                ? "Daily"
+                : data.period.granularity === "week"
+                  ? "Weekly"
+                  : "Monthly"}{" "}
+            {measures[measure].toLowerCase()} · UTC
+            {data.period.partial ? " · Today is partial" : ""}
+          </p>
         </div>
-        <span>Last {data.trend.length} days</span>
+        <div className={styles.chartSelect}>
+          <label htmlFor="chart-metric">Metric</label>
+          <DropdownSelect
+            id="chart-metric"
+            name="metric"
+            aria-label="Metric"
+            value={measure}
+            onValueChange={(value) => setMeasure(value as ChartMetric)}
+            options={metricOptions}
+          />
+        </div>
       </div>
-      {data.total ? (
-        <section className={styles.chart} aria-label="Daily event volume bar chart">
-          {data.trend.map((day) => {
-            const ratio = day.total > 0 ? Math.round((day.pageViews / day.total) * 100) : 0;
-            const tooltipText = `${day.day} · ${formatNumber(day.total)} total events · ${formatNumber(day.pageViews)} page views (${ratio}% views)`;
-            return (
-              <Tooltip
-                key={day.day}
-                content={tooltipText}
-                label={`Activity on ${day.day}`}
-                targetElement="div"
-                targetClassName={styles.barColumn}
-                targetRole="img"
-                targetAriaLabel={tooltipText}
-              >
-                <div
-                  className={styles.bar}
-                  style={{ height: `${Math.max(day.total ? 5 : 0, (day.total / maxTrend) * 100)}%` }}
-                >
-                  <span style={{ height: `${day.total ? (day.pageViews / day.total) * 100 : 0}%` }} />
-                </div>
-              </Tooltip>
-            );
-          })}
-        </section>
-      ) : (
-        <div className={styles.chartEmpty}>
-          <span>✳</span>
-          <p>Activity will show here after your first event arrives.</p>
-        </div>
-      )}
       <div className={styles.chartLegend}>
         <span>
-          <i className={styles.legendTotal} /> Total events
+          <i className={styles.legendPage} />
+          Selected period
         </span>
         <span>
-          <i className={styles.legendPage} /> Page views: {formatNumber(data.pageViews)}
+          <i className={styles.legendPrevious} />
+          Previous period
         </span>
+      </div>
+      <TrafficPlot
+        buckets={data.trend}
+        measure={measure}
+        granularity={data.period.granularity}
+        active={activeIndex}
+        onActive={setActive}
+      />
+      <div className={styles.chartReadout} aria-live="polite">
+        {selected ? (
+          <>
+            <div className={styles.readoutPeriod}>
+              <span className={styles.readoutLabel}>
+                <i className={styles.legendPage} />
+                Selected period
+              </span>
+              <strong className={styles.readoutCurrent}>
+                {formatNumber(selected.current[measure])}
+                <small>{measures[measure].toLowerCase()}</small>
+              </strong>
+              <span className={styles.readoutDate}>{interval(selected.from, selected.to)}</span>
+            </div>
+            <div className={styles.readoutPeriod}>
+              <span className={styles.readoutLabel}>
+                <i className={styles.legendPrevious} />
+                Previous period
+              </span>
+              <strong>
+                {formatNumber(selected.previous[measure])}
+                <small>{measures[measure].toLowerCase()}</small>
+              </strong>
+              <span className={styles.readoutDate}>
+                {interval(selected.previousFrom, selected.previousTo)}
+              </span>
+            </div>
+          </>
+        ) : (
+          "No activity in this period."
+        )}
+      </div>
+      {!data.total && !data.previous.total ? (
+        <p className={styles.noData}>
+          No activity in either period. Try a different date range or clear your filters.
+        </p>
+      ) : null}
+      <div className={styles.chartFooter}>
+        <Link className={styles.tableToggle} href={`/dashboard/chart-data?${tableQuery}`}>
+          View chart data
+        </Link>
       </div>
     </section>
   );

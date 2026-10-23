@@ -7,19 +7,30 @@ export function BreakdownList({
   rows,
   empty = "No activity yet",
   showLabelTooltips = true,
+  denominator,
+  measure,
+  limit = 8,
+  help,
 }: {
   title: string;
   rows: Array<{ label: string; count: number }>;
   empty?: string;
   showLabelTooltips?: boolean;
+  denominator: number;
+  measure: string;
+  limit?: number;
+  help?: string;
 }) {
-  const max = Math.max(1, ...rows.map((row) => row.count));
-
   return (
     <section className={styles.card}>
       <div className={styles.cardTitle}>
-        <h2>{title}</h2>
-        <span>Top 8</span>
+        <div>
+          <h2>{title}</h2>
+          <p>
+            {measure} · Top {limit}
+          </p>
+        </div>
+        {help ? <Tooltip label={title} content={help} /> : null}
       </div>
       {rows.length ? (
         <div className={styles.breakdown}>
@@ -38,10 +49,21 @@ export function BreakdownList({
                 ) : (
                   <span className={styles.truncatedLabel}>{row.label}</span>
                 )}
-                <b>{formatNumber(row.count)}</b>
+                <b>
+                  {formatNumber(row.count)}{" "}
+                  <small>
+                    ·{" "}
+                    {denominator
+                      ? new Intl.NumberFormat("en", { maximumFractionDigits: 1 }).format(
+                          (row.count / denominator) * 100,
+                        )
+                      : 0}
+                    %
+                  </small>
+                </b>
               </div>
               <div className={styles.track}>
-                <span style={{ width: `${Math.max(3, (row.count / max) * 100)}%` }} />
+                <span style={{ width: `${denominator ? (row.count / denominator) * 100 : 0}%` }} />
               </div>
             </div>
           ))}

@@ -1,0 +1,152 @@
+.headingText {
+  min-width: 0;
+}
+.navigation > span {
+  padding: 12px 0;
+  border-bottom: 2px solid transparent;
+  color: var(--muted);
+  font-size: var(--type-compact);
+  font-weight: 650;
+}
+.navigation > span[data-current="true"] {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+.shortcuts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+.field {
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+  color: var(--muted);
+  font-size: var(--type-compact);
+  font-weight: 600;
+}
+.mobileFilter {
+  display: none;
+}
+.value {
+  margin-top: 13px;
+}
+.metricNote {
+  display: grid;
+  gap: 10px;
+  margin-top: auto;
+  padding-top: 14px;
+}
+.comparison {
+  margin: 14px 0 20px;
+}
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 22px;
+  padding: 16px 0 22px;
+}
+.plot {
+  height: 280px;
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr);
+  gap: 8px;
+}
+.axis,
+.grid {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 12px 0;
+}
+.grid > span {
+  border-top: 1px dashed var(--line);
+}
+.ticks {
+  display: flex;
+  justify-content: space-between;
+  margin: 14px 0 24px 48px;
+}
+.breakdownRow {
+  display: grid;
+  gap: 9px;
+  padding: 12px 0 4px;
+}
+.breakdownRow > div,
+.eventCard > div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.tableControls {
+  display: flex;
+  align-items: end;
+  gap: 12px;
+  margin: 22px 0;
+}
+.tableNote {
+  margin: 18px 0;
+}
+.eventRow,
+.dataRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1.4fr 1fr 1.2fr;
+  gap: 18px;
+  align-items: center;
+  min-height: 64px;
+  padding: 12px 8px;
+  border-bottom: 1px solid var(--line);
+  color: var(--muted);
+  font-size: var(--type-compact);
+}
+.eventRow:first-child,
+.dataRow:first-child {
+  min-height: 42px;
+}
+.dataRow {
+  grid-template-columns: 1.5fr 0.6fr 1.5fr 0.6fr;
+  min-height: 44px;
+}
+.mobileEvents {
+  display: none;
+}
+@media (width <= 760px) {
+  .filters {
+    display: none;
+  }
+  .mobileFilter {
+    display: block;
+    margin-bottom: 16px;
+  }
+  .desktopEvents {
+    display: none;
+  }
+  .mobileEvents {
+    display: grid;
+    gap: 12px;
+  }
+  .eventCard {
+    display: grid;
+    gap: 18px;
+    padding: 16px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: var(--surface);
+    box-shadow: 0 3px 12px rgb(16 42 34 / 3%);
+  }
+  .dataTable {
+    overflow: hidden;
+  }
+  .dataRow {
+    min-width: 560px;
+  }
+  .plot {
+    height: 240px;
+    grid-template-columns: 28px minmax(0, 1fr);
+  }
+  .ticks {
+    margin-left: 36px;
+  }
+}

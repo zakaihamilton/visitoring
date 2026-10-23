@@ -24,6 +24,7 @@
   font-size: var(--type-compact);
   font-weight: 620;
   text-align: left;
+  text-decoration: none;
   cursor: pointer;
 }
 
