@@ -4,8 +4,8 @@
   padding: 6px;
   border: 1px solid var(--line);
   border-radius: 11px;
-  background: #fff;
-  box-shadow: 0 12px 32px rgb(25 44 39 / 14%);
+  background: var(--surface);
+  box-shadow: 0 12px 32px rgb(0 0 0 / 25%);
 }
 
 .option {
@@ -19,7 +19,7 @@
   border: 0;
   border-radius: 7px;
   color: var(--ink-soft);
-  background: #fff;
+  background: var(--surface);
   font: inherit;
   font-size: var(--type-compact);
   text-align: left;
@@ -27,7 +27,7 @@
 }
 
 .option:hover:not(:disabled) {
-  background: #edf5f0;
+  background: color-mix(in srgb, var(--accent) 12%, var(--surface));
 }
 
 .option:focus-visible {

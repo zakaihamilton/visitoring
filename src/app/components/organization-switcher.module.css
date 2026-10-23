@@ -30,7 +30,7 @@
 .trigger:hover,
 .trigger[aria-expanded="true"] {
   border-color: var(--line);
-  background: #f7faf8;
+  background: color-mix(in srgb, var(--accent) 10%, var(--surface));
 }
 
 .trigger:focus-visible {

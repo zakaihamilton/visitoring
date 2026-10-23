@@ -1,7 +1,7 @@
 .header {
   min-height: 72px;
   padding: 0 clamp(18px, 5vw, 68px);
-  background: #fff;
+  background: var(--surface);
   border-bottom: 1px solid var(--line);
   display: flex;
   align-items: center;

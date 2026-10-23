@@ -22,24 +22,28 @@ export function ActivityChart({ data }: { data: DashboardData }) {
       </div>
       {data.total ? (
         <section className={styles.chart} aria-label="Daily event volume bar chart">
-          {data.trend.map((day) => (
-            <Tooltip
-              key={day.day}
-              content={`${day.day}: ${day.total} events, ${day.pageViews} page views`}
-              label={`Activity on ${day.day}`}
-              targetElement="div"
-              targetClassName={styles.barColumn}
-              targetRole="img"
-              targetAriaLabel={`Activity on ${day.day}`}
-            >
-              <div
-                className={styles.bar}
-                style={{ height: `${Math.max(day.total ? 5 : 0, (day.total / maxTrend) * 100)}%` }}
+          {data.trend.map((day) => {
+            const ratio = day.total > 0 ? Math.round((day.pageViews / day.total) * 100) : 0;
+            const tooltipText = `${day.day} · ${formatNumber(day.total)} total events · ${formatNumber(day.pageViews)} page views (${ratio}% views)`;
+            return (
+              <Tooltip
+                key={day.day}
+                content={tooltipText}
+                label={`Activity on ${day.day}`}
+                targetElement="div"
+                targetClassName={styles.barColumn}
+                targetRole="img"
+                targetAriaLabel={tooltipText}
               >
-                <span style={{ height: `${day.total ? (day.pageViews / day.total) * 100 : 0}%` }} />
-              </div>
-            </Tooltip>
-          ))}
+                <div
+                  className={styles.bar}
+                  style={{ height: `${Math.max(day.total ? 5 : 0, (day.total / maxTrend) * 100)}%` }}
+                >
+                  <span style={{ height: `${day.total ? (day.pageViews / day.total) * 100 : 0}%` }} />
+                </div>
+              </Tooltip>
+            );
+          })}
         </section>
       ) : (
         <div className={styles.chartEmpty}>

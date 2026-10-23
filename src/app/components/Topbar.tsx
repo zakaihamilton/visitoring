@@ -1,17 +1,22 @@
 import Link from "next/link";
 import { logoutAction } from "@/app/login/actions";
 import { selectOrganizationAction } from "@/app/organizations/actions";
+import { selectWorkspaceAction } from "@/app/projects/actions";
 import type { CurrentUser, OrganizationAdmin } from "@/lib/auth";
+import type { WorkspaceChoice } from "./workspace-switcher/useWorkspaceSwitcher";
 import { BrandIcon } from "./BrandIcon";
 import { OrganizationSwitcher } from "./OrganizationSwitcher";
+import { WorkspaceSwitcher } from "./WorkspaceSwitcher";
 import styles from "./topbar.module.css";
 
 export function Topbar({
   user,
   section,
+  workspaces,
 }: {
   user: CurrentUser | OrganizationAdmin;
   section: "dashboard" | "settings" | "organization-admin";
+  workspaces?: WorkspaceChoice[];
 }) {
   const workspaceUser = "workspaceName" in user ? user : null;
   const canManageOrganization = workspaceUser ? workspaceUser.canManageOrganization : true;
@@ -26,9 +31,12 @@ export function Topbar({
         {workspaceUser ? (
           <>
             <span className={styles.divider} />
-            <Link href="/projects" className={styles.workspace} title="Switch project">
-              {workspaceUser.workspaceName}
-            </Link>
+            <WorkspaceSwitcher
+              workspaces={workspaces}
+              currentWorkspaceId={workspaceUser.workspaceId}
+              currentWorkspaceName={workspaceUser.workspaceName}
+              action={selectWorkspaceAction}
+            />
           </>
         ) : null}
         <span className={styles.divider} />
