@@ -4,7 +4,9 @@ const mocks = vi.hoisted(() => ({ query: vi.fn() }));
 
 vi.mock("@/db", () => ({ pool: { query: mocks.query } }));
 
+import { GET as getRetentionCron } from "@/app/api/cron/retention/route";
 import { GET } from "@/app/api/health/ready/route";
+import nextConfig from "../next.config";
 
 const environmentKeys = [
   "NODE_ENV",
@@ -62,5 +64,39 @@ describe("readiness configuration checks", () => {
     expect(ready.status).toBe(200);
     expect(await ready.json()).toEqual({ status: "ready", database: "connected" });
     expect(mocks.query).toHaveBeenCalledWith("select 1");
+  });
+
+  it("rejects unauthorized cron requests and configures baseline security headers", async () => {
+    const previousCronSecret = process.env.CRON_SECRET;
+    try {
+      process.env.CRON_SECRET = "cron-secret-value";
+      const missingHeader = await getRetentionCron(
+        new Request("http://localhost/api/cron/retention"),
+      );
+      expect(missingHeader.status).toBe(401);
+
+      const wrongSecret = await getRetentionCron(
+        new Request("http://localhost/api/cron/retention", {
+          headers: { authorization: "Bearer wrong-secret" },
+        }),
+      );
+      expect(wrongSecret.status).toBe(401);
+    } finally {
+      if (previousCronSecret === undefined) delete process.env.CRON_SECRET;
+      else process.env.CRON_SECRET = previousCronSecret;
+    }
+
+    const headerRules = await nextConfig.headers?.();
+    expect(headerRules).toEqual([
+      {
+        source: "/:path*",
+        headers: expect.arrayContaining([
+          { key: "X-Content-Type-Options", value: "nosniff" },
+          { key: "X-Frame-Options", value: "DENY" },
+          { key: "Content-Security-Policy", value: "frame-ancestors 'none'" },
+          { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+        ]),
+      },
+    ]);
   });
 });
