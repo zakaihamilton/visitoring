@@ -152,11 +152,24 @@ The collector accepts events with `visitorId`, `sessionId`, `eventName`, `path`,
 
 ## Dashboard
 
-The dashboard shows activity for the selected project and site. Filter by date, event, page, event details, visitor, or session. See page views, visitors, sessions, daily activity, popular pages, traffic sources, event details, device and browser types, and country or region.
+The dashboard shows activity for the selected project and site. Filter by date, event, or page. See page views, visitors, sessions, daily activity, popular pages, traffic sources, event details, device and browser types, and country or region.
+
+Individual event records live on **Recent events** (`/dashboard/events`), accessible from the
+traffic navigation. Moving between the overview and events preserves the selected site and filters.
+
+The chart’s interval table lives on **Chart data** (`/dashboard/chart-data`). Use **View chart data**
+below the chart to carry the selected metric and filters to the table.
+
+The traffic overview compares each metric with the preceding period using the same filters.
+Dates use UTC; ranges including today compare equal elapsed time and mark today as partial.
+The chart supports visitors, page views, sessions, and custom events, with hourly, daily, weekly,
+or monthly buckets depending on the range. Visitors and sessions are distinct within each bucket,
+so bucket values may not sum to the period total. Breakdown shares include matching records beyond
+the displayed top rows.
 
 ## GeoIP attribution
 
-Download DB-IP City Lite in MMDB format and set `GEOIP_DB_PATH` to its path. Keep the file outside this repository. Visitoring reads only the country and first-level region fields; collection continues with those fields blank if the file is absent or unreadable. DB-IP data is updated monthly and requires attribution. The dashboard links to [DB-IP](https://db-ip.com); retain the visible “IP geolocation by DB-IP” credit when changing the UI.
+Download DB-IP City Lite in MMDB format and set `GEOIP_DB_PATH` to its path. Keep the file outside this repository. Visitoring reads only the country and first-level region fields; collection continues with those fields blank if the file is absent or unreadable. DB-IP data is updated monthly and requires attribution.
 
 Bowser is used to reduce user-agent strings to `desktop/mobile/tablet/other`, browser family, and OS family. No raw IP address or full user-agent string is retained.
 

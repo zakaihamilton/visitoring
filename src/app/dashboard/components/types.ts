@@ -1,4 +1,6 @@
-import type { getAnalyticsData } from "@/lib/analytics";
+import type { getAnalyticsData, getRecentEventsData } from "@/lib/analytics";
+
+export type RecentEventsData = Awaited<ReturnType<typeof getRecentEventsData>>;
 
 export type DashboardData = Awaited<ReturnType<typeof getAnalyticsData>>;
 export type DashboardFilters = Record<string, string>;

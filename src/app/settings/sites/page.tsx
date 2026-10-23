@@ -1,3 +1,4 @@
+import { SiteCardsSkeleton } from "../SettingsLoading";
 import { Suspense } from "react";
 import { desc, eq } from "drizzle-orm";
 import { db } from "@/db";
@@ -11,7 +12,6 @@ import { SiteControls } from "./components/SiteControls";
 import styles from "../settings-page.module.css";
 
 export const dynamic = "force-dynamic";
-const siteSkeletons = ["first", "second"];
 
 async function SiteList({ workspaceId }: { workspaceId: string }) {
   const workspaceSites = await db
@@ -54,21 +54,6 @@ async function SiteList({ workspaceId }: { workspaceId: string }) {
   );
 }
 
-function SiteListLoading() {
-  return (
-    <div className={styles.siteList} aria-busy="true">
-      <p className={styles.hint}>Loading sites…</p>
-      {siteSkeletons.map((site) => (
-        <section className={styles.loadingSiteCard} aria-hidden="true" key={site}>
-          <span className={styles.loadingSiteTitle} />
-          <span className={styles.loadingSiteLine} />
-          <span className={styles.loadingSiteLine} />
-        </section>
-      ))}
-    </div>
-  );
-}
-
 export default async function SettingsSitesPage() {
   const user = await requireAdmin();
 
@@ -95,7 +80,7 @@ export default async function SettingsSitesPage() {
           <CreateSiteForm />
         </section>
 
-        <Suspense fallback={<SiteListLoading />}>
+        <Suspense fallback={<SiteCardsSkeleton />}>
           <SiteList workspaceId={user.workspaceId} />
         </Suspense>
       </main>

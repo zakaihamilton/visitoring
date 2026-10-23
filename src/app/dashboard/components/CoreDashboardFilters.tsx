@@ -9,10 +9,12 @@ export function CoreDashboardFilters({
   siteId,
   data,
   filters,
+  dateError,
 }: {
+  dateError?: string;
   sites: DashboardSite[];
   siteId: string;
-  data: DashboardData;
+  data: Pick<DashboardData, "eventNames">;
   filters: Record<string, string>;
 }) {
   return (
@@ -37,7 +39,14 @@ export function CoreDashboardFilters({
           htmlFor="filter-from"
           help="Include events from the start of this date in UTC."
         />
-        <input id="filter-from" type="date" name="from" defaultValue={filters.from} />
+        <input
+          id="filter-from"
+          type="date"
+          name="from"
+          defaultValue={filters.from}
+          aria-invalid={dateError ? true : undefined}
+          aria-describedby={dateError ? "date-range-error" : undefined}
+        />
       </div>
       <div className={styles.filterField}>
         <FilterLabel
@@ -45,7 +54,14 @@ export function CoreDashboardFilters({
           htmlFor="filter-to"
           help="Include events through the end of this date in UTC."
         />
-        <input id="filter-to" type="date" name="to" defaultValue={filters.to} />
+        <input
+          id="filter-to"
+          type="date"
+          name="to"
+          defaultValue={filters.to}
+          aria-invalid={dateError ? true : undefined}
+          aria-describedby={dateError ? "date-range-error" : undefined}
+        />
       </div>
       <div className={styles.filterField}>
         <FilterLabel

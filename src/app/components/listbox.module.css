@@ -23,6 +23,7 @@
   font: inherit;
   font-size: var(--type-compact);
   text-align: left;
+  text-decoration: none;
   cursor: pointer;
 }
 

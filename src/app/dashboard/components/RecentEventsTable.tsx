@@ -1,5 +1,6 @@
+/* eslint-disable jsx-a11y/no-noninteractive-tabindex -- Scrollable regions need keyboard access. */
 import styles from "../dashboard.module.css";
-import { formatNumber, type DashboardData } from "./types";
+import { formatNumber, type RecentEventsData } from "./types";
 
 export function PropertyText({ properties }: { properties: Record<string, unknown> }) {
   const entries = Object.entries(properties);
@@ -31,19 +32,30 @@ function EventTime({ createdAt }: { createdAt: string }) {
   return <>{new Date(createdAt).toISOString().replace("T", " ").slice(0, 16)} UTC</>;
 }
 
-export function RecentEventsTable({ data }: { data: DashboardData }) {
+export function RecentEventsTable({ data }: { data: RecentEventsData }) {
   return (
     <section className={`${styles.card} ${styles.eventCard}`} data-testid="recent-events">
       <div className={styles.cardTitle}>
         <div>
-          <h2>Recent events</h2>
-          <p>Extra details you sent with each event.</p>
+          <h2>Latest activity</h2>
+          <p>
+            {data.total
+              ? `Records ${(data.page - 1) * data.pageSize + 1}–${Math.min(data.page * data.pageSize, data.total)} of ${formatNumber(data.total)} matching records.`
+              : "No matching records."}{" "}
+            Newest first.
+          </p>
         </div>
         <span>{formatNumber(data.total)} matching</span>
       </div>
       {data.events.length ? (
         <>
-          <div className={styles.tableWrap} data-testid="desktop-events-table">
+          <section
+            className={styles.tableWrap}
+            data-testid="desktop-events-table"
+            // biome-ignore lint/a11y/noNoninteractiveTabindex: Scrollable content needs keyboard access.
+            tabIndex={0}
+            aria-label="Recent event details"
+          >
             <table>
               <thead>
                 <tr>
@@ -74,7 +86,7 @@ export function RecentEventsTable({ data }: { data: DashboardData }) {
                 ))}
               </tbody>
             </table>
-          </div>
+          </section>
           <div className={styles.mobileEvents} data-testid="mobile-event-cards">
             {data.events.map((event) => (
               <article className={styles.mobileEvent} key={event.id}>

@@ -3,7 +3,7 @@ import { and, eq } from "drizzle-orm";
 import { db, pool } from "@/db";
 import { siteEvents, sites, workspaces } from "@/db/schema";
 import { createSiteKey, sha256 } from "@/lib/crypto";
-import { getAnalyticsData } from "@/lib/analytics";
+import { getAnalyticsData, getRecentEventsData } from "@/lib/analytics";
 import { POST } from "@/app/api/collect/route";
 import { pruneExpiredData, retentionCutoff } from "@/lib/retention";
 
@@ -126,7 +126,7 @@ suite("PostgreSQL collector integration", () => {
         visitor: "integration-visitor",
         session: "integration-session",
       });
-      expect(querySpy).toHaveBeenCalledTimes(6);
+      expect(querySpy).toHaveBeenCalledTimes(7);
       expect(data).toMatchObject({
         total: 1,
         pageViews: 1,
@@ -242,6 +242,210 @@ suite("PostgreSQL collector integration", () => {
     ]) {
       const filtered = await getAnalyticsData({ ...base, ...filter });
       expect(filtered.total).toBe(5);
+    }
+  });
+
+  it("compares scoped, filtered traffic with distinct buckets and full breakdown denominators", async () => {
+    const sample = {
+      workspaceId,
+      siteId,
+      eventName: "page_view",
+      visitorId: "traffic-visitor",
+      sessionId: "traffic-session",
+      properties: { cohort: "traffic" },
+    };
+    await db.insert(siteEvents).values([
+      ...Array.from({ length: 8 }, (_, index) => ({
+        ...sample,
+        path: `/traffic/${index}`,
+        createdAt: `2025-02-02T${index < 4 ? "10" : "11"}:00:00.000Z`,
+      })),
+      ...Array.from({ length: 3 }, (_, index) => ({
+        ...sample,
+        path: `/traffic/${index}`,
+        createdAt: "2025-02-01T10:00:00.000Z",
+      })),
+      {
+        ...sample,
+        path: "/traffic/excluded",
+        properties: { cohort: "other" },
+        createdAt: "2025-02-01T10:00:00.000Z",
+      },
+      {
+        ...sample,
+        workspaceId: otherWorkspaceId,
+        path: "/traffic/other-workspace",
+        createdAt: "2025-02-01T10:00:00.000Z",
+      },
+      {
+        ...sample,
+        path: "/traffic/excluded",
+        eventName: "signup",
+        createdAt: "2025-02-02T10:00:00.000Z",
+      },
+      {
+        ...sample,
+        path: "/traffic/excluded",
+        visitorId: "other-visitor",
+        createdAt: "2025-02-01T10:00:00.000Z",
+      },
+      {
+        ...sample,
+        path: "/traffic/excluded",
+        sessionId: "other-session",
+        createdAt: "2025-02-01T10:00:00.000Z",
+      },
+      { ...sample, path: "/elsewhere", createdAt: "2025-02-01T10:00:00.000Z" },
+    ]);
+    const filters = {
+      workspaceId,
+      siteId,
+      from: "2025-02-02T00:00:00.000Z",
+      to: "2025-02-02T23:59:59.999Z",
+      event: "page_view",
+      path: "/traffic/",
+      property: "cohort",
+      propertyValue: "traffic",
+      visitor: "traffic-visitor",
+      session: "traffic-session",
+    };
+    const data = await getAnalyticsData(filters);
+    expect(data).toMatchObject({
+      total: 8,
+      visitors: 1,
+      sessions: 1,
+      breakdownTotal: 8,
+      hasSiteActivity: true,
+      previous: { total: 3, visitors: 1, sessions: 1 },
+    });
+    expect(data.pages).toHaveLength(6);
+    expect(data.pages.reduce((sum, page) => sum + page.count, 0)).toBe(6);
+    expect(data.trend).toHaveLength(24);
+    expect(data.trend[0]?.current.total).toBe(0);
+    expect(data.trend[10]?.current).toMatchObject({ total: 4, visitors: 1, sessions: 1 });
+    expect(data.trend[11]?.current.visitors).toBe(1);
+    expect(data.trend[10]?.previous.total).toBe(3);
+    const empty = await getAnalyticsData({ ...filters, event: "no_such_event" });
+    expect(empty).toMatchObject({ total: 0, hasSiteActivity: true });
+    const isolated = await getAnalyticsData({
+      ...filters,
+      workspaceId: otherWorkspaceId,
+      path: "/traffic/0",
+    });
+    expect(isolated).toMatchObject({ total: 0, previous: { total: 0 } });
+  });
+
+  it("loads only the latest 20 scoped matching event records on the events page", async () => {
+    await db.insert(siteEvents).values(
+      Array.from({ length: 25 }, (_, index) => ({
+        workspaceId,
+        siteId,
+        visitorId: "detail-visitor",
+        sessionId: "detail-session",
+        eventName: "detail_test",
+        path: "/details",
+        properties: { plan: "starter" },
+        createdAt: new Date(Date.UTC(2025, 2, 1, 10, 0, index)).toISOString(),
+      })),
+    );
+    const filters = {
+      workspaceId,
+      siteId,
+      from: "2025-03-01T00:00:00.000Z",
+      to: "2025-03-01T23:59:59.999Z",
+      event: "detail_test",
+      path: "/details",
+      visitor: "detail-visitor",
+      session: "detail-session",
+      property: "plan",
+      propertyValue: "starter",
+    };
+    const data = await getRecentEventsData(filters);
+    expect(data.total).toBe(25);
+    expect(data.events).toHaveLength(20);
+    expect(new Date(data.events[0]?.createdAt ?? "").toISOString()).toBe(
+      "2025-03-01T10:00:24.000Z",
+    );
+    expect(new Date(data.events.at(-1)?.createdAt ?? "").toISOString()).toBe(
+      "2025-03-01T10:00:05.000Z",
+    );
+    const older = await getRecentEventsData(filters, 2);
+    expect(older).toMatchObject({ page: 2, pages: 2, pageSize: 20, total: 25 });
+    expect(older.events).toHaveLength(5);
+    expect(older.events.some((event) => data.events.some((recent) => recent.id === event.id))).toBe(
+      false,
+    );
+    expect((await getRecentEventsData(filters, 999)).page).toBe(2);
+    expect((await getRecentEventsData(filters, Number.NaN)).page).toBe(1);
+    const isolated = await getRecentEventsData({ ...filters, workspaceId: otherWorkspaceId }, 2);
+    expect(isolated).toMatchObject({ total: 0, events: [] });
+    const filtered = await getRecentEventsData({ ...filters, propertyValue: "enterprise" });
+    expect(filtered).toMatchObject({ total: 0, events: [] });
+  });
+
+  it("freezes event pagination while new events arrive and refreshes to the latest population", async () => {
+    vi.useFakeTimers({ toFake: ["Date"] });
+    try {
+      vi.setSystemTime(new Date("2026-10-23T12:00:00.000Z"));
+      const base = {
+        workspaceId,
+        siteId,
+        visitorId: "pagination-visitor",
+        sessionId: "pagination-session",
+        eventName: "pagination_test",
+        path: "/pagination",
+      };
+      await db
+        .insert(siteEvents)
+        .values(
+          Array.from({ length: 21 }, (_, index) => ({
+            ...base,
+            createdAt: new Date(Date.now() - 10_000 - index * 100).toISOString(),
+          })),
+        );
+      const filters = {
+        workspaceId,
+        siteId,
+        from: "2026-10-23T00:00:00.000Z",
+        to: "2026-10-23T23:59:59.999Z",
+        event: "pagination_test",
+      };
+      const first = await getRecentEventsData(filters);
+      expect(first.snapshotAt).toBe("2026-10-23T12:00:00.000Z");
+      const [newEvent] = await db
+        .insert(siteEvents)
+        .values({ ...base, createdAt: "2026-10-23T12:01:00.000Z" })
+        .returning();
+      vi.setSystemTime(new Date("2026-10-23T12:02:00.000Z"));
+      const older = await getRecentEventsData(filters, 2, first.snapshotAt);
+      expect(older.total).toBe(21);
+      expect(older.events).toHaveLength(1);
+      expect(
+        older.events.some((event) => first.events.some((recent) => event.id === recent.id)),
+      ).toBe(false);
+      const newer = await getRecentEventsData(filters, 1, older.snapshotAt);
+      expect(newer.events.map((event) => event.id)).toEqual(first.events.map((event) => event.id));
+      const refreshed = await getRecentEventsData(filters);
+      expect(refreshed.total).toBe(22);
+      expect(refreshed.events[0]?.id).toBe(newEvent?.id);
+      for (const invalid of [
+        "garbage",
+        "2026-02-30T00:00:00.000Z",
+        "2026-10-23T13:00:00.000Z",
+        "2026-10-22T12:00:00.000Z",
+      ]) {
+        expect((await getRecentEventsData(filters, 1, invalid)).snapshotAt).toBe(
+          refreshed.snapshotAt,
+        );
+      }
+      const isolated = await getRecentEventsData(
+        { ...filters, workspaceId: otherWorkspaceId },
+        2,
+        first.snapshotAt,
+      );
+      expect(isolated).toMatchObject({ total: 0, events: [] });
+    } finally {
+      vi.useRealTimers();
     }
   });
 
