@@ -1,10 +1,12 @@
+import { matchesSecret } from "@/lib/crypto";
 import { pruneExpiredData, retentionCutoff } from "@/lib/retention";
 
 export const runtime = "nodejs";
 
 export async function GET(request: Request): Promise<Response> {
-  const secret = process.env.CRON_SECRET;
-  if (!secret || request.headers.get("authorization") !== `Bearer ${secret}`)
+  const secret = process.env.CRON_SECRET?.trim();
+  const authorization = request.headers.get("authorization");
+  if (!secret || !authorization || !matchesSecret(`Bearer ${secret}`, authorization))
     return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   try {

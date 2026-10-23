@@ -1,12 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { coarseGeo, parseAttribution, parseUserAgent, lookupGeo } from "@/lib/attribution";
+import { coarseGeo, lookupGeo, parseAttribution, parseUserAgent } from "@/lib/attribution";
 import {
   allowsRateLimitCount,
   collectorRateLimitConfigurationError,
   collectorRateLimitMaxEvents,
   isDoNotTrack,
 } from "@/lib/collection-policy";
-import { hashRateLimitKey, rateLimitSecretConfigurationError } from "@/lib/crypto";
+import { hashRateLimitKey, matchesSecret, rateLimitSecretConfigurationError } from "@/lib/crypto";
 import { originIsAllowed, parseAllowedDomains } from "@/lib/domains";
 import { cleanPath, cleanReferrerHost } from "@/lib/privacy";
 import { retentionCutoff } from "@/lib/retention";
@@ -103,5 +103,11 @@ describe("privacy and policy helpers", () => {
   it("uses the rolling retention cutoff", () => {
     const cutoff = retentionCutoff(new Date("2026-10-31T12:00:00.000Z"), 1);
     expect(cutoff.toISOString()).toBe("2026-09-30T12:00:00.000Z");
+  });
+
+  it("compares bearer secrets in constant time", () => {
+    expect(matchesSecret("Bearer top-secret", "Bearer top-secret")).toBe(true);
+    expect(matchesSecret("Bearer top-secret", "Bearer wrong")).toBe(false);
+    expect(matchesSecret("Bearer top-secret", "")).toBe(false);
   });
 });

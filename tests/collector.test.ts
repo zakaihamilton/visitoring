@@ -38,4 +38,44 @@ describe("collector envelope validation", () => {
       }),
     ).toBeNull();
   });
+
+  it("rejects deeply nested or overlong property keys while allowing shallow structured properties", () => {
+    expect(
+      parseEnvelope({
+        visitorId: "visitor-1234",
+        sessionId: "session-123456",
+        eventName: "signup",
+        path: "/",
+        properties: {
+          plan: "starter",
+          details: { source: "pricing", step: 2 },
+          labels: ["guided", "annual"],
+        },
+      }),
+    ).not.toBeNull();
+
+    expect(
+      parseEnvelope({
+        visitorId: "visitor-1234",
+        sessionId: "session-123456",
+        eventName: "signup",
+        path: "/",
+        properties: {
+          a: { b: { c: { d: "too-deep" } } },
+        },
+      }),
+    ).toBeNull();
+
+    expect(
+      parseEnvelope({
+        visitorId: "visitor-1234",
+        sessionId: "session-123456",
+        eventName: "signup",
+        path: "/",
+        properties: {
+          ["k".repeat(65)]: "value",
+        },
+      }),
+    ).toBeNull();
+  });
 });

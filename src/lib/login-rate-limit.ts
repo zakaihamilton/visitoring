@@ -25,14 +25,13 @@ async function countAttempt(bucketKey: string, maxAttempts: number, now: Date): 
 
 export async function isLoginRateLimited(input: { email: string; ip: string }): Promise<boolean> {
   const now = new Date();
-  if (input.ip !== "unknown") {
-    const ipCount = await countAttempt(
-      hashRateLimitKey(`login:ip:${input.ip}`),
-      IP_ATTEMPT_LIMIT,
-      now,
-    );
-    if (ipCount > IP_ATTEMPT_LIMIT) return true;
-  }
+  const normalizedIp = input.ip.trim() || "unknown";
+  const ipCount = await countAttempt(
+    hashRateLimitKey(`login:ip:${normalizedIp}`),
+    IP_ATTEMPT_LIMIT,
+    now,
+  );
+  if (ipCount > IP_ATTEMPT_LIMIT) return true;
 
   const accountCount = await countAttempt(accountBucketKey(input), ACCOUNT_ATTEMPT_LIMIT, now);
   return accountCount > ACCOUNT_ATTEMPT_LIMIT;
