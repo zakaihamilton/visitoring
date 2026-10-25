@@ -395,14 +395,12 @@ suite("PostgreSQL collector integration", () => {
         eventName: "pagination_test",
         path: "/pagination",
       };
-      await db
-        .insert(siteEvents)
-        .values(
-          Array.from({ length: 21 }, (_, index) => ({
-            ...base,
-            createdAt: new Date(Date.now() - 10_000 - index * 100).toISOString(),
-          })),
-        );
+      await db.insert(siteEvents).values(
+        Array.from({ length: 21 }, (_, index) => ({
+          ...base,
+          createdAt: new Date(Date.now() - 10_000 - index * 100).toISOString(),
+        })),
+      );
       const filters = {
         workspaceId,
         siteId,

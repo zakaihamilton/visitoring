@@ -39,5 +39,9 @@
     "styles": {
       "mode": "required"
     }
+  },
+  "baseline": {
+    "path": ".repnix-baseline.json",
+    "failOn": "new"
   }
 }

@@ -119,15 +119,18 @@ export function WorkspaceSwitcher({
               }}
             >
               <span>{workspace.name}</span>
-              {workspace.id === currentWorkspaceId ? (
-                <span aria-hidden="true">✓</span>
-              ) : null}
+              {workspace.id === currentWorkspaceId ? <span aria-hidden="true">✓</span> : null}
             </button>
           ))}
           <Link
             href="/projects"
             className={`${listboxStyles.option}`}
-            style={{ borderTop: "1px solid var(--line)", marginTop: 4, paddingTop: 10, color: "var(--muted)" }}
+            style={{
+              borderTop: "1px solid var(--line)",
+              marginTop: 4,
+              paddingTop: 10,
+              color: "var(--muted)",
+            }}
             onClick={() => setOpen(false)}
           >
             <span>Manage projects…</span>
