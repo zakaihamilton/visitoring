@@ -14,7 +14,7 @@ Records older than the rolling 24-month window are pruned daily.
 
 ## Run locally
 
-Requirements: Node.js 24.22.0 or later within the 24.x line, pnpm 10.33.0, and Docker Compose (or a local PostgreSQL 15+ database).
+Requirements: Node.js 24.22.1 or later within the 24.x line, pnpm 10.33.0, and Docker Compose (or a local PostgreSQL 15+ database).
 
 ```sh
 cp .env.example .env
