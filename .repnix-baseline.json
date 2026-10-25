@@ -1,0 +1,96 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-10-25T04:27:43.640Z",
+  "entries": [
+    {
+      "fingerprint": "4758308c9edf3756a676b26d",
+      "provider": "jscpd",
+      "category": "duplication",
+      "type": "duplication",
+      "scope": ".",
+      "file": "src/app/dashboard/components/CoreDashboardFilters.tsx",
+      "line": 7
+    },
+    {
+      "fingerprint": "03a8fea7bfed272855999cf7",
+      "provider": "jscpd",
+      "category": "duplication",
+      "type": "duplication",
+      "scope": ".",
+      "file": "src/app/dashboard/chart-data/view.tsx",
+      "line": 23
+    },
+    {
+      "fingerprint": "d4d52fd91a1731cec8e21a8e",
+      "provider": "jscpd",
+      "category": "duplication",
+      "type": "duplication",
+      "scope": ".",
+      "file": "src/app/components/organization-switcher/useOrganizationSwitcher.ts",
+      "line": 11
+    },
+    {
+      "fingerprint": "adb386c7a45522560efc9b06",
+      "provider": "jscpd",
+      "category": "duplication",
+      "type": "duplication",
+      "scope": ".",
+      "file": "src/app/components/organization-switcher/useOrganizationSwitcher.ts",
+      "line": 20
+    },
+    {
+      "fingerprint": "05c48a779c97c44e7664587a",
+      "provider": "jscpd",
+      "category": "duplication",
+      "type": "duplication",
+      "scope": ".",
+      "file": "src/app/components/organization-switcher/useOrganizationSwitcher.ts",
+      "line": 39
+    },
+    {
+      "fingerprint": "b0fe0fa375f8b5bac9eeb077",
+      "provider": "jscpd",
+      "category": "duplication",
+      "type": "duplication",
+      "scope": ".",
+      "file": "src/app/dashboard/view.tsx",
+      "line": 57
+    },
+    {
+      "fingerprint": "94f47c06ffa7741ef0ad8cfc",
+      "provider": "jscpd",
+      "category": "duplication",
+      "type": "duplication",
+      "scope": ".",
+      "file": "src/app/dashboard/view.tsx",
+      "line": 24
+    },
+    {
+      "fingerprint": "60ad6e257516dc1e1056cd3e",
+      "provider": "jscpd",
+      "category": "duplication",
+      "type": "duplication",
+      "scope": ".",
+      "file": "src/app/components/OrganizationSwitcher.tsx",
+      "line": 33
+    },
+    {
+      "fingerprint": "d061332841db4521cd2bb767",
+      "provider": "jscpd",
+      "category": "duplication",
+      "type": "duplication",
+      "scope": ".",
+      "file": "src/app/components/OrganizationSwitcher.tsx",
+      "line": 47
+    },
+    {
+      "fingerprint": "0c0c6792043f7e23e32b3813",
+      "provider": "jscpd",
+      "category": "duplication",
+      "type": "duplication",
+      "scope": ".",
+      "file": "src/app/components/OrganizationSwitcher.tsx",
+      "line": 55
+    }
+  ]
+}
