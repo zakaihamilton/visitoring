@@ -341,9 +341,7 @@ describe("Visitoring Perminister client", () => {
       visitoringUserForWorkspace(auth, "11111111-1111-4111-8111-111111111111", "missing"),
     ).resolves.toBeNull();
 
-    expect(isVisitoringOrganizationAdmin(auth, "11111111-1111-4111-8111-111111111111")).toBe(
-      false,
-    );
+    expect(isVisitoringOrganizationAdmin(auth, "11111111-1111-4111-8111-111111111111")).toBe(false);
     const organizationOwnerAuth = {
       ...auth,
       organizations: auth.organizations.map((organization) => ({
@@ -352,10 +350,7 @@ describe("Visitoring Perminister client", () => {
       })),
     };
     expect(
-      isVisitoringOrganizationAdmin(
-        organizationOwnerAuth,
-        "11111111-1111-4111-8111-111111111111",
-      ),
+      isVisitoringOrganizationAdmin(organizationOwnerAuth, "11111111-1111-4111-8111-111111111111"),
     ).toBe(true);
   });
 
