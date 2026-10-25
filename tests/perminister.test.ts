@@ -251,19 +251,19 @@ describe("Visitoring Perminister client", () => {
   });
 
   it("lists accessible workspaces and maps a selected workspace into Visitoring context", async () => {
-    dbWhere.mockResolvedValueOnce([
-      {
-        id: "workspace-id",
-        name: "ShiftingFront",
-        organizationId: "11111111-1111-4111-8111-111111111111",
-      },
-      {
-        id: "other-workspace-id",
-        name: "Puzzimori",
-        organizationId: "11111111-1111-4111-8111-111111111111",
-      },
-    ]);
     dbLimit
+      .mockResolvedValueOnce([
+        {
+          id: "workspace-id",
+          name: "ShiftingFront",
+          organizationId: "11111111-1111-4111-8111-111111111111",
+        },
+        {
+          id: "other-workspace-id",
+          name: "Puzzimori",
+          organizationId: "11111111-1111-4111-8111-111111111111",
+        },
+      ])
       .mockResolvedValueOnce([
         {
           id: "workspace-id",
@@ -279,7 +279,7 @@ describe("Visitoring Perminister client", () => {
         {
           organizationId: "11111111-1111-4111-8111-111111111111",
           organizationName: "Acme Organization",
-          organizationRole: "owner" as const,
+          organizationRole: "member" as const,
           productId: "visitoring",
           resourceRoles: [
             {
@@ -341,7 +341,22 @@ describe("Visitoring Perminister client", () => {
       visitoringUserForWorkspace(auth, "11111111-1111-4111-8111-111111111111", "missing"),
     ).resolves.toBeNull();
 
-    expect(isVisitoringOrganizationAdmin(auth, "11111111-1111-4111-8111-111111111111")).toBe(true);
+    expect(isVisitoringOrganizationAdmin(auth, "11111111-1111-4111-8111-111111111111")).toBe(
+      false,
+    );
+    const organizationOwnerAuth = {
+      ...auth,
+      organizations: auth.organizations.map((organization) => ({
+        ...organization,
+        organizationRole: "owner" as const,
+      })),
+    };
+    expect(
+      isVisitoringOrganizationAdmin(
+        organizationOwnerAuth,
+        "11111111-1111-4111-8111-111111111111",
+      ),
+    ).toBe(true);
   });
 
   it("uses scoped Perminister operations to bootstrap and revoke workspace grants", async () => {
