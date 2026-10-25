@@ -357,7 +357,7 @@ for (const route of ["/dashboard", "/dashboard/events", "/dashboard/chart-data"]
     await signIn(page);
     await page.goto(`${route}?from=2026-10-01&to=2026-10-15&metric=pageViews&path=%2Fpricing`);
     const time = page.locator("main time").first();
-    await expect(time).toContainText(/Updated Oct 23, 2026, \d{2}:\d{2} UTC/);
+    await expect(time).toContainText(/^Updated [A-Z][a-z]{2} \d{1,2}, \d{4}, \d{2}:\d{2} UTC$/);
     const originalTime = await time.getAttribute("datetime");
     const originalURL = page.url();
     const button = page.getByRole("button", { name: "Refresh data", exact: true });

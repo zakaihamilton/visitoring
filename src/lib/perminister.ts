@@ -445,14 +445,13 @@ export async function visitoringWorkspacesForOrganization(
       })
       .from(workspaces);
   const accessibleWorkspaces = isOrganizationAdmin
-    ? await activeWorkspaces()
-        .where(
-          and(
-            eq(workspaces.organizationId, normalizedOrganizationId),
-            isNull(workspaces.archivedAt),
-            isNull(workspaces.deletionPendingAt),
-          ),
-        )
+    ? await activeWorkspaces().where(
+        and(
+          eq(workspaces.organizationId, normalizedOrganizationId),
+          isNull(workspaces.archivedAt),
+          isNull(workspaces.deletionPendingAt),
+        ),
+      )
     : await activeWorkspaces()
         .where(
           and(

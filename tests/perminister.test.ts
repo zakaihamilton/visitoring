@@ -251,19 +251,19 @@ describe("Visitoring Perminister client", () => {
   });
 
   it("lists accessible workspaces and maps a selected workspace into Visitoring context", async () => {
+    dbWhere.mockResolvedValueOnce([
+      {
+        id: "workspace-id",
+        name: "ShiftingFront",
+        organizationId: "11111111-1111-4111-8111-111111111111",
+      },
+      {
+        id: "other-workspace-id",
+        name: "Puzzimori",
+        organizationId: "11111111-1111-4111-8111-111111111111",
+      },
+    ]);
     dbLimit
-      .mockResolvedValueOnce([
-        {
-          id: "workspace-id",
-          name: "ShiftingFront",
-          organizationId: "11111111-1111-4111-8111-111111111111",
-        },
-        {
-          id: "other-workspace-id",
-          name: "Puzzimori",
-          organizationId: "11111111-1111-4111-8111-111111111111",
-        },
-      ])
       .mockResolvedValueOnce([
         {
           id: "workspace-id",
