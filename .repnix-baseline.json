@@ -91,6 +91,33 @@
       "scope": ".",
       "file": "src/app/components/OrganizationSwitcher.tsx",
       "line": 55
+    },
+    {
+      "fingerprint": "ca1ba0b5d4df89946cf4aff8",
+      "provider": "jscpd",
+      "category": "duplication",
+      "type": "duplication",
+      "scope": ".",
+      "file": "src/app/ui-preview/page.tsx",
+      "line": 180
+    },
+    {
+      "fingerprint": "1c84bdc2b4dbec3e09f1042c",
+      "provider": "jscpd",
+      "category": "duplication",
+      "type": "duplication",
+      "scope": ".",
+      "file": "src/app/ui-preview/page.tsx",
+      "line": 219
+    },
+    {
+      "fingerprint": "b0e4ee056a8dfffe8846edaf",
+      "provider": "jscpd",
+      "category": "duplication",
+      "type": "duplication",
+      "scope": ".",
+      "file": "src/app/ui-preview/page.tsx",
+      "line": 255
     }
   ]
 }
