@@ -27,7 +27,7 @@ export function DeveloperHero() {
         </div>
         <div className={styles.heroMeta}>
           <span>
-            <i /> No package to install
+            <i /> No package needed for the script
           </span>
           <span>
             <i /> Do Not Track respected
@@ -81,7 +81,7 @@ export function DeveloperHero() {
           <span>✓</span>
           <span>
             <strong>Lightweight by default</strong>
-            <small>No extra package required</small>
+            <small>Script works without a package</small>
           </span>
         </div>
       </div>

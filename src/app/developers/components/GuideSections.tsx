@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Tooltip } from "@/app/components/Tooltip";
-import { eventSnippet } from "./tracker-snippets";
+import { eventSnippet, reactEventSnippet } from "./tracker-snippets";
 import styles from "../developers.module.css";
 
 export function SiteSetupSection() {
@@ -39,7 +39,7 @@ export function SiteSetupSection() {
   );
 }
 
-export function CustomEventsSection() {
+export function CustomEventsSection({ integration }: { integration: "standard" | "react" }) {
   return (
     <section id="events" className={styles.section}>
       <div className={styles.sectionHeading}>
@@ -55,15 +55,19 @@ export function CustomEventsSection() {
           <p>Send a custom event when someone completes an important action.</p>
         </div>
       </div>
+      <p className={styles.note}>
+        {integration === "react" ? "React app" : "Standard website"} example.{" "}
+        {integration === "react"
+          ? "Use the hook from a client component after an action succeeds."
+          : "Call this after the action succeeds and the deferred tracker has finished loading."}
+      </p>
       <pre className={styles.codeBlock}>
-        <code>{eventSnippet}</code>
+        <code>{integration === "react" ? reactEventSnippet : eventSnippet}</code>
       </pre>
       <p className={styles.note}>
-        Use this as your signup-success handler and call it only after your app confirms the signup.
-        The tracker uses <code>defer</code>, so it is available for normal user actions after page
-        parsing finishes. Choose your own event name and details to compare activity later. Avoid
-        names, email addresses, account IDs, or other personal data. Use broad values such as plan
-        type.
+        Choose your own event name and details. Avoid names, email addresses, account IDs, or other
+        personal data in page paths or event properties; Visitoring does not automatically redact
+        them. Use broad values such as plan type.
       </p>
     </section>
   );
