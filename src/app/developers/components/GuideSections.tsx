@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Tooltip } from "@/app/components/Tooltip";
+import { eventSnippet, reactEventSnippet } from "./tracker-snippets";
 import styles from "../developers.module.css";
 
 export function SiteSetupSection() {
@@ -38,7 +39,7 @@ export function SiteSetupSection() {
   );
 }
 
-export function CustomEventsSection() {
+export function CustomEventsSection({ integration }: { integration: "standard" | "react" }) {
   return (
     <section id="events" className={styles.section}>
       <div className={styles.sectionHeading}>
@@ -55,10 +56,18 @@ export function CustomEventsSection() {
         </div>
       </div>
       <p className={styles.note}>
-        Choose your website type in <a href="#tracker">Add the tracker</a> for the matching custom
-        event example. Send the event only after your app confirms the action. Choose your own event
-        name and details to compare activity later. Avoid names, email addresses, account IDs, or
-        other personal data. Use broad values such as plan type.
+        {integration === "react" ? "React app" : "Standard website"} example.{" "}
+        {integration === "react"
+          ? "Use the hook from a client component after an action succeeds."
+          : "Call this after the action succeeds and the deferred tracker has finished loading."}
+      </p>
+      <pre className={styles.codeBlock}>
+        <code>{integration === "react" ? reactEventSnippet : eventSnippet}</code>
+      </pre>
+      <p className={styles.note}>
+        Choose your own event name and details. Avoid names, email addresses, account IDs, or other
+        personal data in page paths or event properties; Visitoring does not automatically redact
+        them. Use broad values such as plan type.
       </p>
     </section>
   );
