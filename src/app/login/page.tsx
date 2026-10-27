@@ -1,12 +1,14 @@
 import Link from "next/link";
 import { loginAction } from "./actions";
 import { BrandIcon } from "@/app/components/BrandIcon";
+import { perministerRecoveryUrl } from "@/lib/perminister-origin";
 import styles from "./login.module.css";
 
 type Props = { searchParams: Promise<{ error?: string }> };
 
 export default async function LoginPage({ searchParams }: Props) {
   const { error } = await searchParams;
+  const recoveryUrl = perministerRecoveryUrl();
   return (
     <main className={styles.page}>
       <section className={styles.panel}>
@@ -76,8 +78,13 @@ export default async function LoginPage({ searchParams }: Props) {
             </button>
           </form>
           <p className={styles.foot}>
-            Need access or forgot your password? Ask your project administrator to create your
-            account or reset your password.
+            {recoveryUrl && (
+              <>
+                Use Perminister? <a href={recoveryUrl}>Reset your Perminister password</a>.{" "}
+              </>
+            )}
+            For a Visitoring account or access, contact the administrator who invited you and ask
+            them to create your account or reset your password.
           </p>
         </div>
       </section>

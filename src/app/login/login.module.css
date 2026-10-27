@@ -148,10 +148,14 @@
   margin: -2px 0;
 }
 .foot {
-  color: #829092;
+  color: #536365;
   font-size: var(--type-compact);
   line-height: 1.5;
   margin: 2px 0 0;
+}
+.foot a {
+  color: #245a4a;
+  text-decoration: underline;
 }
 @media (max-width: 760px) {
   .page {
