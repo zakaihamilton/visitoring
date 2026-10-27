@@ -205,9 +205,8 @@
   margin-bottom: 6px;
 }
 .breakdownLabel span {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  overflow-wrap: anywhere;
+  white-space: normal;
 }
 .breakdownLabel .truncatedLabel {
   display: block;

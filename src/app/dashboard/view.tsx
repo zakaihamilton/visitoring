@@ -39,8 +39,8 @@ export function Dashboard({ sites, siteId, data, filters }: DashboardProps) {
               <div className="eyebrow">Awaiting first events</div>
               <h2>Ready to start tracking {currentSite?.name ?? "your site"}?</h2>
               <p>
-                Add the tracking snippet below to your website&apos;s HTML &lt;head&gt; tag to start
-                collecting real-time privacy-friendly analytics.
+                Replace YOUR_SITE_KEY with the tracking key from Site settings, then add this
+                example to your website&apos;s HTML &lt;head&gt; tag to start collecting analytics.
               </p>
             </div>
             <div className={styles.setupActions}>

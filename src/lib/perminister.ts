@@ -3,6 +3,7 @@ import { and, eq, inArray, isNull } from "drizzle-orm";
 import { cookies } from "next/headers";
 import { db } from "@/db";
 import { workspaces } from "@/db/schema";
+import { perministerBaseUrl } from "./perminister-origin";
 
 export const PERMINISTER_SESSION_COOKIE = "visitoring_session";
 const VISITORING_PRODUCT_ID = "visitoring";
@@ -118,27 +119,11 @@ function logPerministerFailure(input: {
 }
 
 function configuration() {
-  const baseUrl = process.env.PERMINISTER_BASE_URL?.trim() || "https://www.perminister.com";
   const clientId = process.env.PERMINISTER_APP_CLIENT_ID?.trim() ?? "";
   const clientSecret = process.env.PERMINISTER_APP_CLIENT_SECRET?.trim() ?? "";
   const productId =
     process.env.PERMINISTER_PRODUCT_ID?.trim().toLowerCase() || VISITORING_PRODUCT_ID;
-  let origin: URL;
-  try {
-    origin = new URL(baseUrl);
-  } catch {
-    throw new Error("PERMINISTER_BASE_URL must be a valid HTTPS URL.");
-  }
-  const isLoopback = ["localhost", "127.0.0.1", "[::1]"].includes(origin.hostname);
-  if (
-    (origin.protocol !== "https:" && !(origin.protocol === "http:" && isLoopback)) ||
-    origin.username ||
-    origin.password ||
-    origin.search ||
-    origin.hash
-  ) {
-    throw new Error("PERMINISTER_BASE_URL must be a valid HTTPS URL.");
-  }
+  const origin = perministerBaseUrl();
   if (!clientId || !clientSecret) {
     throw new Error("Perminister app client settings are required.");
   }
