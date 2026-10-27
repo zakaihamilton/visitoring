@@ -34,7 +34,9 @@
     "health:interactions": "vitest run tests/ui/user-interactions.test.tsx",
     "health:styles": "stylelint --formatter json \"**/*.{css,pcss,postcss}\"",
     "db:migrate:deploy": "tsx scripts/migrate-deploy.ts",
-    "build:react": "pnpm --dir packages/react run build"
+    "build:react": "pnpm --dir packages/react run build",
+    "ui:preview": "WATCHPACK_POLLING=true next dev --webpack --hostname 127.0.0.1 --port 3100",
+    "dev:preview": "WATCHPACK_POLLING=true next dev --webpack --hostname 127.0.0.1 --port 3100"
   },
   "dependencies": {
     "@neon/config": "^1.8.3",

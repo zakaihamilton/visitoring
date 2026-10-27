@@ -87,16 +87,24 @@ describe("readiness configuration checks", () => {
     }
 
     const headerRules = await nextConfig.headers?.();
-    expect(headerRules).toEqual([
-      {
-        source: "/:path*",
-        headers: expect.arrayContaining([
-          { key: "X-Content-Type-Options", value: "nosniff" },
-          { key: "X-Frame-Options", value: "DENY" },
-          { key: "Content-Security-Policy", value: "frame-ancestors 'none'" },
-          { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
-        ]),
-      },
-    ]);
+    expect(headerRules).toEqual(
+      expect.arrayContaining([
+        {
+          source: "/:path*",
+          headers: expect.arrayContaining([
+            { key: "X-Content-Type-Options", value: "nosniff" },
+            { key: "X-Frame-Options", value: "DENY" },
+            { key: "Content-Security-Policy", value: "frame-ancestors 'none'" },
+            { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+          ]),
+        },
+        {
+          source: "/ui-preview",
+          headers: [
+            { key: "Content-Security-Policy", value: "frame-ancestors 'none'; form-action 'none'" },
+          ],
+        },
+      ]),
+    );
   });
 });

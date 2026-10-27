@@ -1,15 +1,14 @@
-import { SiteCardsSkeleton } from "../SettingsLoading";
-import { Suspense } from "react";
 import { desc, eq } from "drizzle-orm";
+import { Suspense } from "react";
+import { Topbar } from "@/app/components/Topbar";
 import { db } from "@/db";
 import { sites } from "@/db/schema";
-import { Topbar } from "@/app/components/Topbar";
 import { requireAdmin } from "@/lib/auth";
+import { SiteCardsSkeleton } from "../SettingsLoading";
 import { SettingsNavigation } from "../SettingsNavigation";
-import { CreateSiteForm } from "./components/CreateSiteForm";
-import { SiteKeyDisplay } from "./components/SiteKeyDisplay";
-import { SiteControls } from "./components/SiteControls";
 import styles from "../settings-page.module.css";
+import { CreateSiteForm } from "./components/CreateSiteForm";
+import { SiteListView } from "./SiteListView";
 
 export const dynamic = "force-dynamic";
 
@@ -26,32 +25,7 @@ async function SiteList({ workspaceId }: { workspaceId: string }) {
     .where(eq(sites.workspaceId, workspaceId))
     .orderBy(desc(sites.createdAt));
 
-  return (
-    <div className={styles.siteList}>
-      {workspaceSites.length ? (
-        workspaceSites.map((site) => (
-          <section className={styles.siteCard} key={site.id} aria-labelledby={`site-${site.id}`}>
-            <div className={styles.siteHeader}>
-              <div className={styles.siteHeading}>
-                <h2 id={`site-${site.id}`}>{site.name}</h2>
-              </div>
-              <SiteKeyDisplay siteKey={site.siteKey} siteKeyPrefix={site.siteKeyPrefix} />
-            </div>
-            <ul className={styles.domainList} aria-label="Approved website addresses">
-              {site.allowedDomains.map((domain) => (
-                <li key={domain}>{domain}</li>
-              ))}
-            </ul>
-            <SiteControls siteId={site.id} domains={site.allowedDomains} />
-          </section>
-        ))
-      ) : (
-        <div className={styles.empty}>
-          No sites yet. Add your first site above to create a tracking key.
-        </div>
-      )}
-    </div>
-  );
+  return <SiteListView workspaceSites={workspaceSites} />;
 }
 
 export default async function SettingsSitesPage() {

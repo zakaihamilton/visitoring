@@ -18,6 +18,13 @@ const nextConfig: NextConfig = {
         source: "/:path*",
         headers: securityHeaders,
       },
+      // Prevent native form posts from fixture pages even before React hydrates.
+      {
+        source: "/ui-preview",
+        headers: [
+          { key: "Content-Security-Policy", value: "frame-ancestors 'none'; form-action 'none'" },
+        ],
+      },
     ];
   },
 };
