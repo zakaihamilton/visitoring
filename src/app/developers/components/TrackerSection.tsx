@@ -20,6 +20,26 @@ const integrationTabs = [
 
 type IntegrationTab = (typeof integrationTabs)[number]["id"];
 
+
+function CopyableCode({ code }: { code: string }) {
+  const [status, setStatus] = useState<"idle" | "copied" | "error">("idle");
+  async function copy() {
+    try {
+      await navigator.clipboard.writeText(code);
+      setStatus("copied");
+    } catch {
+      setStatus("error");
+    }
+  }
+  return (
+    <div>
+      <button type="button" className="button buttonQuiet" onClick={copy}>Copy code</button>
+      <span role="status">{status === "copied" ? " Copied." : status === "error" ? " Could not copy. Select the code and copy it manually." : ""}</span>
+      <pre className={styles.codeBlock} tabIndex={0} aria-label="Code snippet"><code>{code}</code></pre>
+    </div>
+  );
+}
+
 export function TrackerSection({ numbered = true }: { numbered?: boolean }) {
   const [activeTab, setActiveTab] = useState<IntegrationTab>("standard");
   const tabRefs = useRef<Array<HTMLButtonElement | null>>([]);
@@ -107,9 +127,7 @@ export function TrackerSection({ numbered = true }: { numbered?: boolean }) {
                 Add this snippet to each page you want to measure. Replace the sample key with the
                 tracking key shown in Settings → Sites.
               </p>
-              <pre className={styles.codeBlock}>
-                <code>{trackerSnippet}</code>
-              </pre>
+              <CopyableCode code={trackerSnippet} />
               <p className={styles.note}>
                 If Visitoring has a custom address, replace <code>visitoring.vercel.app</code> too.
               </p>
@@ -129,9 +147,7 @@ export function TrackerSection({ numbered = true }: { numbered?: boolean }) {
                   Visitoring does not automatically redact those values. The deferred tracker must
                   finish loading before this API is called.
                 </p>
-                <pre className={styles.codeBlock}>
-                  <code>{eventSnippet}</code>
-                </pre>
+                <CopyableCode code={eventSnippet} />
               </div>
             )}
           </div>
@@ -167,9 +183,7 @@ export function TrackerSection({ numbered = true }: { numbered?: boolean }) {
                 </Link>
                 .
               </p>
-              <pre className={styles.codeBlock}>
-                <code>npm install visitoring</code>
-              </pre>
+              <CopyableCode code="npm install visitoring" />
             </div>
             <div>
               <div className={styles.integrationPanelHeading}>
@@ -178,16 +192,12 @@ export function TrackerSection({ numbered = true }: { numbered?: boolean }) {
               <p className={styles.note}>
                 For Vite or React Router, put the provider above your app or router:
               </p>
-              <pre className={styles.codeBlock}>
-                <code>{reactRootSnippet}</code>
-              </pre>
+              <CopyableCode code={reactRootSnippet} />
               <p className={styles.note}>
                 For Next.js App Router, put the provider in your root layout and set{" "}
                 <code>NEXT_PUBLIC_VISITORING_SITE_KEY</code> in the environment:
               </p>
-              <pre className={styles.codeBlock}>
-                <code>{nextRootSnippet}</code>
-              </pre>
+              <CopyableCode code={nextRootSnippet} />
             </div>
             {!numbered && (
               <div>
@@ -199,9 +209,7 @@ export function TrackerSection({ numbered = true }: { numbered?: boolean }) {
                   personal or sensitive data in the page path or event properties; Visitoring does
                   not automatically redact those values:
                 </p>
-                <pre className={styles.codeBlock}>
-                  <code>{reactEventSnippet}</code>
-                </pre>
+                <CopyableCode code={reactEventSnippet} />
               </div>
             )}
           </div>
