@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { useRef, useState, type KeyboardEvent } from "react";
+import { type KeyboardEvent, useRef, useState } from "react";
 import { Tooltip } from "@/app/components/Tooltip";
+import styles from "../developers.module.css";
 import { CustomEventsSection } from "./GuideSections";
 import {
   eventSnippet,
@@ -11,7 +12,6 @@ import {
   reactRootSnippet,
   trackerSnippet,
 } from "./tracker-snippets";
-import styles from "../developers.module.css";
 
 const integrationTabs = [
   { id: "standard", label: "Standard website" },
@@ -19,7 +19,6 @@ const integrationTabs = [
 ] as const;
 
 type IntegrationTab = (typeof integrationTabs)[number]["id"];
-
 
 function CopyableCode({ code }: { code: string }) {
   const [status, setStatus] = useState<"idle" | "copied" | "error">("idle");
@@ -33,9 +32,22 @@ function CopyableCode({ code }: { code: string }) {
   }
   return (
     <div>
-      <button type="button" className="button buttonQuiet" onClick={copy}>Copy code</button>
-      <span role="status">{status === "copied" ? " Copied." : status === "error" ? " Could not copy. Select the code and copy it manually." : ""}</span>
-      <pre className={styles.codeBlock} tabIndex={0} aria-label="Code snippet"><code>{code}</code></pre>
+      <button type="button" className="button buttonQuiet" onClick={copy}>
+        Copy code
+      </button>
+      <span role="status">
+        {status === "copied"
+          ? " Copied."
+          : status === "error"
+            ? " Could not copy. Select the code and copy it manually."
+            : ""}
+      </span>
+      {/* eslint-disable jsx-a11y/no-noninteractive-tabindex -- Keyboard scrolling */}
+      {/* biome-ignore lint/a11y/noNoninteractiveTabindex: Keyboard users need to scroll long snippets. */}
+      <pre className={styles.codeBlock} tabIndex={0}>
+        <code>{code}</code>
+      </pre>
+      {/* eslint-enable jsx-a11y/no-noninteractive-tabindex */}
     </div>
   );
 }
