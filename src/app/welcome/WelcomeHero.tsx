@@ -22,7 +22,7 @@ export function WelcomeHero() {
         <div className={styles.heroActions}>
           <DashboardSignInLink className={`button buttonPrimary ${styles.heroPrimary}`} />
           <Link href="/developers" className={styles.heroSecondary}>
-            See how it works <span aria-hidden="true">↓</span>
+            See how it works <span aria-hidden="true">↗</span>
           </Link>
         </div>
         <ul className={styles.topics}>

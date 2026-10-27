@@ -76,7 +76,8 @@ export default async function LoginPage({ searchParams }: Props) {
             </button>
           </form>
           <p className={styles.foot}>
-            Need access? Ask your project administrator to create an account.
+            Need access or forgot your password? Ask your project administrator to create your
+            account or reset your password.
           </p>
         </div>
       </section>

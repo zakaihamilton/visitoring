@@ -121,7 +121,8 @@ export function TrackerSection({ numbered = true }: { numbered?: boolean }) {
             <p className={styles.note}>
               Call this from the success handler after your app confirms the action. Do not include
               personal or sensitive data in the page path or event properties; Visitoring does not
-              automatically redact those values.
+              automatically redact those values. The deferred tracker must finish loading before
+              this API is called.
             </p>
             <pre className={styles.codeBlock}>
               <code>{eventSnippet}</code>
@@ -187,7 +188,9 @@ export function TrackerSection({ numbered = true }: { numbered?: boolean }) {
               <h3>Track an action</h3>
             </div>
             <p className={styles.note}>
-              Use the hook from a client component after an action succeeds:
+              Use the hook from a client component after an action succeeds. Do not include personal
+              or sensitive data in the page path or event properties; Visitoring does not
+              automatically redact those values:
             </p>
             <pre className={styles.codeBlock}>
               <code>{reactEventSnippet}</code>

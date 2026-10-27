@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { Tooltip } from "@/app/components/Tooltip";
-import { eventSnippet } from "./tracker-snippets";
 import styles from "../developers.module.css";
 
 export function SiteSetupSection() {
@@ -55,15 +54,11 @@ export function CustomEventsSection() {
           <p>Send a custom event when someone completes an important action.</p>
         </div>
       </div>
-      <pre className={styles.codeBlock}>
-        <code>{eventSnippet}</code>
-      </pre>
       <p className={styles.note}>
-        Use this as your signup-success handler and call it only after your app confirms the signup.
-        The tracker uses <code>defer</code>, so it is available for normal user actions after page
-        parsing finishes. Choose your own event name and details to compare activity later. Avoid
-        names, email addresses, account IDs, or other personal data. Use broad values such as plan
-        type.
+        Choose your website type in <a href="#tracker">Add the tracker</a> for the matching custom
+        event example. Send the event only after your app confirms the action. Choose your own event
+        name and details to compare activity later. Avoid names, email addresses, account IDs, or
+        other personal data. Use broad values such as plan type.
       </p>
     </section>
   );
