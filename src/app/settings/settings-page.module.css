@@ -250,6 +250,10 @@
   .page {
     padding: 30px 18px 60px;
   }
+  .cardHeading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
   .formGrid,
   .domainForm {
     grid-template-columns: 1fr;
