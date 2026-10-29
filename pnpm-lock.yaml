@@ -11,9 +11,6 @@ importers:
       '@neon/config':
         specifier: ^1.8.3
         version: 1.8.3
-      '@zakaihamilton/ui-preview-kit':
-        specifier: github:zakaihamilton/ui-preview-kit#v0.1.1
-        version: https://codeload.github.com/zakaihamilton/ui-preview-kit/tar.gz/e7c65cdedd160b20ffc2c742345de69a117cb818(react@19.3.0)
       bowser:
         specifier: ^2.11.0
         version: 2.14.1
@@ -41,6 +38,9 @@ importers:
       server-only:
         specifier: ^0.0.1
         version: 0.0.1
+      ui-preview-kit:
+        specifier: ^0.1.2
+        version: 0.1.2(react@19.3.0)
       zod:
         specifier: ^4.1.12
         version: 4.6.5
@@ -1451,13 +1451,6 @@ packages:
 
   '@vitest/utils@4.1.11':
     resolution: {integrity: sha512-zTCVGpyFsGWBhllOyKlTw/vnr6D9qxsfSDyfbyZmTyjHw5N/VuvzHpHoQjm2ZJzn4RJgx5w4r7V0er69CmLgPQ==}
-
-  '@zakaihamilton/ui-preview-kit@https://codeload.github.com/zakaihamilton/ui-preview-kit/tar.gz/e7c65cdedd160b20ffc2c742345de69a117cb818':
-    resolution: {tarball: https://codeload.github.com/zakaihamilton/ui-preview-kit/tar.gz/e7c65cdedd160b20ffc2c742345de69a117cb818}
-    version: 0.1.1
-    hasBin: true
-    peerDependencies:
-      react: '>=19.0.0 <20'
 
   acorn-jsx@5.3.2:
     resolution: {integrity: sha512-rq9s+JNhf0IChjtDXxllJ7g41oZk5SlXtp0LHwyA5cejwn7vKmKp4pPri6YEePv2PU65sAsegbXtIinmDFDXgQ==}
@@ -3405,6 +3398,12 @@ packages:
     engines: {node: '>=14.17'}
     hasBin: true
 
+  ui-preview-kit@0.1.2:
+    resolution: {integrity: sha512-Vz1+jFyr3kwphrw5/yXuqHNe2Vp1rIXgoxgHwxPTwL2Y02Z3s90dg63F5Nx6L2QJ1avf2nOogGQgYFrIb3LqXQ==}
+    hasBin: true
+    peerDependencies:
+      react: '>=19.0.0 <20'
+
   unbash@2.2.0:
     resolution: {integrity: sha512-X2wH19RAPZE3+ldGicOkoj/SIA83OIxcJ6Cuaw23hf8Xc6fQpvZXY0SftE2JgS0QhYLUG4uwodSI3R53keyh7w==}
     engines: {node: '>=14'}
@@ -4582,10 +4581,6 @@ snapshots:
       '@vitest/pretty-format': 4.1.11
       convert-source-map: 2.0.0
       tinyrainbow: 3.2.0
-
-  '@zakaihamilton/ui-preview-kit@https://codeload.github.com/zakaihamilton/ui-preview-kit/tar.gz/e7c65cdedd160b20ffc2c742345de69a117cb818(react@19.3.0)':
-    dependencies:
-      react: 19.3.0
 
   acorn-jsx@5.3.2(acorn@8.19.0):
     dependencies:
@@ -6736,6 +6731,10 @@ snapshots:
       reflect.getprototypeof: 1.0.10
 
   typescript@5.9.3: {}
+
+  ui-preview-kit@0.1.2(react@19.3.0):
+    dependencies:
+      react: 19.3.0
 
   unbash@2.2.0: {}
 

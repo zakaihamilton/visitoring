@@ -18,7 +18,7 @@ import { UserList } from "@/app/settings/users/components/UserList";
 import { UsersManager } from "@/app/settings/users/UsersManager";
 import { type Scenario, scenarios, sites } from "./fixtures";
 import { PreviewGuard } from "./PreviewGuard";
-import { PreviewDropdown, PreviewToolbar } from "@zakaihamilton/ui-preview-kit";
+import { PreviewDropdown, PreviewToolbar } from "ui-preview-kit";
 
 const previewScreens = [
   "traffic",
