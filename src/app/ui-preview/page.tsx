@@ -18,6 +18,18 @@ import { UserList } from "@/app/settings/users/components/UserList";
 import { UsersManager } from "@/app/settings/users/UsersManager";
 import { type Scenario, scenarios, sites } from "./fixtures";
 import { PreviewGuard } from "./PreviewGuard";
+import { PreviewDropdown, PreviewToolbar } from "@zakaihamilton/ui-preview-kit";
+
+const previewScreens = [
+  "traffic",
+  "events",
+  "chart",
+  "settings",
+  "settings-users",
+  "settings-setup",
+  "projects",
+  "project-admin",
+] as const;
 
 export default async function Preview({
   searchParams,
@@ -26,18 +38,7 @@ export default async function Preview({
 }) {
   if (process.env.NODE_ENV !== "development") notFound();
   const { scenario, screen: requestedScreen } = await searchParams;
-  const screen = [
-    "traffic",
-    "events",
-    "chart",
-    "settings",
-    "settings-users",
-    "settings-setup",
-    "projects",
-    "project-admin",
-  ].includes(requestedScreen ?? "")
-    ? requestedScreen
-    : "traffic";
+  const screen = previewScreens.find((item) => item === requestedScreen) ?? "traffic";
   const selected: Scenario =
     scenario && Object.hasOwn(scenarios, scenario) ? (scenario as Scenario) : "populated";
   const fixture = scenarios[selected];
@@ -104,63 +105,38 @@ export default async function Preview({
   };
   return (
     <>
-      <header style={{ padding: "16px 24px", background: "#173b37", color: "white" }}>
-        <strong>UI preview · synthetic data</strong>
-        <p style={{ margin: "6px 0" }}>
-          Application links and form submissions are disabled. Local controls remain interactive.
-        </p>
-        <p style={{ margin: "6px 0" }}>
-          Public pages:{" "}
-          <Link href="/" style={{ color: "white" }}>
-            Home
-          </Link>
-          {" · "}
-          <Link href="/developers" style={{ color: "white" }}>
-            Developer guide
-          </Link>
-          {" · "}
-          <Link href="/login" style={{ color: "white" }}>
-            Sign in
-          </Link>{" "}
-          (these leave the sandbox).
-        </p>
-        <nav aria-label="Preview screens" style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
-          {[
-            "traffic",
-            "events",
-            "chart",
-            "settings",
-            "settings-users",
-            "settings-setup",
-            "projects",
-            "project-admin",
-          ].map((item) => (
-            <Link
-              key={item}
-              href={`/ui-preview?screen=${item}&scenario=${selected}`}
-              aria-current={screen === item ? "page" : undefined}
-              style={{ color: "white" }}
-            >
-              {item}
-            </Link>
-          ))}
-        </nav>
-        <nav
-          aria-label="Preview scenarios"
-          style={{ display: "flex", gap: "16px", flexWrap: "wrap" }}
-        >
-          {Object.entries(scenarios).map(([key, value]) => (
-            <Link
-              key={key}
-              href={`/ui-preview?screen=${screen}&scenario=${key}`}
-              aria-current={selected === key ? "page" : undefined}
-              style={{ color: "white", fontWeight: selected === key ? 700 : 400 }}
-            >
-              {value.label}
-            </Link>
-          ))}
-        </nav>
-      </header>
+      <PreviewToolbar
+        subtitle="Synthetic data · local preview"
+        note="Application links and form submissions are disabled. Local controls remain interactive."
+        utilitiesLabel="Public pages"
+        utilities={
+          <>
+            <span>Open</span>
+            <Link href="/">Home</Link>
+            <Link href="/developers">Developer guide</Link>
+            <Link href="/login">Sign in</Link>
+          </>
+        }
+      >
+        <PreviewDropdown
+          label="Screen"
+          value={screen}
+          options={previewScreens.map((item) => ({
+            value: item,
+            label: item.replace(/-/g, " ").replace(/\b\w/g, (letter) => letter.toUpperCase()),
+            href: "/ui-preview?screen=" + encodeURIComponent(item) + "&scenario=" + selected,
+          }))}
+        />
+        <PreviewDropdown
+          label="Scenario"
+          value={selected}
+          options={Object.entries(scenarios).map(([key, item]) => ({
+            value: key,
+            label: item.label,
+            href: "/ui-preview?screen=" + encodeURIComponent(screen) + "&scenario=" + key,
+          }))}
+        />
+      </PreviewToolbar>
       <PreviewGuard>
         {screen !== "projects" && (
           <Topbar
