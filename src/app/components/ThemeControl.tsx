@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState, type ChangeEvent } from "react";
+import { useEffect, useState } from "react";
+import { DropdownSelect } from "./DropdownSelect";
 import styles from "./theme-control.module.css";
 import {
   applyThemePreference,
@@ -36,8 +37,7 @@ export function ThemeControl() {
     return () => window.removeEventListener("storage", syncPreference);
   }, []);
 
-  function handleChange(event: ChangeEvent<HTMLSelectElement>) {
-    const value = event.currentTarget.value;
+  function handleChange(value: string) {
     if (!isThemePreference(value)) return;
 
     setPreference(value);
@@ -50,15 +50,17 @@ export function ThemeControl() {
   }
 
   return (
-    <label className={styles.control}>
-      <span>Theme</span>
-      <select aria-label="Color theme" value={preference} onChange={handleChange}>
-        {THEME_PREFERENCES.map((value) => (
-          <option key={value} value={value}>
-            {themeLabels[value]}
-          </option>
-        ))}
-      </select>
-    </label>
+    <div className={styles.control}>
+      <label htmlFor="color-theme">Theme</label>
+      <DropdownSelect
+        id="color-theme"
+        name="colorTheme"
+        aria-label="Color theme"
+        options={THEME_PREFERENCES.map((value) => ({ value, label: themeLabels[value] }))}
+        value={preference}
+        onValueChange={handleChange}
+        compact
+      />
+    </div>
   );
 }

@@ -5,6 +5,11 @@
   min-width: 0;
 }
 
+.control.compact {
+  display: inline-block;
+  width: auto;
+}
+
 .trigger,
 .comboboxInput {
   width: 100%;
@@ -30,6 +35,12 @@
     border-color 160ms ease,
     background 160ms ease,
     box-shadow 160ms ease;
+}
+
+.compact .trigger {
+  width: 110px;
+  min-height: 34px;
+  padding: 6px 14px 6px 9px;
 }
 
 .trigger:hover:not(:disabled),
@@ -101,6 +112,14 @@
 @media (prefers-reduced-motion: reduce) {
   .chevron {
     transition: none;
+  }
+}
+
+@media (max-width: 420px) {
+  .compact .trigger {
+    width: 96px;
+    padding-right: 14px;
+    padding-left: 8px;
   }
 }
 

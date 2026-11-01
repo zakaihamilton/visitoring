@@ -19,6 +19,7 @@ type Props = {
   defaultValue?: string;
   onValueChange?: (value: string) => void;
   disabled?: boolean;
+  compact?: boolean;
   "aria-label"?: string;
 };
 
@@ -30,6 +31,7 @@ export function DropdownSelect({
   defaultValue,
   onValueChange,
   disabled = false,
+  compact = false,
   "aria-label": ariaLabel,
 }: Props) {
   const listboxId = `${id}-options`;
@@ -167,7 +169,7 @@ export function DropdownSelect({
   }
 
   return (
-    <span className={styles.control} ref={containerRef}>
+    <span className={`${styles.control} ${compact ? styles.compact : ""}`} ref={containerRef}>
       <input type="hidden" name={name} value={resolvedValue} />
       <button
         ref={triggerRef}
