@@ -2,8 +2,8 @@
   max-width: 1440px;
   padding: 42px clamp(18px, 5vw, 68px) 46px;
   margin: 0 auto;
-  --dashboard-shadow: 0 4px 18px rgb(16 42 34 / 4%);
-  --dashboard-shadow-raised: 0 8px 24px rgb(16 42 34 / 8%);
+  --dashboard-shadow: 0 4px 18px light-dark(rgb(16 42 34 / 4%), rgb(213 239 231 / 4%));
+  --dashboard-shadow-raised: 0 8px 24px light-dark(rgb(16 42 34 / 8%), rgb(213 239 231 / 8%));
 }
 .heading {
   display: flex;
@@ -684,10 +684,10 @@
   transition: opacity 180ms ease;
 }
 .changeUp {
-  color: #236b51;
+  color: var(--trend-up);
 }
 .changeDown {
-  color: #a13e42;
+  color: var(--trend-down);
 }
 .changeNeutral {
   color: var(--muted);
@@ -702,7 +702,7 @@
 }
 .dateShortcuts a:hover {
   border-color: var(--accent);
-  box-shadow: 0 2px 8px rgb(16 42 34 / 6%);
+  box-shadow: 0 2px 8px light-dark(rgb(16 42 34 / 6%), rgb(213 239 231 / 6%));
 }
 .dateShortcuts a:focus-visible,
 .tableToggle:focus-visible,
@@ -750,14 +750,6 @@
   }
   to {
     transform: scaleX(1);
-  }
-}
-@media (prefers-color-scheme: dark) {
-  .changeUp {
-    color: #79d8b1;
-  }
-  .changeDown {
-    color: #f0a0a4;
   }
 }
 @media (prefers-reduced-motion: reduce) {
@@ -995,7 +987,7 @@
 }
 
 .dateError {
-  color: var(--danger, #a62b32);
+  color: var(--danger, light-dark(#a62b32, #d45960));
   margin: 0 0 14px;
 }
 

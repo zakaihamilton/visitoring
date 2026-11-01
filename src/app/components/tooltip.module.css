@@ -5,10 +5,10 @@
   display: inline-grid;
   place-items: center;
   padding: 0;
-  border: 1px solid #d7e4dc;
+  border: 1px solid light-dark(#d7e4dc, #1b2820);
   border-radius: 50%;
-  color: #376d5a;
-  background: #eff6f1;
+  color: light-dark(#376d5a, #92c8b5);
+  background: light-dark(#eff6f1, #09100b);
   font: inherit;
   font-size: var(--type-compact);
   font-weight: 750;
@@ -17,12 +17,12 @@
   vertical-align: middle;
 }
 .helpButton:hover {
-  color: #174d3d;
-  background: #e2f0e7;
+  color: light-dark(#174d3d, #b2e8d8);
+  background: light-dark(#e2f0e7, #0f1d14);
 }
 .helpButton:focus-visible,
 .target:focus-visible {
-  outline: 3px solid #65a88c;
+  outline: 3px solid light-dark(#65a88c, #579a7e);
   outline-offset: 3px;
 }
 .target {
@@ -37,11 +37,11 @@
   max-height: calc(100vh - 16px);
   overflow: auto;
   padding: 12px 14px;
-  border: 1px solid #d5e1da;
+  border: 1px solid light-dark(#d5e1da, #1e2a23);
   border-radius: 9px;
-  color: #f7fbf7;
-  background: #173638;
-  box-shadow: 0 8px 24px #10252b2b;
+  color: light-dark(#f7fbf7, #040804);
+  background: light-dark(#173638, #c7e6e8);
+  box-shadow: 0 8px 24px light-dark(#10252b2b, #d4e9ef2b);
   font-size: var(--type-body);
   font-weight: 500;
   line-height: 1.45;

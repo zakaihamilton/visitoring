@@ -73,8 +73,8 @@
   width: 28px;
   height: 28px;
   border-radius: 50%;
-  background: #d9e9e1;
-  color: #2d6254;
+  background: var(--surface-subtle);
+  color: var(--accent);
   display: grid;
   place-items: center;
   font-size: var(--type-compact);
@@ -87,6 +87,19 @@
 }
 .logout:hover {
   color: var(--ink);
+}
+@media (max-width: 1060px) {
+  .header {
+    flex-wrap: wrap;
+    gap: 10px 16px;
+    padding: 12px 24px;
+  }
+  .nav {
+    order: 3;
+    width: 100%;
+    border-top: 1px solid var(--line);
+    padding-top: 4px;
+  }
 }
 @media (max-width: 760px) {
   .header {

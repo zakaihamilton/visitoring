@@ -1,7 +1,9 @@
 .page {
   min-height: 100vh;
   padding: 28px clamp(20px, 6vw, 84px) 72px;
-  background: radial-gradient(circle at 86% 12%, #dcece4 0, transparent 24rem), var(--background);
+  background:
+    radial-gradient(circle at 86% 12%, light-dark(#dcece4, #13231b) 0, transparent 24rem),
+    var(--background);
 }
 .header {
   display: flex;
@@ -79,7 +81,7 @@
   border-radius: 16px;
   color: var(--ink);
   background: var(--surface);
-  box-shadow: 0 8px 24px rgb(29 61 52 / 5%);
+  box-shadow: 0 8px 24px light-dark(rgb(29 61 52 / 5%), rgb(194 226 217 / 5%));
   text-align: left;
   cursor: pointer;
   transition:
@@ -88,8 +90,8 @@
     transform 160ms ease;
 }
 .card:hover {
-  border-color: #9fc9b3;
-  box-shadow: 0 14px 30px rgb(29 61 52 / 10%);
+  border-color: light-dark(#9fc9b3, #36604a);
+  box-shadow: 0 14px 30px light-dark(rgb(29 61 52 / 10%), rgb(194 226 217 / 10%));
   transform: translateY(-2px);
 }
 .cardTop,
@@ -104,17 +106,17 @@
   display: grid;
   place-items: center;
   border-radius: 12px;
-  color: #276c59;
-  background: #e5f2eb;
+  color: light-dark(#276c59, #93d8c5);
+  background: light-dark(#e5f2eb, #0d1a13);
   font-size: 1.1rem;
   font-weight: 750;
 }
 .role {
   padding: 5px 9px;
-  border: 1px solid #dcebe1;
+  border: 1px solid light-dark(#dcebe1, #142319);
   border-radius: 999px;
-  color: #4c7162;
-  background: #f5faf6;
+  color: light-dark(#4c7162, #8eb3a4);
+  background: light-dark(#f5faf6, #050a06);
   font-size: 0.75rem;
   font-weight: 700;
   text-transform: capitalize;
@@ -129,7 +131,7 @@
 .cardBottom {
   margin-top: auto;
   padding-top: 21px;
-  color: #4b7968;
+  color: light-dark(#4b7968, #86b4a3);
   font-size: var(--type-compact);
   font-weight: 650;
 }
@@ -137,8 +139,8 @@
   margin: 22px 0 0;
   padding: 12px 14px;
   border-radius: 10px;
-  color: #953e39;
-  background: #fff0ee;
+  color: var(--danger-ink);
+  background: var(--danger-surface);
   font-size: var(--type-compact);
 }
 .empty {
@@ -164,8 +166,8 @@
   padding: 24px;
   border: 1px solid var(--line);
   border-radius: 18px;
-  background: rgb(255 255 255 / 82%);
-  box-shadow: 0 10px 32px rgb(29 61 52 / 5%);
+  background: light-dark(rgb(255 255 255 / 82%), rgb(0 0 0 / 82%));
+  box-shadow: 0 10px 32px light-dark(rgb(29 61 52 / 5%), rgb(194 226 217 / 5%));
 }
 .managerHeading h1 {
   margin: 8px 0 0;
@@ -190,7 +192,7 @@
 .createProjectForm > div {
   display: grid;
   gap: 7px;
-  color: #536365;
+  color: light-dark(#536365, #9aaaac);
   font-size: var(--type-compact);
 }
 .createProjectForm input {
@@ -220,7 +222,7 @@
   padding: 13px 14px;
   border: 1px solid var(--line);
   border-radius: 12px;
-  background: #fff;
+  background: light-dark(#fff, #000000);
 }
 .managedProject > div:first-child {
   display: grid;
@@ -264,12 +266,12 @@
   line-height: 1.5;
 }
 .actionError {
-  color: #953e39;
-  background: #fff0ee;
+  color: var(--danger-ink);
+  background: var(--danger-surface);
 }
 .actionSuccess {
-  color: #155f4d;
-  background: #e6f7f1;
+  color: var(--success-ink);
+  background: var(--success-surface);
 }
 .confirmDialog h3 {
   margin: 0 0 10px;
@@ -278,7 +280,7 @@
 }
 .confirmDialog p {
   margin: 0;
-  color: #617171;
+  color: light-dark(#617171, #8e9e9e);
   font-size: var(--type-body);
   line-height: 1.5;
 }
@@ -293,17 +295,17 @@
   padding: 13px 14px;
   border: 1px dashed var(--line);
   border-radius: 12px;
-  background: #fbfcfa;
+  background: light-dark(#fbfcfa, #040503);
 }
 .loadingCard {
   cursor: default;
 }
 .loadingCard:hover {
   border-color: var(--line);
-  box-shadow: 0 8px 24px rgb(29 61 52 / 5%);
+  box-shadow: 0 8px 24px light-dark(rgb(29 61 52 / 5%), rgb(194 226 217 / 5%));
   transform: none;
 }
-@media (max-width: 600px) {
+@media (max-width: 760px) {
   .page {
     padding: 20px 18px 56px;
   }

@@ -80,7 +80,7 @@
 }
 
 .activeOption {
-  background: #edf5f0;
+  background: light-dark(#edf5f0, #0a120d);
 }
 
 .screenReaderOnly {

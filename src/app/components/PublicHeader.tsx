@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { BrandIcon } from "./BrandIcon";
+import { ThemeControl } from "./ThemeControl";
 import styles from "./public-header.module.css";
 
 export function PublicHeader({ page }: { page: "welcome" | "developers" }) {
@@ -15,6 +16,7 @@ export function PublicHeader({ page }: { page: "welcome" | "developers" }) {
         <span>Visitoring</span>
       </Link>
       <nav className={styles.nav} aria-label="Main navigation">
+        <ThemeControl />
         <Link href={secondaryLink.href} className="button buttonQuiet">
           {secondaryLink.label}
         </Link>

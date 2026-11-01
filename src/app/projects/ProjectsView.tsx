@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { BrandIcon } from "@/app/components/BrandIcon";
 import { OrganizationSwitcher } from "@/app/components/OrganizationSwitcher";
+import { ThemeControl } from "@/app/components/ThemeControl";
 import { logoutAction } from "@/app/login/actions";
 import { selectOrganizationAction } from "@/app/organizations/actions";
 import type { requireOrganizationWorkspaces } from "@/lib/auth";
@@ -16,6 +17,7 @@ function ProjectsHeader({ children }: { children?: ReactNode }) {
         <span>Visitoring</span>
       </Link>
       <div className={styles.account}>
+        <ThemeControl />
         {children}
         <form action={logoutAction}>
           <button type="submit" className="button buttonQuiet">

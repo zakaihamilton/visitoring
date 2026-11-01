@@ -1,12 +1,31 @@
 :root {
-  color-scheme: light;
-  --background: #f5f7f4;
-  --surface: #fff;
-  --ink: #173638;
-  --ink-soft: #2e4b4b;
-  --muted: #5f7070;
-  --line: #e4eae5;
-  --accent: #286b56;
+  color-scheme: light dark;
+  --background: light-dark(#f5f7f4, #0d1615);
+  --surface: light-dark(#fff, #14201e);
+  --surface-subtle: light-dark(#f0f5f1, #1a2926);
+  --ink: light-dark(#173638, #e6f1ed);
+  --ink-soft: light-dark(#2e4b4b, #b2c9c2);
+  --muted: light-dark(#5f7070, #839d96);
+  --line: light-dark(#e4eae5, #223733);
+  --accent: light-dark(#286b56, #48bb95);
+  --accent-strong: light-dark(#28745f, #48bb95);
+  --accent-hover: light-dark(#1e624f, #65cfa6);
+  --accent-on: light-dark(#fff, #07261b);
+  --success-ink: light-dark(#155f4d, #8ed4ae);
+  --success-surface: light-dark(#e6f7f1, #15342b);
+  --danger-ink: light-dark(#953e39, #f0a0a4);
+  --danger-surface: light-dark(#fff0ee, #3a201f);
+  --warning-ink: light-dark(#746844, #efd38f);
+  --warning-surface: light-dark(#f5f1e5, #352d1b);
+  --trend-up: light-dark(#236b51, #79d8b1);
+  --trend-down: light-dark(#a13e42, #f0a0a4);
+  --shadow-dialog: 0 24px 72px light-dark(rgb(16 37 43 / 23%), rgb(0 0 0 / 55%));
+  --backdrop: light-dark(rgb(16 37 43 / 50%), rgb(0 0 0 / 70%));
+  --hero-background: light-dark(#d9f0e3, #0e292b);
+  --hero-background-end: light-dark(#e6f2e9, #133638);
+  --hero-foreground: light-dark(#173638, #f8fbf6);
+  --hero-muted: light-dark(#31554c, #c4d6d0);
+  --hero-accent: light-dark(#286b56, #a3d7c0);
   --type-compact: 0.875rem;
   --type-section-label: 1rem;
   --type-body: 1.0625rem;
@@ -21,17 +40,16 @@
   --public-hero-action-padding: 12px 17px;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    color-scheme: dark;
-    --background: #0d1615;
-    --surface: #14201e;
-    --ink: #e6f1ed;
-    --ink-soft: #b2c9c2;
-    --muted: #839d96;
-    --line: #223733;
-    --accent: #48bb95;
-  }
+:root[data-theme="light"] {
+  color-scheme: light;
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+}
+
+:root[data-theme="system"] {
+  color-scheme: light dark;
 }
 
 @media (max-width: 1000px) {
@@ -73,10 +91,10 @@ body {
   border-radius: 16px;
   color: var(--ink);
   background: var(--surface);
-  box-shadow: 0 24px 72px #10252b3b;
+  box-shadow: var(--shadow-dialog);
 }
 .confirmationDialogSurface::backdrop {
-  background: #10252b80;
+  background: var(--backdrop);
   backdrop-filter: blur(2px);
 }
 h1,
@@ -119,7 +137,7 @@ summary:focus-visible {
   object-fit: contain;
 }
 .eyebrow {
-  color: #326d5a;
+  color: var(--accent);
   text-transform: uppercase;
   font-size: var(--type-section-label);
   font-weight: 700;
@@ -145,12 +163,12 @@ summary:focus-visible {
   cursor: wait;
 }
 .buttonPrimary {
-  color: #fff;
-  background: #28745f;
-  box-shadow: 0 4px 10px #28745f20;
+  color: var(--accent-on);
+  background: var(--accent-strong);
+  box-shadow: 0 4px 10px color-mix(in srgb, var(--accent-strong) 20%, transparent);
 }
 .buttonPrimary:hover:not(:disabled) {
-  background: #1e624f;
+  background: var(--accent-hover);
 }
 .buttonQuiet {
   color: var(--accent);
@@ -161,12 +179,12 @@ summary:focus-visible {
   background: color-mix(in srgb, var(--accent) 20%, var(--surface));
 }
 .buttonDanger {
-  color: #9b4b42;
-  background: #fff4f1;
-  border-color: #f2ded9;
+  color: var(--danger-ink);
+  background: var(--danger-surface);
+  border-color: color-mix(in srgb, var(--danger-ink) 22%, var(--line));
 }
 .buttonDanger:hover:not(:disabled) {
-  background: #ffebe5;
+  background: color-mix(in srgb, var(--danger-ink) 10%, var(--danger-surface));
 }
 .emptyState {
   max-width: 620px;

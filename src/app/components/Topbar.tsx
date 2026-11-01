@@ -7,6 +7,7 @@ import type { WorkspaceChoice } from "./workspace-switcher/useWorkspaceSwitcher"
 import { BrandIcon } from "./BrandIcon";
 import { OrganizationSwitcher } from "./OrganizationSwitcher";
 import { WorkspaceSwitcher } from "./WorkspaceSwitcher";
+import { ThemeControl } from "./ThemeControl";
 import styles from "./topbar.module.css";
 
 export function Topbar({
@@ -67,6 +68,7 @@ export function Topbar({
         ) : null}
       </nav>
       <div className={styles.account}>
+        <ThemeControl />
         <span className={styles.avatar}>{user.email?.charAt(0).toUpperCase() ?? "V"}</span>
         <span className={styles.email}>{user.email ?? "Visitoring account"}</span>
         <form action={logoutAction}>

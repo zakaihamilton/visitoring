@@ -36,12 +36,12 @@
 .trigger[aria-expanded="true"] {
   border-color: color-mix(in srgb, var(--accent) 35%, var(--line));
   background: color-mix(in srgb, var(--accent) 4%, var(--surface));
-  box-shadow: 0 2px 6px rgb(16 42 34 / 4%);
+  box-shadow: 0 2px 6px light-dark(rgb(16 42 34 / 4%), rgb(213 239 231 / 4%));
 }
 
 .trigger:disabled {
-  color: #758382;
-  background: #f4f6f4;
+  color: light-dark(#758382, #7c8a89);
+  background: light-dark(#f4f6f4, #090b09);
   cursor: not-allowed;
 }
 
@@ -57,7 +57,7 @@
   width: 14px;
   height: 14px;
   flex: 0 0 auto;
-  color: #536768;
+  color: light-dark(#536768, #97abac);
   pointer-events: none;
   transition: transform 160ms ease;
 }
@@ -89,7 +89,7 @@
 }
 
 .options > :disabled {
-  color: #879290;
+  color: light-dark(#879290, #6d7876);
   cursor: not-allowed;
 }
 

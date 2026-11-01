@@ -1,6 +1,6 @@
 .navShell {
   border-bottom: 1px solid var(--line);
-  background: #fff;
+  background: light-dark(#fff, #000000);
 }
 .navInner {
   max-width: 1200px;
@@ -12,7 +12,7 @@
   gap: 28px;
 }
 .navLabel {
-  color: #5f7070;
+  color: light-dark(#5f7070, #8fa0a0);
   font-size: var(--type-compact);
   font-weight: 700;
   letter-spacing: 0.09em;
@@ -29,7 +29,7 @@
   display: inline-flex;
   align-items: center;
   padding: 0 13px;
-  color: #667475;
+  color: light-dark(#667475, #8a9899);
   text-decoration: none;
   font-size: var(--type-compact);
   font-weight: 620;
@@ -38,7 +38,7 @@
   color: var(--ink);
 }
 .nav a[aria-current="page"] {
-  color: #1e624f;
+  color: light-dark(#1e624f, #9de1ce);
 }
 .nav a[aria-current="page"]::after {
   content: "";
@@ -48,7 +48,7 @@
   left: 10px;
   height: 2px;
   border-radius: 2px 2px 0 0;
-  background: #348b72;
+  background: light-dark(#348b72, #74cbb2);
 }
 @media (max-width: 760px) {
   .navLabel {

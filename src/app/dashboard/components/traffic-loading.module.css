@@ -134,7 +134,7 @@
     border: 1px solid var(--line);
     border-radius: 12px;
     background: var(--surface);
-    box-shadow: 0 3px 12px rgb(16 42 34 / 3%);
+    box-shadow: 0 3px 12px light-dark(rgb(16 42 34 / 3%), rgb(213 239 231 / 3%));
   }
   .dataTable {
     overflow: hidden;

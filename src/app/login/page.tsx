@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { loginAction } from "./actions";
 import { BrandIcon } from "@/app/components/BrandIcon";
+import { ThemeControl } from "@/app/components/ThemeControl";
 import { perministerRecoveryUrl } from "@/lib/perminister-origin";
 import styles from "./login.module.css";
 
@@ -31,7 +32,10 @@ export default async function LoginPage({ searchParams }: Props) {
       </section>
       <section className={styles.formSide}>
         <div className={styles.form}>
-          <div className="eyebrow">Welcome back</div>
+          <div className={styles.formIntro}>
+            <div className="eyebrow">Welcome back</div>
+            <ThemeControl />
+          </div>
           <h2>Sign in to Visitoring</h2>
           <p className={styles.sub}>Sign in with your account to open your Visitoring projects.</p>
           <form action="/auth/perminister/start" method="get" className={styles.ssoForm}>
