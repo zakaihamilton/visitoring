@@ -31,7 +31,13 @@ The Compose database listens on host port `5433` to avoid colliding with a local
 
 Open [http://localhost:3000](http://localhost:3000). For local testing, add `localhost:3000` to the site's website addresses.
 
-The required local variables are `DATABASE_URL` and the Perminister app client settings in `.env`. Deployed environments must set `RATE_LIMIT_SECRET` to a random value containing at least 32 UTF-8 bytes; production readiness fails if it is missing or too short. `COLLECTOR_RATE_LIMIT_MAX_EVENTS` optionally changes the per-site/IP cap for each 15-minute window; it defaults to `120` and must be a positive integer. Production deployments must set `TRUST_PROXY_HEADERS=true` and expose the app only through a trusted reverse proxy that overwrites `x-real-ip` or `x-forwarded-for` with a single client IP. Without that setting, Visitoring ignores forwarded headers and the ready endpoint returns 503. Vercel deployments also need `CRON_SECRET` for the protected daily retention job. `GEOIP_DB_PATH` is optional. Do not commit `.env` or a GeoIP database.
+The required local variables are `DATABASE_URL` and the Perminister app client settings in `.env`. Deployed environments must set `RATE_LIMIT_SECRET` to a random value containing at least 32 UTF-8 bytes; production readiness fails if it is missing or too short. `COLLECTOR_RATE_LIMIT_MAX_EVENTS` optionally changes the per-site/IP cap for each 15-minute window; it defaults to `120` and must be a positive integer. Production deployments must set `TRUST_PROXY_HEADERS=true` and expose the app only through a trusted reverse proxy that overwrites `x-real-ip` or `x-forwarded-for` with a single client IP. Without that setting, Visitoring ignores forwarded headers and the ready endpoint returns 503. Vercel deployments also need `CRON_SECRET` for the protected daily retention job.
+
+The production app uses `DATABASE_URL` for runtime queries. The migration runner uses
+`MIGRATION_DATABASE_URL` when set and otherwise falls back to `DATABASE_URL`. When using Nanogres,
+set the migration URL to its session-pooling endpoint and set `MIGRATION_DATABASE_ROLE` to the
+owner role shown in Nanogres' migration connection snippet. The runner assumes that role only for
+the migration session; keep these credentials separate from the runtime database URL. `GEOIP_DB_PATH` is optional. Do not commit `.env` or a GeoIP database.
 
 Visitoring uses Perminister for identities, passwords, sessions, and workspace access in every environment. Configure a Visitoring product app client for production and a separate client for local development. The setup and workspace bootstrap steps are in [the Perminister guide](docs/perminister.md).
 

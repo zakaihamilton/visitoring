@@ -200,9 +200,14 @@ async function applyMigrations(client: PoolClient, migrations: MigrationFile[]):
 }
 
 export async function main(): Promise<void> {
-  const connectionString = process.env.DATABASE_URL;
+  const connectionString = process.env.MIGRATION_DATABASE_URL ?? process.env.DATABASE_URL;
   if (!connectionString) {
-    throw new Error("DATABASE_URL is required to run database migrations.");
+    throw new Error("MIGRATION_DATABASE_URL or DATABASE_URL is required to run database migrations.");
+  }
+
+  const migrationRole = process.env.MIGRATION_DATABASE_ROLE?.trim();
+  if (migrationRole && !/^[a-z][a-z0-9_]{0,62}$/.test(migrationRole)) {
+    throw new Error("MIGRATION_DATABASE_ROLE must be a lowercase PostgreSQL role name.");
   }
 
   const pool = new Pool({ connectionString, max: 1 });
@@ -210,6 +215,9 @@ export async function main(): Promise<void> {
   let lockAcquired = false;
   try {
     client = await pool.connect();
+    if (migrationRole) {
+      await client.query(`SET ROLE "${migrationRole}"`);
+    }
     await client.query("SELECT pg_advisory_lock($1)", [ADVISORY_LOCK_KEY]);
     lockAcquired = true;
     await applyMigrations(client, await readMigrations());
