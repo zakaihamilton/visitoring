@@ -16,7 +16,7 @@ test("home page has no WCAG A/AA violations", async ({ page }) => {
 });
 
 test("home page matches the reviewed desktop and mobile layouts", async ({ page }) => {
-  await page.emulateMedia({ colorScheme: "dark" });
+  await page.emulateMedia({ colorScheme: "light" });
 
   for (const size of sizes) {
     await page.setViewportSize({ width: size.width, height: size.height });

@@ -70,6 +70,17 @@ jobs:
       - run: pnpm run db:migrate
       - run: pnpm exec playwright install chromium
       - run: pnpm run health:visual
+      - name: Regenerate screenshot snapshots for review
+        if: always()
+        run: pnpm exec playwright test tests/e2e/guardrails.spec.ts --project=chromium --update-snapshots
+      - name: Upload regenerated screenshot snapshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: refreshed-visual-baselines
+          path: tests/e2e/guardrails.spec.ts-snapshots/*.png
+          if-no-files-found: ignore
+          retention-days: 1
 
   authenticated-ui:
     runs-on: ubuntu-latest
