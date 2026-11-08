@@ -36,6 +36,13 @@ jobs:
       - run: pnpm run db:migrate
       - run: pnpm exec playwright install --with-deps chromium
       - run: pnpm run health
+      - name: Capture health details and format diff
+        if: always()
+        run: |
+          pnpm exec repnix check --details || true
+          pnpm exec repnix check duplication --format json || true
+          pnpm exec biome format --write .
+          git -c color.ui=false --no-pager diff
 
   visual-regression:
     runs-on: macos-latest
