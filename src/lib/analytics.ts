@@ -272,9 +272,7 @@ function eventNamesQuery(filters: AnalyticsFilters) {
   return db
     .selectDistinct({ name: siteEvents.eventName })
     .from(siteEvents)
-    .where(
-      and(eq(siteEvents.projectId, filters.projectId), eq(siteEvents.siteId, filters.siteId)),
-    )
+    .where(and(eq(siteEvents.projectId, filters.projectId), eq(siteEvents.siteId, filters.siteId)))
     .orderBy(siteEvents.eventName)
     .limit(EVENT_NAME_OPTIONS_LIMIT);
 }

@@ -202,7 +202,9 @@ async function applyMigrations(client: PoolClient, migrations: MigrationFile[]):
 export async function main(): Promise<void> {
   const connectionString = process.env.MIGRATION_DATABASE_URL ?? process.env.DATABASE_URL;
   if (!connectionString) {
-    throw new Error("MIGRATION_DATABASE_URL or DATABASE_URL is required to run database migrations.");
+    throw new Error(
+      "MIGRATION_DATABASE_URL or DATABASE_URL is required to run database migrations.",
+    );
   }
 
   const migrationRole = process.env.MIGRATION_DATABASE_ROLE?.trim();

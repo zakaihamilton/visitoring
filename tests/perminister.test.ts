@@ -358,6 +358,7 @@ describe("Visitoring Perminister client", () => {
     const fetchMock = vi
       .fn()
       .mockResolvedValueOnce(Response.json({ granted: true }))
+      .mockResolvedValueOnce(Response.json({ revoked: true }))
       .mockResolvedValueOnce(Response.json({ revoked: true }));
     vi.stubGlobal("fetch", fetchMock);
     const organizationId = "11111111-1111-4111-8111-111111111111";
@@ -375,6 +376,11 @@ describe("Visitoring Perminister client", () => {
     expect(revokeUrl.pathname).toBe(`/api/auth/consumer/projects/${projectId}`);
     expect(revokeInit.method).toBe("DELETE");
     expect(JSON.parse(String(revokeInit.body))).toEqual({ organizationId });
+
+    const [legacyRevokeUrl, legacyRevokeInit] = fetchMock.mock.calls[2] as [URL, RequestInit];
+    expect(legacyRevokeUrl.pathname).toBe("/api/auth/consumer/workspaces/" + projectId);
+    expect(legacyRevokeInit.method).toBe("DELETE");
+    expect(JSON.parse(String(legacyRevokeInit.body))).toEqual({ organizationId });
   });
 
   it("requires explicit confirmation from Perminister before treating cleanup as complete", async () => {
@@ -386,14 +392,10 @@ describe("Visitoring Perminister client", () => {
     const organizationId = "11111111-1111-4111-8111-111111111111";
     const projectId = "22222222-2222-4222-8222-222222222222";
 
-    await expect(
-      bootstrapVisitoringProjectAdmin(organizationId, projectId),
-    ).rejects.toMatchObject({
+    await expect(bootstrapVisitoringProjectAdmin(organizationId, projectId)).rejects.toMatchObject({
       status: 503,
     });
-    await expect(
-      revokeVisitoringProjectGrants(organizationId, projectId),
-    ).rejects.toMatchObject({
+    await expect(revokeVisitoringProjectGrants(organizationId, projectId)).rejects.toMatchObject({
       status: 503,
     });
   });

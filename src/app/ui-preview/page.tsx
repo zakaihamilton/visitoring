@@ -11,6 +11,7 @@ import { ProjectManager } from "@/app/projects/ProjectManager";
 import { ProjectsView } from "@/app/projects/ProjectsView";
 import projectStyles from "@/app/projects/projects.module.css";
 import { SettingsNavigation } from "@/app/settings/SettingsNavigation";
+import { SettingsPageIntro } from "@/app/settings/SettingsPageIntro";
 import settingsStyles from "@/app/settings/settings-page.module.css";
 import { CreateSiteForm } from "@/app/settings/sites/components/CreateSiteForm";
 import { SiteListView } from "@/app/settings/sites/SiteListView";
@@ -155,16 +156,11 @@ export default async function Preview({
             <>
               <SettingsNavigation active="sites" />
               <main className={settingsStyles.page}>
-                <div className={settingsStyles.intro}>
-                  <div>
-                    <div className={settingsStyles.eyebrow}>Settings · Sites</div>
-                    <h1>Manage your sites</h1>
-                    <p>
-                      Add each website you track. Approved addresses and tracking keys are managed
-                      here.
-                    </p>
-                  </div>
-                </div>
+                <SettingsPageIntro
+                  eyebrow="Settings · Sites"
+                  title="Manage your sites"
+                  description="Add each website you track. Approved addresses and tracking keys are managed here."
+                />
                 <section className={settingsStyles.card}>
                   <div className={settingsStyles.cardHeading}>
                     <h2>Add a site</h2>
@@ -194,13 +190,11 @@ export default async function Preview({
             <>
               <SettingsNavigation active="users" />
               <main className={settingsStyles.page}>
-                <div className={settingsStyles.intro}>
-                  <div>
-                    <div className={settingsStyles.eyebrow}>Settings · Users</div>
-                    <h1>Manage users</h1>
-                    <p>Add people to your project and control their access to its dashboard.</p>
-                  </div>
-                </div>
+                <SettingsPageIntro
+                  eyebrow="Settings · Users"
+                  title="Manage users"
+                  description="Add people to your project and control their access to its dashboard."
+                />
                 <UsersManager />
                 <UserList
                   currentUserId="preview-admin"
@@ -230,13 +224,11 @@ export default async function Preview({
             <>
               <SettingsNavigation active="setup" />
               <main className={settingsStyles.page}>
-                <div className={settingsStyles.intro}>
-                  <div>
-                    <div className={settingsStyles.eyebrow}>Settings · Setup</div>
-                    <h1>Connect your website</h1>
-                    <p>Choose the integration that matches your website.</p>
-                  </div>
-                </div>
+                <SettingsPageIntro
+                  eyebrow="Settings · Setup"
+                  title="Connect your website"
+                  description="Choose the integration that matches your website."
+                />
                 <TrackerSection numbered={false} />
               </main>
             </>

@@ -1,10 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import {
-  useProjectSwitcher,
-  type ProjectChoice,
-} from "./project-switcher/useProjectSwitcher";
+import { useProjectSwitcher, type ProjectChoice } from "./project-switcher/useProjectSwitcher";
 import styles from "./organization-switcher.module.css";
 import listboxStyles from "./listbox.module.css";
 
@@ -15,12 +12,7 @@ type Props = {
   action: (formData: FormData) => void | Promise<void>;
 };
 
-export function ProjectSwitcher({
-  projects,
-  currentProjectId,
-  currentProjectName,
-  action,
-}: Props) {
+export function ProjectSwitcher({ projects, currentProjectId, currentProjectName, action }: Props) {
   const choices =
     projects && projects.length > 0
       ? projects

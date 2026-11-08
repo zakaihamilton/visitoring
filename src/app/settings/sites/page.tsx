@@ -6,6 +6,7 @@ import { sites } from "@/db/schema";
 import { requireAdmin } from "@/lib/auth";
 import { SiteCardsSkeleton } from "../SettingsLoading";
 import { SettingsNavigation } from "../SettingsNavigation";
+import { SettingsPageIntro } from "../SettingsPageIntro";
 import styles from "../settings-page.module.css";
 import { CreateSiteForm } from "./components/CreateSiteForm";
 import { SiteListView } from "./SiteListView";
@@ -36,15 +37,11 @@ export default async function SettingsSitesPage() {
       <Topbar user={user} section="settings" />
       <SettingsNavigation active="sites" />
       <main className={styles.page}>
-        <div className={styles.intro}>
-          <div>
-            <div className={styles.eyebrow}>Settings · Sites</div>
-            <h1>Manage your sites</h1>
-            <p>
-              Add each website you track. Approved addresses and tracking keys are managed here.
-            </p>
-          </div>
-        </div>
+        <SettingsPageIntro
+          eyebrow="Settings · Sites"
+          title="Manage your sites"
+          description="Add each website you track. Approved addresses and tracking keys are managed here."
+        />
 
         <section className={styles.card} aria-labelledby="add-site-title">
           <div className={styles.cardHeading}>
