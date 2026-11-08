@@ -12,8 +12,8 @@ import { SiteListView } from "./SiteListView";
 
 export const dynamic = "force-dynamic";
 
-async function SiteList({ workspaceId }: { workspaceId: string }) {
-  const workspaceSites = await db
+async function SiteList({ projectId }: { projectId: string }) {
+  const projectSites = await db
     .select({
       id: sites.id,
       name: sites.name,
@@ -22,10 +22,10 @@ async function SiteList({ workspaceId }: { workspaceId: string }) {
       siteKeyPrefix: sites.siteKeyPrefix,
     })
     .from(sites)
-    .where(eq(sites.workspaceId, workspaceId))
+    .where(eq(sites.projectId, projectId))
     .orderBy(desc(sites.createdAt));
 
-  return <SiteListView workspaceSites={workspaceSites} />;
+  return <SiteListView projectSites={projectSites} />;
 }
 
 export default async function SettingsSitesPage() {
@@ -55,7 +55,7 @@ export default async function SettingsSitesPage() {
         </section>
 
         <Suspense fallback={<SiteCardsSkeleton />}>
-          <SiteList workspaceId={user.workspaceId} />
+          <SiteList projectId={user.projectId} />
         </Suspense>
       </main>
     </>

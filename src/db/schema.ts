@@ -11,8 +11,8 @@ import {
   varchar,
 } from "drizzle-orm/pg-core";
 
-export const workspaces = pgTable(
-  "workspaces",
+export const projects = pgTable(
+  "projects",
   {
     id: uuid("id").defaultRandom().primaryKey(),
     name: varchar("name", { length: 120 }).notNull(),
@@ -21,7 +21,7 @@ export const workspaces = pgTable(
     archivedAt: timestamp("archived_at", { withTimezone: true }),
     deletionPendingAt: timestamp("deletion_pending_at", { withTimezone: true }),
   },
-  (table) => [index("workspaces_organization_idx").on(table.organizationId)],
+  (table) => [index("projects_organization_idx").on(table.organizationId)],
 );
 
 export const authRateLimitBuckets = pgTable(
@@ -38,9 +38,9 @@ export const sites = pgTable(
   "sites",
   {
     id: uuid("id").defaultRandom().primaryKey(),
-    workspaceId: uuid("workspace_id")
+    projectId: uuid("project_id")
       .notNull()
-      .references(() => workspaces.id, { onDelete: "cascade" }),
+      .references(() => projects.id, { onDelete: "cascade" }),
     name: varchar("name", { length: 120 }).notNull(),
     allowedDomains: text("allowed_domains").array().notNull().default([]),
     siteKey: varchar("site_key", { length: 64 }),
@@ -50,7 +50,7 @@ export const sites = pgTable(
     updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (table) => [
-    index("sites_workspace_idx").on(table.workspaceId),
+    index("sites_project_idx").on(table.projectId),
     uniqueIndex("sites_site_key_hash_unique").on(table.siteKeyHash).concurrently(),
   ],
 );
@@ -59,9 +59,9 @@ export const siteEvents = pgTable(
   "site_events",
   {
     id: bigserial("id", { mode: "number" }).primaryKey(),
-    workspaceId: uuid("workspace_id")
+    projectId: uuid("project_id")
       .notNull()
-      .references(() => workspaces.id, { onDelete: "cascade" }),
+      .references(() => projects.id, { onDelete: "cascade" }),
     siteId: uuid("site_id")
       .notNull()
       .references(() => sites.id, { onDelete: "cascade" }),
@@ -82,7 +82,7 @@ export const siteEvents = pgTable(
   },
   (table) => [
     index("site_events_site_time_idx").on(table.siteId, table.createdAt),
-    index("site_events_workspace_time_idx").on(table.workspaceId, table.createdAt),
+    index("site_events_project_time_idx").on(table.projectId, table.createdAt),
     index("site_events_site_name_time_idx").on(table.siteId, table.eventName, table.createdAt),
     index("site_events_site_visitor_idx").on(table.siteId, table.visitorId),
     index("site_events_site_session_idx").on(table.siteId, table.sessionId),

@@ -29,11 +29,11 @@ vi.mock("@/lib/perminister", () => ({
   revokePerministerSession: vi.fn(),
   visitoringOrganizationForId: mocks.visitoringOrganizationForId,
   visitoringOrganizations: mocks.visitoringOrganizations,
-  visitoringUserForWorkspace: vi.fn(),
-  visitoringWorkspacesForOrganization: vi.fn(),
+  visitoringUserForProject: vi.fn(),
+  visitoringProjectsForOrganization: vi.fn(),
 }));
 
-import { requireOrganizationAdmin, requireOrganizationWorkspaces, requireUser } from "@/lib/auth";
+import { requireOrganizationAdmin, requireOrganizationProjects, requireUser } from "@/lib/auth";
 import { PerministerApiError } from "@/lib/perminister";
 
 const organizationId = "11111111-1111-4111-8111-111111111111";
@@ -79,7 +79,7 @@ beforeEach(() => {
 
 describe("organization project management authorization", () => {
   it.each(["owner", "admin"] as const)(
-    "allows organization %s without a selected workspace",
+    "allows organization %s without a selected project",
     async (role) => {
       mocks.readPerministerSession.mockResolvedValue(session(role));
 
@@ -90,7 +90,7 @@ describe("organization project management authorization", () => {
       });
       const cookieStore = await mocks.cookies.mock.results[0]?.value;
       const get = cookieStore?.get as ReturnType<typeof vi.fn>;
-      expect(get).not.toHaveBeenCalledWith("visitoring_workspace_id");
+      expect(get).not.toHaveBeenCalledWith("visitoring_project_id");
     },
   );
 
@@ -107,7 +107,7 @@ describe("organization project management authorization", () => {
     });
 
     await expect(requireUser()).rejects.toThrow("redirect:/auth/organization/default");
-    await expect(requireOrganizationWorkspaces()).rejects.toThrow(
+    await expect(requireOrganizationProjects()).rejects.toThrow(
       "redirect:/auth/organization/default",
     );
   });

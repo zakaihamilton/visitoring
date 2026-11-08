@@ -7,7 +7,7 @@ export function UsersManager() {
       <div className={pageStyles.cardHeading}>
         <h2 id="add-user-title">Add a user</h2>
         <span className={pageStyles.hint}>
-          Access is granted to this workspace; Perminister manages the shared identity.
+          Access is granted to this project; Perminister manages the shared identity.
         </span>
       </div>
       <CreateUserForm />

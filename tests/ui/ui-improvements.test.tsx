@@ -2,7 +2,7 @@
 import { cleanup, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { WorkspaceSwitcher } from "@/app/components/WorkspaceSwitcher";
+import { ProjectSwitcher } from "@/app/components/ProjectSwitcher";
 import { analyticsPeriod, emptyMetrics } from "@/lib/analytics-period";
 import { ChartDataView } from "@/app/dashboard/chart-data/view";
 import { ActivityChart } from "@/app/dashboard/components/ActivityChart";
@@ -16,21 +16,21 @@ vi.mock("next/navigation", () => ({ useRouter: () => ({ refresh: vi.fn() }) }));
 afterEach(cleanup);
 Element.prototype.scrollIntoView = vi.fn();
 
-describe("WorkspaceSwitcher", () => {
-  const workspaces = [
+describe("ProjectSwitcher", () => {
+  const projects = [
     { id: "ws-1", name: "Main App" },
     { id: "ws-2", name: "Docs Portal" },
   ];
 
-  it("renders a dropdown listbox when multiple workspaces exist and handles selection", async () => {
+  it("renders a dropdown listbox when multiple projects exist and handles selection", async () => {
     const user = userEvent.setup();
     const action = vi.fn(async (_formData: FormData) => {});
 
     render(
-      <WorkspaceSwitcher
-        workspaces={workspaces}
-        currentWorkspaceId="ws-1"
-        currentWorkspaceName="Main App"
+      <ProjectSwitcher
+        projects={projects}
+        currentProjectId="ws-1"
+        currentProjectName="Main App"
         action={action}
       />,
     );
@@ -43,16 +43,16 @@ describe("WorkspaceSwitcher", () => {
     await user.click(option);
 
     expect(action).toHaveBeenCalledOnce();
-    expect(action.mock.calls[0]?.[0].get("workspaceId")).toBe("ws-2");
+    expect(action.mock.calls[0]?.[0].get("projectId")).toBe("ws-2");
   });
 
-  it("renders a link to /projects when only one workspace is available", () => {
+  it("renders a link to /projects when only one project is available", () => {
     const action = vi.fn(async (_formData: FormData) => {});
     render(
-      <WorkspaceSwitcher
-        workspaces={[{ id: "ws-1", name: "Main App" }]}
-        currentWorkspaceId="ws-1"
-        currentWorkspaceName="Main App"
+      <ProjectSwitcher
+        projects={[{ id: "ws-1", name: "Main App" }]}
+        currentProjectId="ws-1"
+        currentProjectName="Main App"
         action={action}
       />,
     );

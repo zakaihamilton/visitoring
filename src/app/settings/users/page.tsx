@@ -1,7 +1,7 @@
 import { MembersSkeleton } from "../SettingsLoading";
 import { Suspense } from "react";
 import { Topbar } from "@/app/components/Topbar";
-import { listPerministerWorkspaceMembers } from "@/lib/perminister";
+import { listPerministerProjectMembers } from "@/lib/perminister";
 import { requireAdmin } from "@/lib/auth";
 import { SettingsNavigation } from "../SettingsNavigation";
 import pageStyles from "../settings-page.module.css";
@@ -11,16 +11,16 @@ import type { ManagedUser } from "./user-types";
 
 export const dynamic = "force-dynamic";
 
-async function WorkspaceUsers({
-  workspaceId,
+async function ProjectUsers({
+  projectId,
   organizationId,
   currentUserId,
 }: {
-  workspaceId: string;
+  projectId: string;
   organizationId: string;
   currentUserId: string;
 }) {
-  const members = await listPerministerWorkspaceMembers(workspaceId, organizationId);
+  const members = await listPerministerProjectMembers(projectId, organizationId);
   const users: ManagedUser[] = members.map((member) => ({
     ...member,
     role: member.role === "admin" ? "admin" : "viewer",
@@ -45,8 +45,8 @@ export default async function SettingsUsersPage() {
         </div>
         <UsersManager />
         <Suspense fallback={<MembersSkeleton />}>
-          <WorkspaceUsers
-            workspaceId={admin.workspaceId}
+          <ProjectUsers
+            projectId={admin.projectId}
             organizationId={admin.organizationId}
             currentUserId={admin.id}
           />

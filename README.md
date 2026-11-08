@@ -39,28 +39,28 @@ set the migration URL to its session-pooling endpoint and set `MIGRATION_DATABAS
 owner role shown in Nanogres' migration connection snippet. The runner assumes that role only for
 the migration session; keep these credentials separate from the runtime database URL. `GEOIP_DB_PATH` is optional. Do not commit `.env` or a GeoIP database.
 
-Visitoring uses Perminister for identities, passwords, sessions, and workspace access in every environment. Configure a Visitoring product app client for production and a separate client for local development. The setup and workspace bootstrap steps are in [the Perminister guide](docs/perminister.md).
+Visitoring uses Perminister for identities, passwords, sessions, and project access in every environment. Configure a Visitoring product app client for production and a separate client for local development. The setup and project bootstrap steps are in [the Perminister guide](docs/perminister.md).
 
 ## Manage projects, add accounts, and set up a site
 
 Organization owners and admins can add projects from the project picker, including when they do not
 currently have a project selected. Owners and admins have admin access to every active project in
-their organization, and the creator receives admin access to the new workspace. Project members and
+their organization, and the creator receives admin access to the new project. Project members and
 roles are managed from **Settings → Users**. Other organization members can open projects they have
 been granted access to.
 
 Archiving a project pauses tracking and dashboard access while retaining its analytics and keys.
 Restore it to resume collection and access. Permanent deletion is available only after archiving;
-it removes the project’s Visitoring sites, tracking keys, analytics, and Perminister workspace grants.
+it removes the project’s Visitoring sites, tracking keys, analytics, and Perminister project grants.
 
-For a manual or scripted workspace bootstrap, run `db:migrate` and then:
+For a manual or scripted project bootstrap, run `db:migrate` and then:
 
 ```sh
-pnpm run workspaces:provision -- --workspace "ShiftingFront" --organization-id "<organization-uuid>"
+pnpm run projects:provision -- --project "ShiftingFront" --organization-id "<organization-uuid>"
 ```
 
-The command associates the named project with a Perminister organization and prints its workspace
-UUID. Grant an initial administrator the `admin` role for that Visitoring workspace in Perminister.
+The command associates the named project with a Perminister organization and prints its project
+UUID. Grant an initial administrator the `admin` role for that Visitoring project in Perminister.
 To limit password guessing, repeated sign-in attempts are temporarily restricted. Administrators can
 open **Settings → Sites** to add websites and view or copy their public tracking keys, and
 **Settings → Setup** for tracker instructions. Sites created before key values were stored need a
@@ -197,4 +197,4 @@ Repnix is configured as the repository health gate, with required type, lint, fo
 pnpm run health
 ```
 
-CI starts PostgreSQL, applies the checked-in database migrations, and runs the same health command. Its integration suite checks collection, rejected origins, rate limiting, Do Not Track, privacy sanitization, retention batching, and workspace isolation.
+CI starts PostgreSQL, applies the checked-in database migrations, and runs the same health command. Its integration suite checks collection, rejected origins, rate limiting, Do Not Track, privacy sanitization, retention batching, and project isolation.

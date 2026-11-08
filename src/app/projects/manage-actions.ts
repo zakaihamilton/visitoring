@@ -4,11 +4,11 @@ import { randomUUID } from "node:crypto";
 import { and, eq, isNotNull, isNull } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { db } from "@/db";
-import { workspaces } from "@/db/schema";
+import { projects } from "@/db/schema";
 import { requireOrganizationAdmin } from "@/lib/auth";
 import {
-  bootstrapVisitoringWorkspaceAdmin,
-  revokeVisitoringWorkspaceGrants,
+  bootstrapVisitoringProjectAdmin,
+  revokeVisitoringProjectGrants,
 } from "@/lib/perminister";
 
 export type ProjectActionState = { message: string; error?: boolean };
@@ -21,24 +21,24 @@ function revalidateProjectManagement() {
   revalidatePath("/projects");
 }
 
-function workspaceIdFrom(formData: FormData): string {
-  return String(formData.get("workspaceId") ?? "").trim();
+function projectIdFrom(formData: FormData): string {
+  return String(formData.get("projectId") ?? "").trim();
 }
 
 type ProjectStatus = "active" | "archived" | "deletion-pending";
 
 function projectStatusCondition(
-  workspaceId: string,
+  projectId: string,
   organizationId: string,
   status: ProjectStatus,
 ) {
   return and(
-    eq(workspaces.id, workspaceId),
-    eq(workspaces.organizationId, organizationId),
-    status === "active" ? isNull(workspaces.archivedAt) : isNotNull(workspaces.archivedAt),
+    eq(projects.id, projectId),
+    eq(projects.organizationId, organizationId),
+    status === "active" ? isNull(projects.archivedAt) : isNotNull(projects.archivedAt),
     status === "deletion-pending"
-      ? isNotNull(workspaces.deletionPendingAt)
-      : isNull(workspaces.deletionPendingAt),
+      ? isNotNull(projects.deletionPendingAt)
+      : isNull(projects.deletionPendingAt),
   );
 }
 
@@ -50,10 +50,10 @@ export async function createProjectAction(
   const name = String(formData.get("name") ?? "").trim();
   if (!name || name.length > 120) return failure("Enter a project name (up to 120 characters).");
 
-  const workspaceId = randomUUID();
+  const projectId = randomUUID();
   const pendingAt = new Date();
-  await db.insert(workspaces).values({
-    id: workspaceId,
+  await db.insert(projects).values({
+    id: projectId,
     name,
     organizationId: admin.organizationId,
     archivedAt: pendingAt,
@@ -61,28 +61,28 @@ export async function createProjectAction(
   });
 
   try {
-    await bootstrapVisitoringWorkspaceAdmin(admin.organizationId, workspaceId);
+    await bootstrapVisitoringProjectAdmin(admin.organizationId, projectId);
     const activated = await db
-      .update(workspaces)
+      .update(projects)
       .set({ archivedAt: null, deletionPendingAt: null })
-      .where(projectStatusCondition(workspaceId, admin.organizationId, "deletion-pending"))
-      .returning({ id: workspaces.id });
-    if (activated.length === 0) throw new Error("The workspace could not be activated.");
+      .where(projectStatusCondition(projectId, admin.organizationId, "deletion-pending"))
+      .returning({ id: projects.id });
+    if (activated.length === 0) throw new Error("The project could not be activated.");
   } catch {
     const now = new Date();
     await db
-      .update(workspaces)
+      .update(projects)
       .set({ archivedAt: now, deletionPendingAt: now })
       .where(
-        and(eq(workspaces.id, workspaceId), eq(workspaces.organizationId, admin.organizationId)),
+        and(eq(projects.id, projectId), eq(projects.organizationId, admin.organizationId)),
       );
 
     try {
-      await revokeVisitoringWorkspaceGrants(admin.organizationId, workspaceId);
+      await revokeVisitoringProjectGrants(admin.organizationId, projectId);
       await db
-        .delete(workspaces)
+        .delete(projects)
         .where(
-          and(eq(workspaces.id, workspaceId), eq(workspaces.organizationId, admin.organizationId)),
+          and(eq(projects.id, projectId), eq(projects.organizationId, admin.organizationId)),
         );
     } catch {
       // Keep the archived row so an organization admin can retry external cleanup.
@@ -94,7 +94,7 @@ export async function createProjectAction(
   }
 
   revalidateProjectManagement();
-  return success(`${name} added. You now have admin access to its workspace.`);
+  return success(`${name} added. You now have admin access to its project.`);
 }
 
 export async function manageProjectAction(
@@ -102,20 +102,20 @@ export async function manageProjectAction(
   formData: FormData,
 ): Promise<ProjectActionState> {
   const admin = await requireOrganizationAdmin();
-  const workspaceId = workspaceIdFrom(formData);
+  const projectId = projectIdFrom(formData);
   const operation = String(formData.get("operation") ?? "");
-  if (!workspaceId) return failure("Choose a project to manage.");
+  if (!projectId) return failure("Choose a project to manage.");
   if (!["archive", "restore", "delete"].includes(operation))
     return failure("Choose a valid project action.");
 
   const [project] = await db
     .select({
-      id: workspaces.id,
-      archivedAt: workspaces.archivedAt,
-      deletionPendingAt: workspaces.deletionPendingAt,
+      id: projects.id,
+      archivedAt: projects.archivedAt,
+      deletionPendingAt: projects.deletionPendingAt,
     })
-    .from(workspaces)
-    .where(and(eq(workspaces.id, workspaceId), eq(workspaces.organizationId, admin.organizationId)))
+    .from(projects)
+    .where(and(eq(projects.id, projectId), eq(projects.organizationId, admin.organizationId)))
     .limit(1);
   if (!project) return failure("We couldn't find that project in this organization.");
 
@@ -123,10 +123,10 @@ export async function manageProjectAction(
     if (project.archivedAt || project.deletionPendingAt)
       return failure("That project is already archived or being deleted.");
     const archived = await db
-      .update(workspaces)
+      .update(projects)
       .set({ archivedAt: new Date() })
-      .where(projectStatusCondition(workspaceId, admin.organizationId, "active"))
-      .returning({ id: workspaces.id });
+      .where(projectStatusCondition(projectId, admin.organizationId, "active"))
+      .returning({ id: projects.id });
     if (archived.length === 0) return failure("Project status changed. Refresh and try again.");
     revalidateProjectManagement();
     revalidatePath("/dashboard");
@@ -137,10 +137,10 @@ export async function manageProjectAction(
     if (!project.archivedAt || project.deletionPendingAt)
       return failure("Only archived projects that are not being deleted can be restored.");
     const restored = await db
-      .update(workspaces)
+      .update(projects)
       .set({ archivedAt: null })
-      .where(projectStatusCondition(workspaceId, admin.organizationId, "archived"))
-      .returning({ id: workspaces.id });
+      .where(projectStatusCondition(projectId, admin.organizationId, "archived"))
+      .returning({ id: projects.id });
     if (restored.length === 0) return failure("Project status changed. Refresh and try again.");
     revalidateProjectManagement();
     revalidatePath("/dashboard");
@@ -151,15 +151,15 @@ export async function manageProjectAction(
 
   if (!project.deletionPendingAt) {
     const marked = await db
-      .update(workspaces)
+      .update(projects)
       .set({ deletionPendingAt: new Date() })
-      .where(projectStatusCondition(workspaceId, admin.organizationId, "archived"))
-      .returning({ id: workspaces.id });
+      .where(projectStatusCondition(projectId, admin.organizationId, "archived"))
+      .returning({ id: projects.id });
     if (marked.length === 0) return failure("Project status changed. Refresh and try again.");
   }
 
   try {
-    await revokeVisitoringWorkspaceGrants(admin.organizationId, workspaceId);
+    await revokeVisitoringProjectGrants(admin.organizationId, projectId);
   } catch {
     revalidateProjectManagement();
     return failure(
@@ -170,9 +170,9 @@ export async function manageProjectAction(
   let deleted: Array<{ id: string }>;
   try {
     deleted = await db
-      .delete(workspaces)
-      .where(projectStatusCondition(workspaceId, admin.organizationId, "deletion-pending"))
-      .returning({ id: workspaces.id });
+      .delete(projects)
+      .where(projectStatusCondition(projectId, admin.organizationId, "deletion-pending"))
+      .returning({ id: projects.id });
   } catch {
     revalidateProjectManagement();
     return failure(

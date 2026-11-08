@@ -2,33 +2,33 @@
 
 import Link from "next/link";
 import {
-  useWorkspaceSwitcher,
-  type WorkspaceChoice,
-} from "./workspace-switcher/useWorkspaceSwitcher";
+  useProjectSwitcher,
+  type ProjectChoice,
+} from "./project-switcher/useProjectSwitcher";
 import styles from "./organization-switcher.module.css";
 import listboxStyles from "./listbox.module.css";
 
 type Props = {
-  workspaces?: WorkspaceChoice[];
-  currentWorkspaceId: string;
-  currentWorkspaceName: string;
+  projects?: ProjectChoice[];
+  currentProjectId: string;
+  currentProjectName: string;
   action: (formData: FormData) => void | Promise<void>;
 };
 
-export function WorkspaceSwitcher({
-  workspaces,
-  currentWorkspaceId,
-  currentWorkspaceName,
+export function ProjectSwitcher({
+  projects,
+  currentProjectId,
+  currentProjectName,
   action,
 }: Props) {
   const choices =
-    workspaces && workspaces.length > 0
-      ? workspaces
-      : [{ id: currentWorkspaceId, name: currentWorkspaceName }];
+    projects && projects.length > 0
+      ? projects
+      : [{ id: currentProjectId, name: currentProjectName }];
 
   const {
     currentIndex,
-    currentWorkspace,
+    currentProject,
     open,
     activeIndex,
     setOpen,
@@ -41,13 +41,13 @@ export function WorkspaceSwitcher({
     labelId,
     valueId,
     listboxId,
-  } = useWorkspaceSwitcher(choices, currentWorkspaceId);
+  } = useProjectSwitcher(choices, currentProjectId);
 
   // If there's only 1 or no choice array provided, render a clean link to /projects
-  if (!workspaces || workspaces.length <= 1) {
+  if (!projects || projects.length <= 1) {
     return (
       <Link href="/projects" className={styles.trigger} title="Switch project">
-        <span className={styles.currentName}>{currentWorkspaceName}</span>
+        <span className={styles.currentName}>{currentProjectName}</span>
       </Link>
     );
   }
@@ -67,7 +67,7 @@ export function WorkspaceSwitcher({
           aria-controls={listboxId}
           aria-activedescendant={open ? `${listboxId}-option-${activeIndex}` : undefined}
           className={styles.trigger}
-          title={currentWorkspace?.name ?? currentWorkspaceName}
+          title={currentProject?.name ?? currentProjectName}
           onClick={() => {
             if (open) setOpen(false);
             else openAt(currentIndex >= 0 ? currentIndex : 0);
@@ -75,7 +75,7 @@ export function WorkspaceSwitcher({
           onKeyDown={handleKeyDown}
         >
           <span id={valueId} className={styles.currentName}>
-            {currentWorkspace?.name ?? currentWorkspaceName}
+            {currentProject?.name ?? currentProjectName}
           </span>
           <svg className={styles.chevron} aria-hidden="true" viewBox="0 0 12 12" fill="none">
             <path
@@ -94,32 +94,32 @@ export function WorkspaceSwitcher({
           className={`${styles.options} ${listboxStyles.menu}`}
           hidden={!open}
         >
-          {choices.map((workspace, index) => (
+          {choices.map((project, index) => (
             <button
               id={`${listboxId}-option-${index}`}
-              key={workspace.id}
+              key={project.id}
               ref={(element) => {
                 optionRefs.current[index] = element;
               }}
               type="submit"
-              name="workspaceId"
-              value={workspace.id}
+              name="projectId"
+              value={project.id}
               role="option"
               tabIndex={-1}
-              aria-selected={workspace.id === currentWorkspaceId}
+              aria-selected={project.id === currentProjectId}
               className={`${listboxStyles.option} ${
                 index === activeIndex ? styles.activeOption : ""
               }`}
               onMouseEnter={() => setActiveIndex(index)}
               onClick={(event) => {
-                if (workspace.id === currentWorkspaceId) {
+                if (project.id === currentProjectId) {
                   event.preventDefault();
                 }
                 setOpen(false);
               }}
             >
-              <span>{workspace.name}</span>
-              {workspace.id === currentWorkspaceId ? <span aria-hidden="true">✓</span> : null}
+              <span>{project.name}</span>
+              {project.id === currentProjectId ? <span aria-hidden="true">✓</span> : null}
             </button>
           ))}
           <Link

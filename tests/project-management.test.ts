@@ -2,8 +2,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({
   requireOrganizationAdmin: vi.fn(),
-  bootstrapVisitoringWorkspaceAdmin: vi.fn(),
-  revokeVisitoringWorkspaceGrants: vi.fn(),
+  bootstrapVisitoringProjectAdmin: vi.fn(),
+  revokeVisitoringProjectGrants: vi.fn(),
   revalidatePath: vi.fn(),
   insert: vi.fn(),
   insertValues: vi.fn(),
@@ -28,8 +28,8 @@ vi.mock("@/db", () => ({
 }));
 vi.mock("@/lib/auth", () => ({ requireOrganizationAdmin: mocks.requireOrganizationAdmin }));
 vi.mock("@/lib/perminister", () => ({
-  bootstrapVisitoringWorkspaceAdmin: mocks.bootstrapVisitoringWorkspaceAdmin,
-  revokeVisitoringWorkspaceGrants: mocks.revokeVisitoringWorkspaceGrants,
+  bootstrapVisitoringProjectAdmin: mocks.bootstrapVisitoringProjectAdmin,
+  revokeVisitoringProjectGrants: mocks.revokeVisitoringProjectGrants,
 }));
 vi.mock("next/cache", () => ({ revalidatePath: mocks.revalidatePath }));
 
@@ -40,7 +40,7 @@ import {
 } from "@/app/projects/manage-actions";
 
 const organizationId = "11111111-1111-4111-8111-111111111111";
-const workspaceId = "22222222-2222-4222-8222-222222222222";
+const projectId = "22222222-2222-4222-8222-222222222222";
 const admin = {
   actorId: "33333333-3333-4333-8333-333333333333",
   email: "admin@example.com",
@@ -67,10 +67,10 @@ beforeEach(() => {
   mocks.updateWhere.mockReturnValue({ returning: mocks.updateReturning });
   mocks.delete.mockReturnValue({ where: mocks.deleteWhere });
   mocks.deleteWhere.mockReturnValue({ returning: mocks.deleteReturning });
-  mocks.updateReturning.mockResolvedValue([{ id: workspaceId }]);
-  mocks.deleteReturning.mockResolvedValue([{ id: workspaceId }]);
-  mocks.bootstrapVisitoringWorkspaceAdmin.mockResolvedValue(undefined);
-  mocks.revokeVisitoringWorkspaceGrants.mockResolvedValue(undefined);
+  mocks.updateReturning.mockResolvedValue([{ id: projectId }]);
+  mocks.deleteReturning.mockResolvedValue([{ id: projectId }]);
+  mocks.bootstrapVisitoringProjectAdmin.mockResolvedValue(undefined);
+  mocks.revokeVisitoringProjectGrants.mockResolvedValue(undefined);
 });
 
 afterEach(() => vi.restoreAllMocks());
@@ -85,11 +85,11 @@ describe("organization project management actions", () => {
     expect(mocks.insert).not.toHaveBeenCalled();
   });
 
-  it("creates a workspace and grants the creator admin access", async () => {
+  it("creates a project and grants the creator admin access", async () => {
     const result = await createProjectAction(initial, formData({ name: "  Example  " }));
 
     expect(result).toEqual({
-      message: "Example added. You now have admin access to its workspace.",
+      message: "Example added. You now have admin access to its project.",
     });
     expect(mocks.insertValues).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -101,15 +101,15 @@ describe("organization project management actions", () => {
       }),
     );
     const createdValues = mocks.insertValues.mock.calls[0]?.[0] as { id: string } | undefined;
-    if (!createdValues) throw new Error("The workspace insert was not recorded.");
+    if (!createdValues) throw new Error("The project insert was not recorded.");
     const createdId = createdValues.id;
-    expect(mocks.bootstrapVisitoringWorkspaceAdmin).toHaveBeenCalledWith(organizationId, createdId);
+    expect(mocks.bootstrapVisitoringProjectAdmin).toHaveBeenCalledWith(organizationId, createdId);
     expect(mocks.updateSet).toHaveBeenCalledWith({ archivedAt: null, deletionPendingAt: null });
   });
 
   it("archives an unusable project if initial grant setup fails", async () => {
-    mocks.bootstrapVisitoringWorkspaceAdmin.mockRejectedValue(new Error("Perminister unavailable"));
-    mocks.revokeVisitoringWorkspaceGrants.mockRejectedValue(new Error("Perminister unavailable"));
+    mocks.bootstrapVisitoringProjectAdmin.mockRejectedValue(new Error("Perminister unavailable"));
+    mocks.revokeVisitoringProjectGrants.mockRejectedValue(new Error("Perminister unavailable"));
 
     const result = await createProjectAction(initial, formData({ name: "Example" }));
 
@@ -128,34 +128,34 @@ describe("organization project management actions", () => {
   it("does not permanently delete an active project", async () => {
     mocks.selectLimit.mockResolvedValue([
       {
-        id: workspaceId,
+        id: projectId,
         archivedAt: null,
         deletionPendingAt: null,
       },
     ]);
 
     await expect(
-      manageProjectAction(initial, formData({ workspaceId, operation: "delete" })),
+      manageProjectAction(initial, formData({ projectId, operation: "delete" })),
     ).resolves.toMatchObject({
       error: true,
       message: "Archive a project before deleting it permanently.",
     });
-    expect(mocks.revokeVisitoringWorkspaceGrants).not.toHaveBeenCalled();
+    expect(mocks.revokeVisitoringProjectGrants).not.toHaveBeenCalled();
     expect(mocks.delete).not.toHaveBeenCalled();
   });
 
   it("keeps an archived project retryable when Perminister cleanup fails", async () => {
     mocks.selectLimit.mockResolvedValue([
       {
-        id: workspaceId,
+        id: projectId,
         archivedAt: new Date(),
         deletionPendingAt: null,
       },
     ]);
-    mocks.revokeVisitoringWorkspaceGrants.mockRejectedValue(new Error("Perminister unavailable"));
+    mocks.revokeVisitoringProjectGrants.mockRejectedValue(new Error("Perminister unavailable"));
 
     await expect(
-      manageProjectAction(initial, formData({ workspaceId, operation: "delete" })),
+      manageProjectAction(initial, formData({ projectId, operation: "delete" })),
     ).resolves.toMatchObject({
       error: true,
       message: expect.stringContaining("cleanup is still pending"),
@@ -164,21 +164,21 @@ describe("organization project management actions", () => {
     expect(mocks.delete).not.toHaveBeenCalled();
   });
 
-  it("deletes an archived project after workspace grants have been revoked", async () => {
+  it("deletes an archived project after project grants have been revoked", async () => {
     mocks.selectLimit.mockResolvedValue([
       {
-        id: workspaceId,
+        id: projectId,
         archivedAt: new Date(),
         deletionPendingAt: new Date(),
       },
     ]);
 
     await expect(
-      manageProjectAction(initial, formData({ workspaceId, operation: "delete" })),
+      manageProjectAction(initial, formData({ projectId, operation: "delete" })),
     ).resolves.toEqual({
       message: "Project and its Visitoring analytics were permanently deleted.",
     });
-    expect(mocks.revokeVisitoringWorkspaceGrants).toHaveBeenCalledWith(organizationId, workspaceId);
+    expect(mocks.revokeVisitoringProjectGrants).toHaveBeenCalledWith(organizationId, projectId);
     expect(mocks.deleteReturning).toHaveBeenCalled();
   });
 });

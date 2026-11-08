@@ -50,8 +50,8 @@ export function UserRow({ user, currentUserId }: { user: ManagedUser; currentUse
                 action={deactivateUserAction}
                 user={user}
                 triggerLabel="Deactivate"
-                title="Deactivate this workspace membership?"
-                description="This user will lose access to this workspace until an admin reactivates their membership. Access to other workspaces is unchanged."
+                title="Deactivate this project membership?"
+                description="This user will lose access to this project until an admin reactivates their membership. Access to other projects is unchanged."
                 confirmLabel="Deactivate user"
                 tone="quiet"
               />
@@ -62,8 +62,8 @@ export function UserRow({ user, currentUserId }: { user: ManagedUser; currentUse
               action={deleteUserAction}
               user={user}
               triggerLabel="Remove"
-              title="Remove this user from the workspace?"
-              description="This removes the user’s Visitoring access to this workspace. Their shared Perminister identity and access to other workspaces remain."
+              title="Remove this user from the project?"
+              description="This removes the user’s Visitoring access to this project. Their shared Perminister identity and access to other projects remain."
               confirmLabel="Remove user"
               tone="danger"
             />

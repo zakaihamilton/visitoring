@@ -19,7 +19,7 @@ beforeEach(() => {
 });
 
 describe("organization cookies", () => {
-  it("stores the remembered organization across routes and clears workspace context", async () => {
+  it("stores the remembered organization across routes and clears project context", async () => {
     const cookieStore = await cookies();
 
     await setVisitoringOrganizationCookies(organizationId);
@@ -35,13 +35,13 @@ describe("organization cookies", () => {
       expect.objectContaining({ httpOnly: true, path: "/" }),
     );
     expect(cookieStore.set).toHaveBeenCalledWith(
-      "visitoring_workspace_id",
+      "visitoring_project_id",
       "",
       expect.objectContaining({ path: "/", maxAge: 0 }),
     );
   });
 
-  it("clears stale active organization and workspace cookies", async () => {
+  it("clears stale active organization and project cookies", async () => {
     const cookieStore = await cookies();
 
     await clearVisitoringOrganizationSelection();
@@ -53,7 +53,7 @@ describe("organization cookies", () => {
       expect.objectContaining({ path: "/", maxAge: 0 }),
     );
     expect(cookieStore.set).toHaveBeenCalledWith(
-      "visitoring_workspace_id",
+      "visitoring_project_id",
       "",
       expect.objectContaining({ path: "/", maxAge: 0 }),
     );

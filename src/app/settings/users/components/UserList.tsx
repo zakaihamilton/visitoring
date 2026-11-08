@@ -13,10 +13,10 @@ export function UserList({
   return (
     <section
       className={`${pageStyles.card} ${styles.usersCard}`}
-      aria-labelledby="workspace-users-title"
+      aria-labelledby="project-users-title"
     >
       <div className={pageStyles.cardHeading}>
-        <h2 id="workspace-users-title">Workspace members</h2>
+        <h2 id="project-users-title">Project members</h2>
         <span className={pageStyles.hint}>
           {users.length} account{users.length === 1 ? "" : "s"}
         </span>

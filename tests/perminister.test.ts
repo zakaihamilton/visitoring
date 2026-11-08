@@ -13,16 +13,16 @@ vi.mock("@/db", () => ({ db: { select: dbSelect } }));
 
 import { cookies } from "next/headers";
 import {
-  bootstrapVisitoringWorkspaceAdmin,
+  bootstrapVisitoringProjectAdmin,
   isVisitoringOrganizationAdmin,
-  listPerministerWorkspaceMembers,
+  listPerministerProjectMembers,
   loginWithPerminister,
   readPerministerSession,
-  revokeVisitoringWorkspaceGrants,
+  revokeVisitoringProjectGrants,
   requestPerminister,
   visitoringOrganizations,
-  visitoringUserForWorkspace,
-  visitoringWorkspacesForOrganization,
+  visitoringUserForProject,
+  visitoringProjectsForOrganization,
 } from "@/lib/perminister";
 
 function configureEnvironment(): void {
@@ -223,7 +223,7 @@ describe("Visitoring Perminister client", () => {
     }
   });
 
-  it("lists only the requested workspace through the authenticated member API", async () => {
+  it("lists only the requested project through the authenticated member API", async () => {
     const fetchMock = vi.fn().mockResolvedValue(
       Response.json({
         members: [
@@ -239,34 +239,34 @@ describe("Visitoring Perminister client", () => {
     vi.stubGlobal("fetch", fetchMock);
     dbLimit.mockResolvedValueOnce([{ organizationId: "11111111-1111-4111-8111-111111111111" }]);
 
-    await expect(listPerministerWorkspaceMembers("workspace-id")).resolves.toEqual([
+    await expect(listPerministerProjectMembers("project-id")).resolves.toEqual([
       { id: "subject-id", email: "person@example.com", role: "admin", isActive: true },
     ]);
     const [url, init] = fetchMock.mock.calls[0] as [URL, RequestInit];
     expect(url.pathname).toBe("/api/auth/consumer/members");
     expect(url.searchParams.get("organizationId")).toBe("11111111-1111-4111-8111-111111111111");
-    expect(url.searchParams.get("scopeKind")).toBe("workspace");
-    expect(url.searchParams.get("resourceId")).toBe("workspace-id");
+    expect(url.searchParams.get("scopeKind")).toBe("project");
+    expect(url.searchParams.get("resourceId")).toBe("project-id");
     expect(new Headers(init.headers).get("Authorization")).toBe("Bearer opaque-session-token");
   });
 
-  it("lists accessible workspaces and maps a selected workspace into Visitoring context", async () => {
+  it("lists accessible projects and maps a selected project into Visitoring context", async () => {
     dbLimit
       .mockResolvedValueOnce([
         {
-          id: "workspace-id",
+          id: "project-id",
           name: "ShiftingFront",
           organizationId: "11111111-1111-4111-8111-111111111111",
         },
         {
-          id: "other-workspace-id",
+          id: "other-project-id",
           name: "Puzzimori",
           organizationId: "11111111-1111-4111-8111-111111111111",
         },
       ])
       .mockResolvedValueOnce([
         {
-          id: "workspace-id",
+          id: "project-id",
           name: "ShiftingFront",
           organizationId: "11111111-1111-4111-8111-111111111111",
         },
@@ -284,23 +284,23 @@ describe("Visitoring Perminister client", () => {
           resourceRoles: [
             {
               scope: {
-                kind: "workspace",
+                kind: "project",
                 organizationId: "11111111-1111-4111-8111-111111111111",
                 productId: "visitoring",
-                workspaceId: "workspace-id",
+                projectId: "project-id",
               },
               role: "viewer",
-              actions: ["visitoring:workspace:read"],
+              actions: ["visitoring:project:read"],
             },
             {
               scope: {
-                kind: "workspace",
+                kind: "project",
                 organizationId: "11111111-1111-4111-8111-111111111111",
                 productId: "visitoring",
-                workspaceId: "other-workspace-id",
+                projectId: "other-project-id",
               },
               role: "admin",
-              actions: ["visitoring:workspace:read"],
+              actions: ["visitoring:project:read"],
             },
           ],
         },
@@ -308,17 +308,17 @@ describe("Visitoring Perminister client", () => {
     };
 
     await expect(
-      visitoringWorkspacesForOrganization(auth, "11111111-1111-4111-8111-111111111111"),
+      visitoringProjectsForOrganization(auth, "11111111-1111-4111-8111-111111111111"),
     ).resolves.toEqual([
       {
-        id: "other-workspace-id",
+        id: "other-project-id",
         name: "Puzzimori",
         organizationId: "11111111-1111-4111-8111-111111111111",
         organizationName: "Acme Organization",
         role: "admin",
       },
       {
-        id: "workspace-id",
+        id: "project-id",
         name: "ShiftingFront",
         organizationId: "11111111-1111-4111-8111-111111111111",
         organizationName: "Acme Organization",
@@ -327,18 +327,18 @@ describe("Visitoring Perminister client", () => {
     ]);
 
     await expect(
-      visitoringUserForWorkspace(auth, "11111111-1111-4111-8111-111111111111", "workspace-id"),
+      visitoringUserForProject(auth, "11111111-1111-4111-8111-111111111111", "project-id"),
     ).resolves.toEqual({
       id: "subject-id",
-      workspaceId: "workspace-id",
-      workspaceName: "ShiftingFront",
+      projectId: "project-id",
+      projectName: "ShiftingFront",
       organizationId: "11111111-1111-4111-8111-111111111111",
       organizationName: "Acme Organization",
       email: null,
       role: "viewer",
     });
     await expect(
-      visitoringUserForWorkspace(auth, "11111111-1111-4111-8111-111111111111", "missing"),
+      visitoringUserForProject(auth, "11111111-1111-4111-8111-111111111111", "missing"),
     ).resolves.toBeNull();
 
     expect(isVisitoringOrganizationAdmin(auth, "11111111-1111-4111-8111-111111111111")).toBe(false);
@@ -354,25 +354,25 @@ describe("Visitoring Perminister client", () => {
     ).toBe(true);
   });
 
-  it("uses scoped Perminister operations to bootstrap and revoke workspace grants", async () => {
+  it("uses scoped Perminister operations to bootstrap and revoke project grants", async () => {
     const fetchMock = vi
       .fn()
       .mockResolvedValueOnce(Response.json({ granted: true }))
       .mockResolvedValueOnce(Response.json({ revoked: true }));
     vi.stubGlobal("fetch", fetchMock);
     const organizationId = "11111111-1111-4111-8111-111111111111";
-    const workspaceId = "22222222-2222-4222-8222-222222222222";
+    const projectId = "22222222-2222-4222-8222-222222222222";
 
-    await bootstrapVisitoringWorkspaceAdmin(organizationId, workspaceId);
-    await revokeVisitoringWorkspaceGrants(organizationId, workspaceId);
+    await bootstrapVisitoringProjectAdmin(organizationId, projectId);
+    await revokeVisitoringProjectGrants(organizationId, projectId);
 
     const [bootstrapUrl, bootstrapInit] = fetchMock.mock.calls[0] as [URL, RequestInit];
-    expect(bootstrapUrl.pathname).toBe("/api/auth/consumer/workspaces");
+    expect(bootstrapUrl.pathname).toBe("/api/auth/consumer/projects");
     expect(bootstrapInit.method).toBe("POST");
-    expect(JSON.parse(String(bootstrapInit.body))).toEqual({ organizationId, workspaceId });
+    expect(JSON.parse(String(bootstrapInit.body))).toEqual({ organizationId, projectId });
 
     const [revokeUrl, revokeInit] = fetchMock.mock.calls[1] as [URL, RequestInit];
-    expect(revokeUrl.pathname).toBe(`/api/auth/consumer/workspaces/${workspaceId}`);
+    expect(revokeUrl.pathname).toBe(`/api/auth/consumer/projects/${projectId}`);
     expect(revokeInit.method).toBe("DELETE");
     expect(JSON.parse(String(revokeInit.body))).toEqual({ organizationId });
   });
@@ -384,15 +384,15 @@ describe("Visitoring Perminister client", () => {
       .mockResolvedValueOnce(Response.json({ revoked: false }));
     vi.stubGlobal("fetch", fetchMock);
     const organizationId = "11111111-1111-4111-8111-111111111111";
-    const workspaceId = "22222222-2222-4222-8222-222222222222";
+    const projectId = "22222222-2222-4222-8222-222222222222";
 
     await expect(
-      bootstrapVisitoringWorkspaceAdmin(organizationId, workspaceId),
+      bootstrapVisitoringProjectAdmin(organizationId, projectId),
     ).rejects.toMatchObject({
       status: 503,
     });
     await expect(
-      revokeVisitoringWorkspaceGrants(organizationId, workspaceId),
+      revokeVisitoringProjectGrants(organizationId, projectId),
     ).rejects.toMatchObject({
       status: 503,
     });

@@ -5,7 +5,7 @@ import { Pool } from "pg";
 import { buildNext, startNextProduction } from "./next-production";
 
 const organizationId = "b2746350-516c-45a8-bf2e-187104029040";
-const workspaceId = "17e3a481-e4b3-4c83-961a-8f9924256490";
+const projectId = "17e3a481-e4b3-4c83-961a-8f9924256490";
 const siteId = "471d4595-9bc7-4a25-b0b4-c7d6ca28514a";
 const siteKey = "vk_e2e_authenticated_dashboard_key";
 const email = "e2e-admin@example.test";
@@ -34,9 +34,9 @@ const session = {
       productId: "visitoring",
       resourceRoles: [
         {
-          scope: { kind: "workspace", organizationId, productId: "visitoring", workspaceId },
+          scope: { kind: "project", organizationId, productId: "visitoring", projectId },
           role: "admin",
-          actions: ["visitoring:workspace:read"],
+          actions: ["visitoring:project:read"],
         },
       ],
     },
@@ -98,32 +98,32 @@ const provider: Server = createServer(async (request, response) => {
 });
 
 async function seedDatabase() {
-  await pool.query("DELETE FROM workspaces WHERE id = $1", [workspaceId]);
+  await pool.query("DELETE FROM projects WHERE id = $1", [projectId]);
   await pool.query(
-    `INSERT INTO workspaces (id, name, organization_id)
-     VALUES ($1, 'Northwind analytics workspace', $2)`,
-    [workspaceId, organizationId],
+    `INSERT INTO projects (id, name, organization_id)
+     VALUES ($1, 'Northwind analytics project', $2)`,
+    [projectId, organizationId],
   );
   await pool.query(
-    `INSERT INTO sites (id, workspace_id, name, allowed_domains, site_key_hash, site_key_prefix)
+    `INSERT INTO sites (id, project_id, name, allowed_domains, site_key_hash, site_key_prefix)
      VALUES ($1, $2, 'Northwind website', ARRAY['example.test', 'www.example.test'], $3, $4)`,
-    [siteId, workspaceId, createHash("sha256").update(siteKey).digest("hex"), siteKey.slice(0, 11)],
+    [siteId, projectId, createHash("sha256").update(siteKey).digest("hex"), siteKey.slice(0, 11)],
   );
 
   await pool.query(
-    `INSERT INTO sites (id, workspace_id, name, allowed_domains, site_key_hash, site_key_prefix, created_at)
+    `INSERT INTO sites (id, project_id, name, allowed_domains, site_key_hash, site_key_prefix, created_at)
      VALUES ('3758c8a9-0171-43dc-b15e-d58b55b8dba9', $1, 'New site', ARRAY['new.example.test'], $2, 'vk_empty', '2020-01-01')`,
-    [workspaceId, createHash("sha256").update("vk_e2e_empty_traffic_site").digest("hex")],
+    [projectId, createHash("sha256").update("vk_e2e_empty_traffic_site").digest("hex")],
   );
   await pool.query(
-    `INSERT INTO site_events (workspace_id, site_id, visitor_id, session_id, event_name, path, referrer_host, device, created_at)
+    `INSERT INTO site_events (project_id, site_id, visitor_id, session_id, event_name, path, referrer_host, device, created_at)
      SELECT $1, $2, 'trend-visitor-' || (n % 12), 'trend-session-' || (n % 20), 'page_view',
        CASE WHEN n % 3 = 0 THEN '/pricing' ELSE '/features' END,
        CASE WHEN n % 2 = 0 THEN 'search.example' ELSE NULL END,
        CASE WHEN n % 3 = 0 THEN 'mobile' ELSE 'desktop' END,
        '2026-09-01T08:00:00Z'::timestamptz + (n % 40) * interval '1 day'
      FROM generate_series(1, 80) AS n`,
-    [workspaceId, siteId],
+    [projectId, siteId],
   );
 
   const events = [
@@ -162,10 +162,10 @@ async function seedDatabase() {
   for (const event of events) {
     await pool.query(
       `INSERT INTO site_events
-         (workspace_id, site_id, visitor_id, session_id, event_name, path, properties, created_at)
+         (project_id, site_id, visitor_id, session_id, event_name, path, properties, created_at)
        VALUES ($1, $2, $3, $4, $5, $6, $7::jsonb, $8)`,
       [
-        workspaceId,
+        projectId,
         siteId,
         event.visitorId,
         event.sessionId,
@@ -186,7 +186,7 @@ async function shutdown(exitCode = 0) {
   shuttingDown = true;
   if (nextServer && nextServer.exitCode === null) nextServer.kill("SIGTERM");
   await new Promise<void>((resolveClose) => provider.close(() => resolveClose()));
-  await pool.query("DELETE FROM workspaces WHERE id = $1", [workspaceId]).catch(() => undefined);
+  await pool.query("DELETE FROM projects WHERE id = $1", [projectId]).catch(() => undefined);
   await pool.end();
   process.exitCode = exitCode;
 }

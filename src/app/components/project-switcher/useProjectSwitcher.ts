@@ -3,13 +3,13 @@
 import { useEffect, useId, useRef, useState } from "react";
 import type { KeyboardEvent } from "react";
 
-export type WorkspaceChoice = {
+export type ProjectChoice = {
   id: string;
   name: string;
 };
 
-export function useWorkspaceSwitcher(workspaces: WorkspaceChoice[], currentWorkspaceId: string) {
-  const currentIndex = workspaces.findIndex((workspace) => workspace.id === currentWorkspaceId);
+export function useProjectSwitcher(projects: ProjectChoice[], currentProjectId: string) {
+  const currentIndex = projects.findIndex((project) => project.id === currentProjectId);
   const [open, setOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(Math.max(currentIndex, 0));
   const containerRef = useRef<HTMLDivElement>(null);
@@ -18,7 +18,7 @@ export function useWorkspaceSwitcher(workspaces: WorkspaceChoice[], currentWorks
   const labelId = useId();
   const valueId = useId();
   const listboxId = useId();
-  const currentWorkspace = workspaces[currentIndex];
+  const currentProject = projects[currentIndex];
 
   useEffect(() => {
     if (!open) return;
@@ -36,8 +36,8 @@ export function useWorkspaceSwitcher(workspaces: WorkspaceChoice[], currentWorks
   }, [activeIndex, open]);
 
   function openAt(index: number) {
-    if (workspaces.length === 0) return;
-    setActiveIndex(Math.min(Math.max(index, 0), workspaces.length - 1));
+    if (projects.length === 0) return;
+    setActiveIndex(Math.min(Math.max(index, 0), projects.length - 1));
     setOpen(true);
   }
 
@@ -51,12 +51,12 @@ export function useWorkspaceSwitcher(workspaces: WorkspaceChoice[], currentWorks
   }
 
   function handleKeyDown(event: KeyboardEvent<HTMLButtonElement>) {
-    if (workspaces.length === 0) return;
+    if (projects.length === 0) return;
 
     if (event.key === "ArrowDown") {
       event.preventDefault();
       if (!open) openAt(currentIndex >= 0 ? currentIndex : 0);
-      else setActiveIndex((index) => Math.min(index + 1, workspaces.length - 1));
+      else setActiveIndex((index) => Math.min(index + 1, projects.length - 1));
       return;
     }
 
@@ -75,7 +75,7 @@ export function useWorkspaceSwitcher(workspaces: WorkspaceChoice[], currentWorks
 
     if (event.key === "End" && open) {
       event.preventDefault();
-      setActiveIndex(workspaces.length - 1);
+      setActiveIndex(projects.length - 1);
       return;
     }
 
@@ -94,7 +94,7 @@ export function useWorkspaceSwitcher(workspaces: WorkspaceChoice[], currentWorks
 
   return {
     currentIndex,
-    currentWorkspace,
+    currentProject,
     open,
     activeIndex,
     setOpen,

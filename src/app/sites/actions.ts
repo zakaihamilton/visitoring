@@ -36,7 +36,7 @@ export async function createSiteAction(
   if (domains.length === 0) return { message: "Add at least one website address.", error: true };
   const key = createSiteKey();
   await db.insert(sites).values({
-    workspaceId: user.workspaceId,
+    projectId: user.projectId,
     name,
     allowedDomains: domains,
     siteKey: key,
@@ -67,7 +67,7 @@ export async function updateDomainsAction(
   const [updated] = await db
     .update(sites)
     .set({ allowedDomains: domains, updatedAt: new Date() })
-    .where(and(eq(sites.id, siteId), eq(sites.workspaceId, user.workspaceId)))
+    .where(and(eq(sites.id, siteId), eq(sites.projectId, user.projectId)))
     .returning({ id: sites.id });
   return siteUpdateResult(updated, { message: "Approved website addresses saved." });
 }
@@ -88,7 +88,7 @@ export async function rotateSiteKeyAction(
       siteKeyPrefix: key.slice(0, 11),
       updatedAt: new Date(),
     })
-    .where(and(eq(sites.id, siteId), eq(sites.workspaceId, user.workspaceId)))
+    .where(and(eq(sites.id, siteId), eq(sites.projectId, user.projectId)))
     .returning({ id: sites.id });
   return siteUpdateResult(updated, {
     message:

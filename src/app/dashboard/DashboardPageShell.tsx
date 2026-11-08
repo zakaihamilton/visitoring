@@ -61,13 +61,13 @@ async function DashboardContent({
 export async function DashboardPageShell({ searchParams, view }: Props) {
   const [user, params] = await Promise.all([requireUser(), searchParams]);
   const now = new Date();
-  const workspaceSites = await db
+  const projectSites = await db
     .select({ id: sites.id, name: sites.name })
     .from(sites)
-    .where(eq(sites.workspaceId, user.workspaceId))
+    .where(eq(sites.projectId, user.projectId))
     .orderBy(desc(sites.createdAt));
   const selectedSite =
-    workspaceSites.find((site) => site.id === value(params.site)) ?? workspaceSites[0];
+    projectSites.find((site) => site.id === value(params.site)) ?? projectSites[0];
   const dates = dashboardDates(value(params.from), value(params.to), now);
   const filters: Record<string, string> = {
     from: dates.from,
@@ -107,7 +107,7 @@ export async function DashboardPageShell({ searchParams, view }: Props) {
               pathname={view === "overview" ? "/dashboard" : `/dashboard/${view}`}
             />
             <DashboardFiltersForm
-              sites={workspaceSites}
+              sites={projectSites}
               siteId={selectedSite.id}
               filters={filters}
               data={{ eventNames: filters.event ? [filters.event] : [] }}
@@ -128,10 +128,10 @@ export async function DashboardPageShell({ searchParams, view }: Props) {
           >
             <DashboardContent
               view={view}
-              sites={workspaceSites}
+              sites={projectSites}
               siteId={selectedSite.id}
               analyticsFilters={{
-                workspaceId: user.workspaceId,
+                projectId: user.projectId,
                 siteId: selectedSite.id,
                 from: `${dates.from}T00:00:00.000Z`,
                 to: `${dates.to}T23:59:59.999Z`,

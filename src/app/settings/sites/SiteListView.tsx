@@ -3,9 +3,9 @@ import { SiteControls } from "./components/SiteControls";
 import { SiteKeyDisplay } from "./components/SiteKeyDisplay";
 
 export function SiteListView({
-  workspaceSites,
+  projectSites,
 }: {
-  workspaceSites: {
+  projectSites: {
     id: string;
     name: string;
     allowedDomains: string[];
@@ -15,8 +15,8 @@ export function SiteListView({
 }) {
   return (
     <div className={styles.siteList}>
-      {workspaceSites.length ? (
-        workspaceSites.map((site) => (
+      {projectSites.length ? (
+        projectSites.map((site) => (
           <section className={styles.siteCard} key={site.id} aria-labelledby={`site-${site.id}`}>
             <div className={styles.siteHeader}>
               <div className={styles.siteHeading}>

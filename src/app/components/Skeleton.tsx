@@ -40,7 +40,7 @@ export function TopbarSkeleton() {
           <span>Visitoring</span>
         </span>
         <span className={topbar.divider} />
-        <Skeleton width={175} height={18} className={styles.workspace} />
+        <Skeleton width={175} height={18} className={styles.project} />
         <span className={topbar.divider} />
         <Skeleton width={130} height={32} className={styles.organization} />
       </div>

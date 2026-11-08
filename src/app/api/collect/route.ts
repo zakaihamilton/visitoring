@@ -1,7 +1,7 @@
 import { and, eq, isNull, sql } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { db } from "@/db";
-import { rateLimitBuckets, siteEvents, sites, workspaces } from "@/db/schema";
+import { rateLimitBuckets, siteEvents, sites, projects } from "@/db/schema";
 import { parseAttribution } from "@/lib/attribution";
 import { parseEnvelope } from "@/lib/collect-envelope";
 import { hashRateLimitIp, rateLimitSecretConfigurationError, sha256 } from "@/lib/crypto";
@@ -69,16 +69,16 @@ async function authorizedSite(siteKey: string | null, origin: string | null) {
   const [site] = await db
     .select({
       id: sites.id,
-      workspaceId: sites.workspaceId,
+      projectId: sites.projectId,
       allowedDomains: sites.allowedDomains,
     })
     .from(sites)
-    .innerJoin(workspaces, eq(sites.workspaceId, workspaces.id))
+    .innerJoin(projects, eq(sites.projectId, projects.id))
     .where(
       and(
         eq(sites.siteKeyHash, sha256(siteKey)),
-        isNull(workspaces.archivedAt),
-        isNull(workspaces.deletionPendingAt),
+        isNull(projects.archivedAt),
+        isNull(projects.deletionPendingAt),
       ),
     )
     .limit(1);
@@ -162,7 +162,7 @@ export async function POST(request: Request): Promise<Response> {
 
   const attribution = await parseAttribution(ip, request.headers.get("user-agent"));
   await db.insert(siteEvents).values({
-    workspaceId: site.workspaceId,
+    projectId: site.projectId,
     siteId: site.id,
     visitorId: event.visitorId,
     sessionId: event.sessionId,

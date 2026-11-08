@@ -34,6 +34,11 @@ export async function setVisitoringOrganizationCookies(organizationId: string): 
     ...cookieOptions,
     path: "/",
   });
+  cookieStore.set("visitoring_project_id", "", {
+    ...cookieOptions,
+    path: "/",
+    maxAge: 0,
+  });
   cookieStore.set("visitoring_workspace_id", "", {
     ...cookieOptions,
     path: "/",
@@ -73,5 +78,6 @@ export async function clearVisitoringOrganizationSelection(): Promise<void> {
     maxAge: 0,
   };
   cookieStore.set("visitoring_organization_id", "", cookieOptions);
+  cookieStore.set("visitoring_project_id", "", cookieOptions);
   cookieStore.set("visitoring_workspace_id", "", cookieOptions);
 }
