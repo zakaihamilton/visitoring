@@ -36,13 +36,6 @@ jobs:
       - run: pnpm run db:migrate
       - run: pnpm exec playwright install --with-deps chromium
       - run: pnpm run health
-      - name: Capture health details and format diff
-        if: always()
-        run: |
-          pnpm exec repnix check --details || true
-          pnpm exec repnix check duplication --format json || true
-          pnpm exec biome format --write .
-          git -c color.ui=false --no-pager diff
 
   visual-regression:
     runs-on: macos-latest
@@ -77,14 +70,6 @@ jobs:
       - run: pnpm run db:migrate
       - run: pnpm exec playwright install chromium
       - run: pnpm run health:visual
-      - name: Capture visual regression screenshots
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: visual-regression-results
-          path: test-results/
-          if-no-files-found: ignore
-          retention-days: 1
 
   authenticated-ui:
     runs-on: ubuntu-latest
