@@ -39,6 +39,11 @@ describe("organization cookies", () => {
       "",
       expect.objectContaining({ path: "/", maxAge: 0 }),
     );
+    expect(cookieStore.set).toHaveBeenCalledWith(
+      "visitoring_workspace_id",
+      "",
+      expect.objectContaining({ path: "/", maxAge: 0 }),
+    );
   });
 
   it("clears stale active organization and project cookies", async () => {
@@ -46,7 +51,7 @@ describe("organization cookies", () => {
 
     await clearVisitoringOrganizationSelection();
 
-    expect(cookieStore.set).toHaveBeenCalledTimes(2);
+    expect(cookieStore.set).toHaveBeenCalledTimes(3);
     expect(cookieStore.set).toHaveBeenCalledWith(
       "visitoring_organization_id",
       "",
@@ -54,6 +59,11 @@ describe("organization cookies", () => {
     );
     expect(cookieStore.set).toHaveBeenCalledWith(
       "visitoring_project_id",
+      "",
+      expect.objectContaining({ path: "/", maxAge: 0 }),
+    );
+    expect(cookieStore.set).toHaveBeenCalledWith(
+      "visitoring_workspace_id",
       "",
       expect.objectContaining({ path: "/", maxAge: 0 }),
     );

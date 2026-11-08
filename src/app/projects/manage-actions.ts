@@ -6,10 +6,7 @@ import { revalidatePath } from "next/cache";
 import { db } from "@/db";
 import { projects } from "@/db/schema";
 import { requireOrganizationAdmin } from "@/lib/auth";
-import {
-  bootstrapVisitoringProjectAdmin,
-  revokeVisitoringProjectGrants,
-} from "@/lib/perminister";
+import { bootstrapVisitoringProjectAdmin, revokeVisitoringProjectGrants } from "@/lib/perminister";
 
 export type ProjectActionState = { message: string; error?: boolean };
 
@@ -27,11 +24,7 @@ function projectIdFrom(formData: FormData): string {
 
 type ProjectStatus = "active" | "archived" | "deletion-pending";
 
-function projectStatusCondition(
-  projectId: string,
-  organizationId: string,
-  status: ProjectStatus,
-) {
+function projectStatusCondition(projectId: string, organizationId: string, status: ProjectStatus) {
   return and(
     eq(projects.id, projectId),
     eq(projects.organizationId, organizationId),
@@ -73,17 +66,13 @@ export async function createProjectAction(
     await db
       .update(projects)
       .set({ archivedAt: now, deletionPendingAt: now })
-      .where(
-        and(eq(projects.id, projectId), eq(projects.organizationId, admin.organizationId)),
-      );
+      .where(and(eq(projects.id, projectId), eq(projects.organizationId, admin.organizationId)));
 
     try {
       await revokeVisitoringProjectGrants(admin.organizationId, projectId);
       await db
         .delete(projects)
-        .where(
-          and(eq(projects.id, projectId), eq(projects.organizationId, admin.organizationId)),
-        );
+        .where(and(eq(projects.id, projectId), eq(projects.organizationId, admin.organizationId)));
     } catch {
       // Keep the archived row so an organization admin can retry external cleanup.
     }

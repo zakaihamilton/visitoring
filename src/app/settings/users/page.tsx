@@ -4,6 +4,7 @@ import { Topbar } from "@/app/components/Topbar";
 import { listPerministerProjectMembers } from "@/lib/perminister";
 import { requireAdmin } from "@/lib/auth";
 import { SettingsNavigation } from "../SettingsNavigation";
+import { SettingsPageIntro } from "../SettingsPageIntro";
 import pageStyles from "../settings-page.module.css";
 import { UsersManager } from "./UsersManager";
 import { UserList } from "./components/UserList";
@@ -36,13 +37,11 @@ export default async function SettingsUsersPage() {
       <Topbar user={admin} section="settings" />
       <SettingsNavigation active="users" />
       <main className={pageStyles.page}>
-        <div className={pageStyles.intro}>
-          <div>
-            <div className={pageStyles.eyebrow}>Settings · Users</div>
-            <h1>Manage users</h1>
-            <p>Add people to your project and control their access to its dashboard.</p>
-          </div>
-        </div>
+        <SettingsPageIntro
+          eyebrow="Settings · Users"
+          title="Manage users"
+          description="Add people to your project and control their access to its dashboard."
+        />
         <UsersManager />
         <Suspense fallback={<MembersSkeleton />}>
           <ProjectUsers

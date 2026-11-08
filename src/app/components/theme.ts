@@ -4,7 +4,7 @@ export const THEME_PREFERENCES = ["system", "light", "dark"] as const;
 
 export type ThemePreference = (typeof THEME_PREFERENCES)[number];
 
-export const THEME_COLORS = {
+const THEME_COLORS = {
   light: "#f5f7f4",
   dark: "#0d1615",
 } as const;

@@ -403,8 +403,7 @@ function projectGrantResourceId(
       : scope.kind === "workspace"
         ? scope.workspaceId
         : undefined;
-  const action =
-    scope.kind === "project" ? "visitoring:project:read" : "visitoring:workspace:read";
+  const action = scope.kind === "project" ? "visitoring:project:read" : "visitoring:workspace:read";
   if (
     !resourceId ||
     (projectId && resourceId.toLowerCase() !== projectId.toLowerCase()) ||
@@ -448,10 +447,7 @@ export async function visitoringProjectsForOrganization(
     : [
         ...new Set(
           organization.resourceRoles
-            .filter(
-              (item) =>
-                projectGrantResourceId(item, normalizedOrganizationId) !== null,
-            )
+            .filter((item) => projectGrantResourceId(item, normalizedOrganizationId) !== null)
             .map((item) => projectGrantResourceId(item, normalizedOrganizationId))
             .filter((projectId): projectId is string => projectId !== null),
         ),

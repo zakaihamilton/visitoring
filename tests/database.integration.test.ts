@@ -461,10 +461,7 @@ suite("PostgreSQL collector integration", () => {
 
   it("pauses collection while a project is archived and resumes it after restoration", async () => {
     const before = await db.select().from(siteEvents).where(eq(siteEvents.siteId, siteId));
-    await db
-      .update(projects)
-      .set({ archivedAt: new Date() })
-      .where(eq(projects.id, projectId));
+    await db.update(projects).set({ archivedAt: new Date() }).where(eq(projects.id, projectId));
 
     const rejected = await collect(
       { ...payload, visitorId: "archived-project-visitor" },

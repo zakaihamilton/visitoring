@@ -12,6 +12,8 @@ describe("public navigation", () => {
     await user.tab();
     expect(document.activeElement).toBe(screen.getByRole("link", { name: "Visitoring home" }));
     await user.tab();
+    expect(document.activeElement).toBe(screen.getByRole("combobox", { name: "Color theme" }));
+    await user.tab();
     expect(document.activeElement).toBe(screen.getByRole("link", { name: "Developers" }));
   });
 });
