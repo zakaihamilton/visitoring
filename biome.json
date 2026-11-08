@@ -1,20 +1,30 @@
 {
-  "$schema": "https://biomejs.dev/schemas/2.5.15/schema.json",
-  "vcs": { "enabled": true, "clientKind": "git", "useIgnoreFile": true },
-  "files": {
-    "ignoreUnknown": false,
-    "includes": ["**", "!.next", "!node_modules", "!coverage", "!drizzle"]
-  },
-  "formatter": { "enabled": true, "indentStyle": "space", "indentWidth": 2, "lineWidth": 100 },
-  "linter": {
+  "$schema": "https://biomejs.dev/schemas/2.6.6/schema.json",
+  "vcs": {
     "enabled": true,
-    "rules": {
-      "preset": "recommended",
-      "a11y": { "preset": "recommended" },
-      "complexity": { "noExcessiveCognitiveComplexity": "off" },
-      "suspicious": { "noExplicitAny": "warn" }
+    "clientKind": "git",
+    "useIgnoreFile": true
+  },
+  "files": {
+    "ignoreUnknown": true,
+    "includes": ["biome.json", "package.json", "pnpm-workspace.yaml"]
+  },
+  "formatter": {
+    "enabled": true,
+    "indentStyle": "space",
+    "indentWidth": 2,
+    "lineWidth": 100
+  },
+  "javascript": {
+    "formatter": {
+      "quoteStyle": "double",
+      "semicolons": "always",
+      "trailingCommas": "all"
     }
   },
-  "javascript": { "formatter": { "quoteStyle": "double", "semicolons": "always" } },
-  "css": { "formatter": { "enabled": true } }
+  "css": {
+    "formatter": {
+      "enabled": true
+    }
+  }
 }
