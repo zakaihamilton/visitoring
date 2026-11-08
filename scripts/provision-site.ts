@@ -1,27 +1,27 @@
 import "dotenv/config";
 import { eq } from "drizzle-orm";
 import { db, pool } from "@/db";
-import { sites, workspaces } from "@/db/schema";
+import { sites, projects } from "@/db/schema";
 import { createSiteKey, sha256 } from "@/lib/crypto";
 import { parseAllowedDomains } from "@/lib/domains";
 import { parseArgs, requiredArg } from "./args";
 
 async function main(): Promise<void> {
   const args = parseArgs(process.argv.slice(2));
-  const workspaceId = requiredArg(args, "workspace-id");
+  const projectId = requiredArg(args, "project-id");
   const name = requiredArg(args, "name");
   const domains = parseAllowedDomains(requiredArg(args, "domains"));
-  const [workspace] = await db
-    .select({ id: workspaces.id })
-    .from(workspaces)
-    .where(eq(workspaces.id, workspaceId))
+  const [project] = await db
+    .select({ id: projects.id })
+    .from(projects)
+    .where(eq(projects.id, projectId))
     .limit(1);
-  if (!workspace) throw new Error(`Workspace ${workspaceId} was not found.`);
+  if (!project) throw new Error(`Project ${projectId} was not found.`);
   const key = createSiteKey();
   const [site] = await db
     .insert(sites)
     .values({
-      workspaceId,
+      projectId,
       name,
       allowedDomains: domains,
       siteKey: key,

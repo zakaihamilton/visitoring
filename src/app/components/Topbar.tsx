@@ -1,42 +1,42 @@
 import Link from "next/link";
 import { logoutAction } from "@/app/login/actions";
 import { selectOrganizationAction } from "@/app/organizations/actions";
-import { selectWorkspaceAction } from "@/app/projects/actions";
+import { selectProjectAction } from "@/app/projects/actions";
 import type { CurrentUser, OrganizationAdmin } from "@/lib/auth";
-import type { WorkspaceChoice } from "./workspace-switcher/useWorkspaceSwitcher";
+import type { ProjectChoice } from "./project-switcher/useProjectSwitcher";
 import { BrandIcon } from "./BrandIcon";
 import { OrganizationSwitcher } from "./OrganizationSwitcher";
-import { WorkspaceSwitcher } from "./WorkspaceSwitcher";
+import { ProjectSwitcher } from "./ProjectSwitcher";
 import { ThemeControl } from "./ThemeControl";
 import styles from "./topbar.module.css";
 
 export function Topbar({
   user,
   section,
-  workspaces,
+  projects,
 }: {
   user: CurrentUser | OrganizationAdmin;
   section: "dashboard" | "settings" | "organization-admin";
-  workspaces?: WorkspaceChoice[];
+  projects?: ProjectChoice[];
 }) {
-  const workspaceUser = "workspaceName" in user ? user : null;
-  const canManageOrganization = workspaceUser ? workspaceUser.canManageOrganization : true;
+  const projectUser = "projectName" in user ? user : null;
+  const canManageOrganization = projectUser ? projectUser.canManageOrganization : true;
 
   return (
     <header className={styles.header}>
       <div className={styles.left}>
-        <Link href={workspaceUser ? "/dashboard" : "/projects"} className={styles.brand}>
+        <Link href={projectUser ? "/dashboard" : "/projects"} className={styles.brand}>
           <BrandIcon />
           <span>Visitoring</span>
         </Link>
-        {workspaceUser ? (
+        {projectUser ? (
           <>
             <span className={styles.divider} />
-            <WorkspaceSwitcher
-              workspaces={workspaces}
-              currentWorkspaceId={workspaceUser.workspaceId}
-              currentWorkspaceName={workspaceUser.workspaceName}
-              action={selectWorkspaceAction}
+            <ProjectSwitcher
+              projects={projects}
+              currentProjectId={projectUser.projectId}
+              currentProjectName={projectUser.projectName}
+              action={selectProjectAction}
             />
           </>
         ) : null}
@@ -48,12 +48,12 @@ export function Topbar({
         />
       </div>
       <nav className={styles.nav} aria-label="Main navigation">
-        {workspaceUser ? (
+        {projectUser ? (
           <Link href="/dashboard" aria-current={section === "dashboard" ? "page" : undefined}>
             Overview
           </Link>
         ) : null}
-        {workspaceUser?.role === "admin" ? (
+        {projectUser?.role === "admin" ? (
           <Link href="/settings/sites" aria-current={section === "settings" ? "page" : undefined}>
             Settings
           </Link>

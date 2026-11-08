@@ -6,7 +6,7 @@ import { analyticsPeriod, emptyMetrics, type Metrics } from "./analytics-period"
 const EVENT_NAME_OPTIONS_LIMIT = 100;
 
 type AnalyticsFilters = {
-  workspaceId: string;
+  projectId: string;
   siteId: string;
   from: string;
   to: string;
@@ -30,7 +30,7 @@ function likeValue(value: string): string {
 
 function conditions(filters: AnalyticsFilters) {
   const clauses = [
-    eq(siteEvents.workspaceId, filters.workspaceId),
+    eq(siteEvents.projectId, filters.projectId),
     eq(siteEvents.siteId, filters.siteId),
     gte(siteEvents.createdAt, filters.from),
     lt(siteEvents.createdAt, filters.to),
@@ -54,7 +54,7 @@ function sqlConditions(filters: AnalyticsFilters, defaultPageViews = false) {
     return `$${parameters.length}`;
   };
   const clauses = [
-    `workspace_id = ${value(filters.workspaceId)}`,
+    `project_id = ${value(filters.projectId)}`,
     `site_id = ${value(filters.siteId)}`,
     `created_at >= ${value(filters.from)}`,
     `created_at < ${value(filters.to)}`,
@@ -220,7 +220,7 @@ export async function getAnalyticsData(filters: AnalyticsFilters) {
       .select({ id: siteEvents.id })
       .from(siteEvents)
       .where(
-        and(eq(siteEvents.workspaceId, filters.workspaceId), eq(siteEvents.siteId, filters.siteId)),
+        and(eq(siteEvents.projectId, filters.projectId), eq(siteEvents.siteId, filters.siteId)),
       )
       .limit(1),
     pool.query<PageAndReferrerRow>(
@@ -273,7 +273,7 @@ function eventNamesQuery(filters: AnalyticsFilters) {
     .selectDistinct({ name: siteEvents.eventName })
     .from(siteEvents)
     .where(
-      and(eq(siteEvents.workspaceId, filters.workspaceId), eq(siteEvents.siteId, filters.siteId)),
+      and(eq(siteEvents.projectId, filters.projectId), eq(siteEvents.siteId, filters.siteId)),
     )
     .orderBy(siteEvents.eventName)
     .limit(EVENT_NAME_OPTIONS_LIMIT);

@@ -9,17 +9,17 @@ import {
   revokePerministerSession,
   visitoringOrganizationForId,
   visitoringOrganizations,
-  visitoringUserForWorkspace,
-  visitoringWorkspacesForOrganization,
+  visitoringUserForProject,
+  visitoringProjectsForOrganization,
   type VisitoringCurrentUser,
   type VisitoringOrganizationChoice,
-  type VisitoringWorkspaceChoice,
+  type VisitoringProjectChoice,
 } from "@/lib/perminister";
-import { setVisitoringWorkspaceCookie } from "@/lib/workspace-cookies";
+import { setVisitoringProjectCookie } from "@/lib/project-cookies";
 
 const SESSION_COOKIE = PERMINISTER_SESSION_COOKIE;
 const ACTIVE_ORGANIZATION_COOKIE = "visitoring_organization_id";
-const ACTIVE_WORKSPACE_COOKIE = "visitoring_workspace_id";
+const ACTIVE_PROJECT_COOKIE = "visitoring_project_id";
 const SESSION_DURATION_MS = 1000 * 60 * 60 * 24 * 30;
 
 export type CurrentUser = VisitoringCurrentUser & {
@@ -44,10 +44,11 @@ async function getCurrentUser(): Promise<CurrentUser | null> {
     const session = await readPerministerSession(token);
     if (!session.authenticated) return null;
     const organizationId = jar.get(ACTIVE_ORGANIZATION_COOKIE)?.value;
-    const workspaceId = jar.get(ACTIVE_WORKSPACE_COOKIE)?.value;
-    if (!organizationId || !workspaceId) return null;
+    const projectId =
+      jar.get(ACTIVE_PROJECT_COOKIE)?.value ?? jar.get("visitoring_workspace_id")?.value;
+    if (!organizationId || !projectId) return null;
     if (!visitoringOrganizationForId(session, organizationId)) return null;
-    const user = await visitoringUserForWorkspace(session, organizationId, workspaceId);
+    const user = await visitoringUserForProject(session, organizationId, projectId);
     if (!user) return null;
     return {
       ...user,
@@ -107,12 +108,12 @@ export async function requireUser(): Promise<CurrentUser> {
   redirect("/projects");
 }
 
-export async function requireOrganizationWorkspaces(): Promise<{
+export async function requireOrganizationProjects(): Promise<{
   organizationId: string;
   organizationName: string;
   organizations: VisitoringOrganizationChoice[];
   canManageProjects: boolean;
-  workspaces: VisitoringWorkspaceChoice[];
+  projects: VisitoringProjectChoice[];
 }> {
   const { session, organization } = await requireOrganizationSession();
 
@@ -121,7 +122,7 @@ export async function requireOrganizationWorkspaces(): Promise<{
     organizationName: organization.organizationName,
     organizations: visitoringOrganizations(session),
     canManageProjects: isVisitoringOrganizationAdmin(session, organization.organizationId),
-    workspaces: await visitoringWorkspacesForOrganization(session, organization.organizationId),
+    projects: await visitoringProjectsForOrganization(session, organization.organizationId),
   };
 }
 
@@ -139,11 +140,11 @@ export async function requireOrganizationAdmin(): Promise<OrganizationAdmin> {
   };
 }
 
-export async function selectVisitoringWorkspace(workspaceId: string): Promise<void> {
+export async function selectVisitoringProject(projectId: string): Promise<void> {
   const { session, organization } = await requireOrganizationSession();
-  const user = await visitoringUserForWorkspace(session, organization.organizationId, workspaceId);
+  const user = await visitoringUserForProject(session, organization.organizationId, projectId);
   if (!user) redirect("/projects?error=access");
-  await setVisitoringWorkspaceCookie(workspaceId);
+  await setVisitoringProjectCookie(projectId);
 }
 
 export async function requireAdmin(): Promise<CurrentUser> {

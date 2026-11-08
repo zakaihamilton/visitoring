@@ -2,7 +2,7 @@ import "server-only";
 import { and, eq, inArray, isNull } from "drizzle-orm";
 import { cookies } from "next/headers";
 import { db } from "@/db";
-import { workspaces } from "@/db/schema";
+import { projects } from "@/db/schema";
 import { perministerBaseUrl } from "./perminister-origin";
 
 export const PERMINISTER_SESSION_COOKIE = "visitoring_session";
@@ -10,7 +10,7 @@ const VISITORING_PRODUCT_ID = "visitoring";
 
 export type VisitoringRole = "admin" | "viewer";
 type VisitoringOrganizationRole = "owner" | "admin" | "member";
-export type VisitoringWorkspaceChoice = {
+export type VisitoringProjectChoice = {
   id: string;
   name: string;
   organizationId: string;
@@ -21,7 +21,7 @@ export type VisitoringOrganizationChoice = {
   organizationId: string;
   organizationName: string;
 };
-type VisitoringWorkspaceMember = {
+type VisitoringProjectMember = {
   id: string;
   email: string | null;
   role: VisitoringRole;
@@ -30,8 +30,8 @@ type VisitoringWorkspaceMember = {
 
 export type VisitoringCurrentUser = {
   id: string;
-  workspaceId: string;
-  workspaceName: string;
+  projectId: string;
+  projectName: string;
   organizationId: string;
   organizationName: string;
   email: string | null;
@@ -43,6 +43,7 @@ type ResourceRole = {
     kind: string;
     organizationId?: string;
     productId?: string;
+    projectId?: string;
     workspaceId?: string;
   };
   role: string | null;
@@ -94,7 +95,9 @@ function operationForPath(path: string): string {
   if (pathname.endsWith("/consumer/token")) return "token_exchange";
   if (pathname.endsWith("/consumer/session")) return "session";
   if (pathname.endsWith("/consumer/members")) return "members";
-  if (pathname.includes("/consumer/workspaces")) return "workspace_grants";
+  if (pathname.includes("/consumer/projects") || pathname.includes("/consumer/workspaces")) {
+    return "project_grants";
+  }
   return "other";
 }
 
@@ -327,13 +330,13 @@ export function isVisitoringOrganizationAdmin(
   return organization?.organizationRole === "owner" || organization?.organizationRole === "admin";
 }
 
-export async function bootstrapVisitoringWorkspaceAdmin(
+export async function bootstrapVisitoringProjectAdmin(
   organizationId: string,
-  workspaceId: string,
+  projectId: string,
 ): Promise<void> {
-  const result = await requestPerminister<unknown>("/api/auth/consumer/workspaces", {
+  const result = await requestPerminister<unknown>("/api/auth/consumer/projects", {
     method: "POST",
-    body: { organizationId, workspaceId },
+    body: { organizationId, projectId },
   });
   if (
     typeof result !== "object" ||
@@ -341,16 +344,16 @@ export async function bootstrapVisitoringWorkspaceAdmin(
     !("granted" in result) ||
     result.granted !== true
   ) {
-    throw new PerministerApiError(503, "Perminister returned an invalid workspace grant response.");
+    throw new PerministerApiError(503, "Perminister returned an invalid project grant response.");
   }
 }
 
-export async function revokeVisitoringWorkspaceGrants(
+export async function revokeVisitoringProjectGrants(
   organizationId: string,
-  workspaceId: string,
+  projectId: string,
 ): Promise<void> {
   const result = await requestPerminister<unknown>(
-    `/api/auth/consumer/workspaces/${encodeURIComponent(workspaceId)}`,
+    `/api/auth/consumer/projects/${encodeURIComponent(projectId)}`,
     { method: "DELETE", body: { organizationId } },
   );
   if (
@@ -361,106 +364,140 @@ export async function revokeVisitoringWorkspaceGrants(
   ) {
     throw new PerministerApiError(
       503,
-      "Perminister returned an invalid workspace revocation response.",
+      "Perminister returned an invalid project revocation response.",
     );
+  }
+
+  // Earlier Visitoring releases stored project access as workspace-scoped grants. IDs are
+  // preserved by the database rename, so remove those grants as part of project deletion too.
+  const legacyResult = await requestPerminister<unknown>(
+    `/api/auth/consumer/workspaces/${encodeURIComponent(projectId)}`,
+    { method: "DELETE", body: { organizationId } },
+  );
+  if (
+    typeof legacyResult !== "object" ||
+    legacyResult === null ||
+    !("revoked" in legacyResult) ||
+    legacyResult.revoked !== true
+  ) {
+    throw new PerministerApiError(503, "Perminister returned an invalid legacy grant response.");
   }
 }
 
-function visitoringRoleForWorkspace(
+function projectGrantResourceId(
+  item: ResourceRole,
+  organizationId: string,
+  projectId?: string,
+): string | null {
+  const scope = item.scope;
+  if (
+    scope.organizationId?.toLowerCase() !== organizationId ||
+    scope.productId !== VISITORING_PRODUCT_ID
+  ) {
+    return null;
+  }
+
+  const resourceId =
+    scope.kind === "project"
+      ? scope.projectId
+      : scope.kind === "workspace"
+        ? scope.workspaceId
+        : undefined;
+  const action =
+    scope.kind === "project" ? "visitoring:project:read" : "visitoring:workspace:read";
+  if (
+    !resourceId ||
+    (projectId && resourceId.toLowerCase() !== projectId.toLowerCase()) ||
+    !item.actions.includes(action) ||
+    (item.role !== "admin" && item.role !== "viewer")
+  ) {
+    return null;
+  }
+  return resourceId.toLowerCase();
+}
+
+function visitoringRoleForProject(
   organization: ConsumerOrganization,
   organizationId: string,
-  workspaceId: string,
+  projectId: string,
 ): VisitoringRole | null {
   if (organization.organizationRole === "owner" || organization.organizationRole === "admin") {
     return "admin";
   }
 
-  const config = configuration();
   const grants = organization.resourceRoles.filter(
-    (item) =>
-      item.scope.kind === "workspace" &&
-      item.scope.organizationId?.toLowerCase() === organizationId &&
-      item.scope.productId === config.productId &&
-      item.scope.workspaceId === workspaceId &&
-      (item.role === "admin" || item.role === "viewer") &&
-      item.actions.includes("visitoring:workspace:read"),
+    (item) => projectGrantResourceId(item, organizationId, projectId) !== null,
   );
   if (grants.some((item) => item.role === "admin")) return "admin";
   if (grants.some((item) => item.role === "viewer")) return "viewer";
   return null;
 }
 
-export async function visitoringWorkspacesForOrganization(
+export async function visitoringProjectsForOrganization(
   auth: ConsumerSession,
   organizationId: string,
-): Promise<VisitoringWorkspaceChoice[]> {
-  const config = configuration();
+): Promise<VisitoringProjectChoice[]> {
   const normalizedOrganizationId = organizationId.trim().toLowerCase();
   const organization = visitoringOrganizationForId(auth, organizationId);
   if (!organization) return [];
 
   const isOrganizationAdmin =
     organization.organizationRole === "owner" || organization.organizationRole === "admin";
-  const workspaceIds = isOrganizationAdmin
+  const projectIds = isOrganizationAdmin
     ? []
     : [
         ...new Set(
           organization.resourceRoles
             .filter(
               (item) =>
-                item.scope.kind === "workspace" &&
-                item.scope.organizationId?.toLowerCase() === normalizedOrganizationId &&
-                item.scope.productId === config.productId &&
-                typeof item.scope.workspaceId === "string" &&
-                (item.role === "admin" || item.role === "viewer") &&
-                item.actions.includes("visitoring:workspace:read"),
+                projectGrantResourceId(item, normalizedOrganizationId) !== null,
             )
-            .map((item) => item.scope.workspaceId)
-            .filter((workspaceId): workspaceId is string => typeof workspaceId === "string"),
+            .map((item) => projectGrantResourceId(item, normalizedOrganizationId))
+            .filter((projectId): projectId is string => projectId !== null),
         ),
       ];
-  if (!isOrganizationAdmin && workspaceIds.length === 0) return [];
+  if (!isOrganizationAdmin && projectIds.length === 0) return [];
 
-  const activeWorkspaces = () =>
+  const activeProjects = () =>
     db
       .select({
-        id: workspaces.id,
-        name: workspaces.name,
-        organizationId: workspaces.organizationId,
+        id: projects.id,
+        name: projects.name,
+        organizationId: projects.organizationId,
       })
-      .from(workspaces);
-  const accessibleWorkspaces = isOrganizationAdmin
-    ? await activeWorkspaces().where(
+      .from(projects);
+  const accessibleProjects = isOrganizationAdmin
+    ? await activeProjects().where(
         and(
-          eq(workspaces.organizationId, normalizedOrganizationId),
-          isNull(workspaces.archivedAt),
-          isNull(workspaces.deletionPendingAt),
+          eq(projects.organizationId, normalizedOrganizationId),
+          isNull(projects.archivedAt),
+          isNull(projects.deletionPendingAt),
         ),
       )
-    : await activeWorkspaces()
+    : await activeProjects()
         .where(
           and(
-            inArray(workspaces.id, workspaceIds),
-            eq(workspaces.organizationId, normalizedOrganizationId),
-            isNull(workspaces.archivedAt),
-            isNull(workspaces.deletionPendingAt),
+            inArray(projects.id, projectIds),
+            eq(projects.organizationId, normalizedOrganizationId),
+            isNull(projects.archivedAt),
+            isNull(projects.deletionPendingAt),
           ),
         )
-        .limit(workspaceIds.length);
+        .limit(projectIds.length);
 
-  return accessibleWorkspaces
-    .map((workspace) => {
-      const role = visitoringRoleForWorkspace(organization, normalizedOrganizationId, workspace.id);
-      return role ? { ...workspace, organizationName: organization.organizationName, role } : null;
+  return accessibleProjects
+    .map((project) => {
+      const role = visitoringRoleForProject(organization, normalizedOrganizationId, project.id);
+      return role ? { ...project, organizationName: organization.organizationName, role } : null;
     })
-    .filter((workspace): workspace is VisitoringWorkspaceChoice => workspace !== null)
+    .filter((project): project is VisitoringProjectChoice => project !== null)
     .sort((left, right) => left.name.localeCompare(right.name));
 }
 
-export async function visitoringUserForWorkspace(
+export async function visitoringUserForProject(
   auth: ConsumerSession,
   organizationId: string,
-  workspaceId: string,
+  projectId: string,
 ): Promise<VisitoringCurrentUser | null> {
   const normalizedOrganizationId = organizationId.trim().toLowerCase();
   const organization = auth.organizations.find(
@@ -470,64 +507,64 @@ export async function visitoringUserForWorkspace(
   );
   if (!organization) return null;
 
-  const [workspace] = await db
+  const [project] = await db
     .select({
-      id: workspaces.id,
-      name: workspaces.name,
-      organizationId: workspaces.organizationId,
+      id: projects.id,
+      name: projects.name,
+      organizationId: projects.organizationId,
     })
-    .from(workspaces)
+    .from(projects)
     .where(
       and(
-        eq(workspaces.id, workspaceId),
-        eq(workspaces.organizationId, normalizedOrganizationId),
-        isNull(workspaces.archivedAt),
-        isNull(workspaces.deletionPendingAt),
+        eq(projects.id, projectId),
+        eq(projects.organizationId, normalizedOrganizationId),
+        isNull(projects.archivedAt),
+        isNull(projects.deletionPendingAt),
       ),
     )
     .limit(1);
-  if (!workspace) return null;
+  if (!project) return null;
 
-  const role = visitoringRoleForWorkspace(organization, normalizedOrganizationId, workspace.id);
+  const role = visitoringRoleForProject(organization, normalizedOrganizationId, project.id);
   if (!role) return null;
 
   return {
     id: auth.account.subjectId,
-    workspaceId: workspace.id,
-    workspaceName: workspace.name,
-    organizationId: workspace.organizationId,
+    projectId: project.id,
+    projectName: project.name,
+    organizationId: project.organizationId,
     organizationName: organization.organizationName,
     email: auth.account.email,
     role,
   };
 }
 
-export async function consumerWorkspaceScope(workspaceId: string) {
-  const [workspace] = await db
-    .select({ organizationId: workspaces.organizationId })
-    .from(workspaces)
-    .where(eq(workspaces.id, workspaceId))
+export async function consumerProjectScope(projectId: string) {
+  const [project] = await db
+    .select({ organizationId: projects.organizationId })
+    .from(projects)
+    .where(eq(projects.id, projectId))
     .limit(1);
-  if (!workspace) throw new PerministerApiError(404, "Workspace not found.");
+  if (!project) throw new PerministerApiError(404, "Project not found.");
   return {
-    organizationId: workspace.organizationId,
-    scopeKind: "workspace",
-    resourceId: workspaceId,
+    organizationId: project.organizationId,
+    scopeKind: "project",
+    resourceId: projectId,
   };
 }
 
-export async function listPerministerWorkspaceMembers(
-  workspaceId: string,
+export async function listPerministerProjectMembers(
+  projectId: string,
   knownOrganizationId?: string,
-): Promise<VisitoringWorkspaceMember[]> {
+): Promise<VisitoringProjectMember[]> {
   configuration();
   const scope = knownOrganizationId
     ? {
         organizationId: knownOrganizationId,
-        scopeKind: "workspace",
-        resourceId: workspaceId,
+        scopeKind: "project",
+        resourceId: projectId,
       }
-    : await consumerWorkspaceScope(workspaceId);
+    : await consumerProjectScope(projectId);
   const params = new URLSearchParams(scope);
   const result = await requestPerminister<{ members: Array<Record<string, unknown>> }>(
     `/api/auth/consumer/members?${params.toString()}`,

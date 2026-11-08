@@ -1,11 +1,11 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { selectVisitoringWorkspace } from "@/lib/auth";
+import { selectVisitoringProject } from "@/lib/auth";
 
-export async function selectWorkspaceAction(formData: FormData): Promise<void> {
-  const workspaceId = String(formData.get("workspaceId") ?? "").trim();
-  if (!workspaceId) redirect("/projects?error=access");
-  await selectVisitoringWorkspace(workspaceId);
+export async function selectProjectAction(formData: FormData): Promise<void> {
+  const projectId = String(formData.get("projectId") ?? "").trim();
+  if (!projectId) redirect("/projects?error=access");
+  await selectVisitoringProject(projectId);
   redirect("/dashboard");
 }

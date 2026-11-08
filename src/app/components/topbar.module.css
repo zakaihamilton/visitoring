@@ -33,7 +33,7 @@
   height: 22px;
   border-left: 1px solid var(--line);
 }
-.workspace {
+.project {
   display: block;
   min-width: 0;
   max-width: min(16vw, 190px);
@@ -44,7 +44,7 @@
   white-space: nowrap;
   text-decoration: none;
 }
-.workspace:hover {
+.project:hover {
   color: var(--ink);
 }
 .nav {
@@ -117,7 +117,7 @@
   .left > form {
     flex: 1 1 calc(100% - 140px);
   }
-  .workspace {
+  .project {
     max-width: min(22vw, 120px);
   }
   .account {

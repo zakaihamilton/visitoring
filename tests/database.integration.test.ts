@@ -1,7 +1,7 @@
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import { and, eq } from "drizzle-orm";
 import { db, pool } from "@/db";
-import { siteEvents, sites, workspaces } from "@/db/schema";
+import { siteEvents, sites, projects } from "@/db/schema";
 import { createSiteKey, sha256 } from "@/lib/crypto";
 import { getAnalyticsData, getRecentEventsData } from "@/lib/analytics";
 import { POST } from "@/app/api/collect/route";
@@ -9,8 +9,8 @@ import { pruneExpiredData, retentionCutoff } from "@/lib/retention";
 
 const integration = Boolean(process.env.DATABASE_URL);
 const suite = integration ? describe : describe.skip;
-let workspaceId = "";
-let otherWorkspaceId = "";
+let projectId = "";
+let otherProjectId = "";
 let siteId = "";
 let siteKey = "";
 
@@ -39,28 +39,28 @@ const payload = {
 
 suite("PostgreSQL collector integration", () => {
   beforeAll(async () => {
-    const [workspace] = await db
-      .insert(workspaces)
+    const [project] = await db
+      .insert(projects)
       .values({
-        name: "Integration workspace",
+        name: "Integration project",
         organizationId: "660601f6-c1c3-42b0-9118-c2285d7659a3",
       })
       .returning();
     const [other] = await db
-      .insert(workspaces)
+      .insert(projects)
       .values({
-        name: "Other workspace",
+        name: "Other project",
         organizationId: "660601f6-c1c3-42b0-9118-c2285d7659a3",
       })
       .returning();
-    if (!workspace || !other) throw new Error("Could not create integration workspaces.");
-    workspaceId = workspace.id;
-    otherWorkspaceId = other.id;
+    if (!project || !other) throw new Error("Could not create integration projects.");
+    projectId = project.id;
+    otherProjectId = other.id;
     siteKey = createSiteKey();
     const [site] = await db
       .insert(sites)
       .values({
-        workspaceId,
+        projectId,
         name: "Integration site",
         allowedDomains: ["analytics-test.example"],
         siteKeyHash: sha256(siteKey),
@@ -72,8 +72,8 @@ suite("PostgreSQL collector integration", () => {
   });
 
   afterAll(async () => {
-    if (workspaceId) await db.delete(workspaces).where(eq(workspaces.id, workspaceId));
-    if (otherWorkspaceId) await db.delete(workspaces).where(eq(workspaces.id, otherWorkspaceId));
+    if (projectId) await db.delete(projects).where(eq(projects.id, projectId));
+    if (otherProjectId) await db.delete(projects).where(eq(projects.id, otherProjectId));
     await pool.end();
   });
 
@@ -115,7 +115,7 @@ suite("PostgreSQL collector integration", () => {
     const querySpy = vi.spyOn(pool, "query");
     try {
       const data = await getAnalyticsData({
-        workspaceId,
+        projectId,
         siteId,
         from: new Date(Date.now() - 86_400_000).toISOString(),
         to: new Date(Date.now() + 86_400_000).toISOString(),
@@ -143,7 +143,7 @@ suite("PostgreSQL collector integration", () => {
     }
 
     const customData = await getAnalyticsData({
-      workspaceId,
+      projectId,
       siteId,
       from: new Date(Date.now() - 86_400_000).toISOString(),
       to: new Date(Date.now() + 86_400_000).toISOString(),
@@ -157,7 +157,7 @@ suite("PostgreSQL collector integration", () => {
     const inRangeAt = (offsetMs: number) => new Date(rangeStart - offsetMs).toISOString();
     await db.insert(siteEvents).values([
       {
-        workspaceId,
+        projectId,
         siteId,
         visitorId: "filter-visitor",
         sessionId: "filter-session",
@@ -167,7 +167,7 @@ suite("PostgreSQL collector integration", () => {
         createdAt: inRangeAt(60_000),
       },
       {
-        workspaceId,
+        projectId,
         siteId,
         visitorId: "filter-visitor",
         sessionId: "other-session",
@@ -177,7 +177,7 @@ suite("PostgreSQL collector integration", () => {
         createdAt: inRangeAt(50_000),
       },
       {
-        workspaceId,
+        projectId,
         siteId,
         visitorId: "other-visitor",
         sessionId: "filter-session",
@@ -187,7 +187,7 @@ suite("PostgreSQL collector integration", () => {
         createdAt: inRangeAt(40_000),
       },
       {
-        workspaceId,
+        projectId,
         siteId,
         visitorId: "filter-visitor",
         sessionId: "filter-session",
@@ -197,7 +197,7 @@ suite("PostgreSQL collector integration", () => {
         createdAt: inRangeAt(30_000),
       },
       {
-        workspaceId,
+        projectId,
         siteId,
         visitorId: "filter-visitor",
         sessionId: "filter-session",
@@ -207,7 +207,7 @@ suite("PostgreSQL collector integration", () => {
         createdAt: inRangeAt(20_000),
       },
       {
-        workspaceId,
+        projectId,
         siteId,
         visitorId: "filter-visitor",
         sessionId: "filter-session",
@@ -217,7 +217,7 @@ suite("PostgreSQL collector integration", () => {
         createdAt: inRangeAt(10_000),
       },
       {
-        workspaceId,
+        projectId,
         siteId,
         visitorId: "filter-visitor",
         sessionId: "filter-session",
@@ -230,7 +230,7 @@ suite("PostgreSQL collector integration", () => {
 
     const from = new Date(rangeStart - 60 * 60_000).toISOString();
     const to = new Date(rangeStart + 60 * 60_000).toISOString();
-    const base = { workspaceId, siteId, from, to };
+    const base = { projectId, siteId, from, to };
     const dated = await getAnalyticsData(base);
     expect(dated.total).toBe(6);
     for (const filter of [
@@ -247,7 +247,7 @@ suite("PostgreSQL collector integration", () => {
 
   it("compares scoped, filtered traffic with distinct buckets and full breakdown denominators", async () => {
     const sample = {
-      workspaceId,
+      projectId,
       siteId,
       eventName: "page_view",
       visitorId: "traffic-visitor",
@@ -273,8 +273,8 @@ suite("PostgreSQL collector integration", () => {
       },
       {
         ...sample,
-        workspaceId: otherWorkspaceId,
-        path: "/traffic/other-workspace",
+        projectId: otherProjectId,
+        path: "/traffic/other-project",
         createdAt: "2025-02-01T10:00:00.000Z",
       },
       {
@@ -298,7 +298,7 @@ suite("PostgreSQL collector integration", () => {
       { ...sample, path: "/elsewhere", createdAt: "2025-02-01T10:00:00.000Z" },
     ]);
     const filters = {
-      workspaceId,
+      projectId,
       siteId,
       from: "2025-02-02T00:00:00.000Z",
       to: "2025-02-02T23:59:59.999Z",
@@ -329,7 +329,7 @@ suite("PostgreSQL collector integration", () => {
     expect(empty).toMatchObject({ total: 0, hasSiteActivity: true });
     const isolated = await getAnalyticsData({
       ...filters,
-      workspaceId: otherWorkspaceId,
+      projectId: otherProjectId,
       path: "/traffic/0",
     });
     expect(isolated).toMatchObject({ total: 0, previous: { total: 0 } });
@@ -338,7 +338,7 @@ suite("PostgreSQL collector integration", () => {
   it("loads only the latest 20 scoped matching event records on the events page", async () => {
     await db.insert(siteEvents).values(
       Array.from({ length: 25 }, (_, index) => ({
-        workspaceId,
+        projectId,
         siteId,
         visitorId: "detail-visitor",
         sessionId: "detail-session",
@@ -349,7 +349,7 @@ suite("PostgreSQL collector integration", () => {
       })),
     );
     const filters = {
-      workspaceId,
+      projectId,
       siteId,
       from: "2025-03-01T00:00:00.000Z",
       to: "2025-03-01T23:59:59.999Z",
@@ -377,7 +377,7 @@ suite("PostgreSQL collector integration", () => {
     );
     expect((await getRecentEventsData(filters, 999)).page).toBe(2);
     expect((await getRecentEventsData(filters, Number.NaN)).page).toBe(1);
-    const isolated = await getRecentEventsData({ ...filters, workspaceId: otherWorkspaceId }, 2);
+    const isolated = await getRecentEventsData({ ...filters, projectId: otherProjectId }, 2);
     expect(isolated).toMatchObject({ total: 0, events: [] });
     const filtered = await getRecentEventsData({ ...filters, propertyValue: "enterprise" });
     expect(filtered).toMatchObject({ total: 0, events: [] });
@@ -388,7 +388,7 @@ suite("PostgreSQL collector integration", () => {
     try {
       vi.setSystemTime(new Date("2026-10-23T12:00:00.000Z"));
       const base = {
-        workspaceId,
+        projectId,
         siteId,
         visitorId: "pagination-visitor",
         sessionId: "pagination-session",
@@ -402,7 +402,7 @@ suite("PostgreSQL collector integration", () => {
         })),
       );
       const filters = {
-        workspaceId,
+        projectId,
         siteId,
         from: "2026-10-23T00:00:00.000Z",
         to: "2026-10-23T23:59:59.999Z",
@@ -437,7 +437,7 @@ suite("PostgreSQL collector integration", () => {
         );
       }
       const isolated = await getRecentEventsData(
-        { ...filters, workspaceId: otherWorkspaceId },
+        { ...filters, projectId: otherProjectId },
         2,
         first.snapshotAt,
       );
@@ -462,9 +462,9 @@ suite("PostgreSQL collector integration", () => {
   it("pauses collection while a project is archived and resumes it after restoration", async () => {
     const before = await db.select().from(siteEvents).where(eq(siteEvents.siteId, siteId));
     await db
-      .update(workspaces)
+      .update(projects)
       .set({ archivedAt: new Date() })
-      .where(eq(workspaces.id, workspaceId));
+      .where(eq(projects.id, projectId));
 
     const rejected = await collect(
       { ...payload, visitorId: "archived-project-visitor" },
@@ -474,7 +474,7 @@ suite("PostgreSQL collector integration", () => {
     const whileArchived = await db.select().from(siteEvents).where(eq(siteEvents.siteId, siteId));
     expect(whileArchived).toHaveLength(before.length);
 
-    await db.update(workspaces).set({ archivedAt: null }).where(eq(workspaces.id, workspaceId));
+    await db.update(projects).set({ archivedAt: null }).where(eq(projects.id, projectId));
     const restored = await collect(
       { ...payload, visitorId: "restored-project-visitor" },
       { ip: "198.51.100.57" },
@@ -521,9 +521,9 @@ suite("PostgreSQL collector integration", () => {
     }
   });
 
-  it("scopes dashboard queries to the selected workspace and site", async () => {
+  it("scopes dashboard queries to the selected project and site", async () => {
     const data = await getAnalyticsData({
-      workspaceId: otherWorkspaceId,
+      projectId: otherProjectId,
       siteId,
       from: new Date(Date.now() - 86_400_000).toISOString(),
       to: new Date(Date.now() + 86_400_000).toISOString(),
@@ -534,7 +534,7 @@ suite("PostgreSQL collector integration", () => {
     const [otherSite] = await db
       .insert(sites)
       .values({
-        workspaceId,
+        projectId,
         name: "Other integration site",
         allowedDomains: ["other-analytics-test.example"],
         siteKeyHash: sha256(createSiteKey()),
@@ -544,7 +544,7 @@ suite("PostgreSQL collector integration", () => {
     if (!otherSite) throw new Error("Could not create the other integration site.");
     const isolatedAt = new Date(Date.now() + 100 * 86_400_000).toISOString();
     await db.insert(siteEvents).values({
-      workspaceId,
+      projectId,
       siteId: otherSite.id,
       visitorId: "other-site-visitor",
       sessionId: "other-site-session",
@@ -554,7 +554,7 @@ suite("PostgreSQL collector integration", () => {
       createdAt: isolatedAt,
     });
     const siteScoped = await getAnalyticsData({
-      workspaceId,
+      projectId,
       siteId,
       from: isolatedAt,
       to: isolatedAt,
@@ -566,14 +566,14 @@ suite("PostgreSQL collector integration", () => {
     const oldCutoff = retentionCutoff(new Date(), 25);
     await pool.query(
       `insert into site_events
-         (workspace_id, site_id, visitor_id, session_id, event_name, path, properties, created_at)
+         (project_id, site_id, visitor_id, session_id, event_name, path, properties, created_at)
        select $1, $2, 'retention-batch-visitor', 'retention-batch-session', 'page_view',
               '/expired-retention-batch', '{}'::jsonb, $3
        from generate_series(1, 10001)`,
-      [workspaceId, siteId, oldCutoff.toISOString()],
+      [projectId, siteId, oldCutoff.toISOString()],
     );
     await db.insert(siteEvents).values({
-      workspaceId,
+      projectId,
       siteId,
       visitorId: "retention-recent-visitor",
       sessionId: "retention-recent-session",

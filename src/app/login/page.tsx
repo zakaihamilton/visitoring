@@ -27,7 +27,7 @@ export default async function LoginPage({ searchParams }: Props) {
           <p>Private analytics for the sites you run, with no public sign-up.</p>
         </div>
         <div className={styles.mini}>
-          <span className={styles.pulse} /> Your data stays in your workspace
+          <span className={styles.pulse} /> Your data stays in your project
         </div>
       </section>
       <section className={styles.formSide}>

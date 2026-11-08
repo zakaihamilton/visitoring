@@ -55,8 +55,8 @@ export default async function Preview({
   const organizations = [{ organizationId: "preview-org", organizationName: "Example Studio" }];
   const previewUser: CurrentUser = {
     id: "preview-user",
-    workspaceId: "preview",
-    workspaceName: "Example project",
+    projectId: "preview",
+    projectName: "Example project",
     organizationId: "preview-org",
     organizationName: "Example Studio",
     email: "alex@example.test",
@@ -173,7 +173,7 @@ export default async function Preview({
                   <CreateSiteForm />
                 </section>
                 <SiteListView
-                  workspaceSites={
+                  projectSites={
                     selected === "populated"
                       ? [
                           {
@@ -244,7 +244,7 @@ export default async function Preview({
           {screen === "projects" && (
             <ProjectsView
               error={selected === "filtered" ? "access" : undefined}
-              workspacesData={{
+              projectsData={{
                 organizationId: "preview-org",
                 organizationName: "Example Studio",
                 organizations: [
@@ -254,7 +254,7 @@ export default async function Preview({
                   },
                 ],
                 canManageProjects: true,
-                workspaces:
+                projects:
                   selected === "populated"
                     ? [
                         {

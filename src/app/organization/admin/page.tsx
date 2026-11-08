@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import { asc, eq } from "drizzle-orm";
 import { db } from "@/db";
-import { workspaces } from "@/db/schema";
+import { projects } from "@/db/schema";
 import { Topbar } from "@/app/components/Topbar";
 import { requireOrganizationAdmin } from "@/lib/auth";
 import { ProjectManager } from "@/app/projects/ProjectManager";
@@ -13,14 +13,14 @@ export const dynamic = "force-dynamic";
 function getManagedProjectRows(organizationId: string) {
   return db
     .select({
-      id: workspaces.id,
-      name: workspaces.name,
-      archivedAt: workspaces.archivedAt,
-      deletionPendingAt: workspaces.deletionPendingAt,
+      id: projects.id,
+      name: projects.name,
+      archivedAt: projects.archivedAt,
+      deletionPendingAt: projects.deletionPendingAt,
     })
-    .from(workspaces)
-    .where(eq(workspaces.organizationId, organizationId))
-    .orderBy(asc(workspaces.name));
+    .from(projects)
+    .where(eq(projects.organizationId, organizationId))
+    .orderBy(asc(projects.name));
 }
 
 async function ManagedProjectsSection({ organizationId }: { organizationId: string }) {

@@ -35,7 +35,7 @@ export function ProjectControls({ project }: { project: ManagedProject }) {
           </p>
         ) : (
           <form action={action}>
-            <input type="hidden" name="workspaceId" value={project.id} />
+            <input type="hidden" name="projectId" value={project.id} />
             <input type="hidden" name="operation" value="restore" />
             <button type="submit" className="button buttonQuiet" disabled={pending}>
               {pending ? "Restoring…" : "Restore project"}
@@ -44,7 +44,7 @@ export function ProjectControls({ project }: { project: ManagedProject }) {
         )
       ) : (
         <form action={action}>
-          <input type="hidden" name="workspaceId" value={project.id} />
+          <input type="hidden" name="projectId" value={project.id} />
           <input type="hidden" name="operation" value="archive" />
           <button type="submit" className="button buttonQuiet" disabled={pending}>
             {pending ? "Archiving…" : "Archive project"}
@@ -59,7 +59,7 @@ export function ProjectControls({ project }: { project: ManagedProject }) {
             action={action}
             onSubmit={(event) => guardConfirmableSubmit(event, confirmedRef, setConfirmOpen)}
           >
-            <input type="hidden" name="workspaceId" value={project.id} />
+            <input type="hidden" name="projectId" value={project.id} />
             <input type="hidden" name="operation" value="delete" />
             <button type="submit" className="button buttonDanger" disabled={pending}>
               {pending

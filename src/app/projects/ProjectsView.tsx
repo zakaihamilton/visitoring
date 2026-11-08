@@ -5,8 +5,8 @@ import { OrganizationSwitcher } from "@/app/components/OrganizationSwitcher";
 import { ThemeControl } from "@/app/components/ThemeControl";
 import { logoutAction } from "@/app/login/actions";
 import { selectOrganizationAction } from "@/app/organizations/actions";
-import type { requireOrganizationWorkspaces } from "@/lib/auth";
-import { selectWorkspaceAction } from "./actions";
+import type { requireOrganizationProjects } from "@/lib/auth";
+import { selectProjectAction } from "./actions";
 import styles from "./projects.module.css";
 
 function ProjectsHeader({ children }: { children?: ReactNode }) {
@@ -30,13 +30,13 @@ function ProjectsHeader({ children }: { children?: ReactNode }) {
 }
 
 export function ProjectsView({
-  workspacesData,
+  projectsData,
   error,
 }: {
-  workspacesData: Awaited<ReturnType<typeof requireOrganizationWorkspaces>> | null;
+  projectsData: Awaited<ReturnType<typeof requireOrganizationProjects>> | null;
   error?: string;
 }) {
-  if (!workspacesData) {
+  if (!projectsData) {
     return (
       <main className={styles.page}>
         <ProjectsHeader />
@@ -58,7 +58,7 @@ export function ProjectsView({
     );
   }
 
-  const { organizationId, organizations, canManageProjects, workspaces } = workspacesData;
+  const { organizationId, organizations, canManageProjects, projects } = projectsData;
 
   return (
     <main className={styles.page}>
@@ -95,19 +95,19 @@ export function ProjectsView({
           </p>
         ) : null}
 
-        {workspaces.length > 0 ? (
+        {projects.length > 0 ? (
           <div className={styles.grid}>
-            {workspaces.map((workspace) => (
-              <form action={selectWorkspaceAction} key={workspace.id}>
-                <input type="hidden" name="workspaceId" value={workspace.id} />
+            {projects.map((project) => (
+              <form action={selectProjectAction} key={project.id}>
+                <input type="hidden" name="projectId" value={project.id} />
                 <button type="submit" className={styles.card}>
                   <span className={styles.cardTop}>
                     <span className={styles.projectIcon} aria-hidden>
-                      {workspace.name.slice(0, 1).toUpperCase()}
+                      {project.name.slice(0, 1).toUpperCase()}
                     </span>
-                    <span className={styles.role}>{workspace.role}</span>
+                    <span className={styles.role}>{project.role}</span>
                   </span>
-                  <span className={styles.projectName}>{workspace.name}</span>
+                  <span className={styles.projectName}>{project.name}</span>
                   <span className={styles.cardBottom}>
                     Open project <span aria-hidden>↗</span>
                   </span>

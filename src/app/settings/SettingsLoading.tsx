@@ -38,11 +38,11 @@ export function SiteCardsSkeleton({ announce = true }: { announce?: boolean }) {
 export function MembersSkeleton({ announce = true }: { announce?: boolean }) {
   return (
     <>
-      {announce ? <LoadingStatus>Loading workspace members…</LoadingStatus> : null}
-      <section className={page.card} aria-busy="true" aria-label="Loading workspace members">
+      {announce ? <LoadingStatus>Loading project members…</LoadingStatus> : null}
+      <section className={page.card} aria-busy="true" aria-label="Loading project members">
         <div aria-hidden="true">
           <div className={page.cardHeading}>
-            <h2>Workspace members</h2>
+            <h2>Project members</h2>
           </div>
           <div className={styles.members}>
             {["first", "second", "third"].map((row) => (

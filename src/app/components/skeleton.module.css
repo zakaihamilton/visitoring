@@ -42,7 +42,7 @@
   }
 }
 @media (width > 760px) {
-  .workspace {
+  .project {
     flex-shrink: 1;
     min-width: 0;
     max-width: min(16vw, 175px);
@@ -59,7 +59,7 @@
   }
 }
 @media (width <= 760px) {
-  .workspace {
+  .project {
     flex: 1 1 120px;
     max-width: 45%;
   }

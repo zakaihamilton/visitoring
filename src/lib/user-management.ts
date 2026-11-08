@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { consumerWorkspaceScope, PerministerApiError, requestPerminister } from "@/lib/perminister";
+import { consumerProjectScope, PerministerApiError, requestPerminister } from "@/lib/perminister";
 
 const emailSchema = z.string().email().max(254);
 const roleSchema = z.enum(["admin", "viewer"]);
@@ -53,8 +53,8 @@ async function runPerministerMemberAction(
   }
 }
 
-async function runWorkspaceMemberAction(
-  input: { workspaceId: string; userId: string },
+async function runProjectMemberAction(
+  input: { projectId: string; userId: string },
   method: "PATCH" | "DELETE",
   changes: Record<string, unknown>,
   successMessage: string,
@@ -63,7 +63,7 @@ async function runWorkspaceMemberAction(
     return await runPerministerMemberAction(
       perministerMemberPath(input.userId),
       method,
-      { ...(await consumerWorkspaceScope(input.workspaceId)), ...changes },
+      { ...(await consumerProjectScope(input.projectId)), ...changes },
       successMessage,
     );
   } catch (error) {
@@ -71,16 +71,16 @@ async function runWorkspaceMemberAction(
   }
 }
 
-function setWorkspaceMemberStatus(
-  input: { workspaceId: string; userId: string },
+function setProjectMemberStatus(
+  input: { projectId: string; userId: string },
   status: "active" | "disabled",
   successMessage: string,
 ): Promise<UserManagementResult> {
-  return runWorkspaceMemberAction(input, "PATCH", { status }, successMessage);
+  return runProjectMemberAction(input, "PATCH", { status }, successMessage);
 }
 
-export async function createWorkspaceUser(input: {
-  workspaceId: string;
+export async function createProjectUser(input: {
+  projectId: string;
   email: string;
   password: string;
   role: string;
@@ -99,7 +99,7 @@ export async function createWorkspaceUser(input: {
     }>("/api/auth/consumer/members", {
       method: "POST",
       body: {
-        ...(await consumerWorkspaceScope(input.workspaceId)),
+        ...(await consumerProjectScope(input.projectId)),
         email,
         password: input.password,
         role: role.data,
@@ -108,16 +108,16 @@ export async function createWorkspaceUser(input: {
     return success(
       result.accountCreated
         ? "User added. Share the initial password with them securely."
-        : "Existing Perminister account added to this workspace; their current password is unchanged.",
+        : "Existing Perminister account added to this project; their current password is unchanged.",
     );
   } catch (error) {
     return failure(perminResponseMessage(error));
   }
 }
 
-export async function changeWorkspaceUserRole(input: {
+export async function changeProjectUserRole(input: {
   actorId: string;
-  workspaceId: string;
+  projectId: string;
   userId: string;
   role: string;
 }): Promise<UserManagementResult> {
@@ -125,12 +125,12 @@ export async function changeWorkspaceUserRole(input: {
     return failure("You cannot change your own account here.");
   const role = roleSchema.safeParse(input.role);
   if (!role.success) return failure("Choose either the admin or viewer role.");
-  return runWorkspaceMemberAction(input, "PATCH", { role: role.data }, "User role updated.");
+  return runProjectMemberAction(input, "PATCH", { role: role.data }, "User role updated.");
 }
 
-export async function resetWorkspaceUserPassword(input: {
+export async function resetProjectUserPassword(input: {
   actorId: string;
-  workspaceId: string;
+  projectId: string;
   userId: string;
   password: string;
 }): Promise<UserManagementResult> {
@@ -138,7 +138,7 @@ export async function resetWorkspaceUserPassword(input: {
     return failure("You cannot reset your own password here.");
   if (!validPassword(input.password))
     return failure("Use a password between 15 and 256 characters.");
-  return runWorkspaceMemberAction(
+  return runProjectMemberAction(
     input,
     "PATCH",
     { password: input.password },
@@ -146,32 +146,32 @@ export async function resetWorkspaceUserPassword(input: {
   );
 }
 
-export async function deactivateWorkspaceUser(input: {
+export async function deactivateProjectUser(input: {
   actorId: string;
-  workspaceId: string;
+  projectId: string;
   userId: string;
 }): Promise<UserManagementResult> {
   if (cannotChangeSelf(input.actorId, input.userId))
     return failure("You cannot deactivate your own account here.");
-  return setWorkspaceMemberStatus(input, "disabled", "User removed from this workspace.");
+  return setProjectMemberStatus(input, "disabled", "User removed from this project.");
 }
 
-export async function reactivateWorkspaceUser(input: {
+export async function reactivateProjectUser(input: {
   actorId: string;
-  workspaceId: string;
+  projectId: string;
   userId: string;
 }): Promise<UserManagementResult> {
   if (cannotChangeSelf(input.actorId, input.userId))
     return failure("You cannot reactivate your own account here.");
-  return setWorkspaceMemberStatus(input, "active", "User reactivated for this workspace.");
+  return setProjectMemberStatus(input, "active", "User reactivated for this project.");
 }
 
-export async function deleteWorkspaceUser(input: {
+export async function deleteProjectUser(input: {
   actorId: string;
-  workspaceId: string;
+  projectId: string;
   userId: string;
 }): Promise<UserManagementResult> {
   if (cannotChangeSelf(input.actorId, input.userId))
     return failure("You cannot delete your own account here.");
-  return runWorkspaceMemberAction(input, "DELETE", {}, "User removed from this workspace.");
+  return runProjectMemberAction(input, "DELETE", {}, "User removed from this project.");
 }

@@ -3,12 +3,12 @@
 import { revalidatePath } from "next/cache";
 import { requireAdmin } from "@/lib/auth";
 import {
-  changeWorkspaceUserRole,
-  createWorkspaceUser,
-  deactivateWorkspaceUser,
-  deleteWorkspaceUser,
-  reactivateWorkspaceUser,
-  resetWorkspaceUserPassword,
+  changeProjectUserRole,
+  createProjectUser,
+  deactivateProjectUser,
+  deleteProjectUser,
+  reactivateProjectUser,
+  resetProjectUserPassword,
   type UserManagementResult,
 } from "@/lib/user-management";
 
@@ -25,8 +25,8 @@ export async function createUserAction(
 ): Promise<UserActionState> {
   const admin = await requireAdmin();
   return refreshOnSuccess(
-    await createWorkspaceUser({
-      workspaceId: admin.workspaceId,
+    await createProjectUser({
+      projectId: admin.projectId,
       email: String(formData.get("email") ?? ""),
       password: String(formData.get("password") ?? ""),
       role: String(formData.get("role") ?? "viewer"),
@@ -40,9 +40,9 @@ export async function changeUserRoleAction(
 ): Promise<UserActionState> {
   const admin = await requireAdmin();
   return refreshOnSuccess(
-    await changeWorkspaceUserRole({
+    await changeProjectUserRole({
       actorId: admin.id,
-      workspaceId: admin.workspaceId,
+      projectId: admin.projectId,
       userId: String(formData.get("userId") ?? ""),
       role: String(formData.get("role") ?? ""),
     }),
@@ -55,9 +55,9 @@ export async function resetUserPasswordAction(
 ): Promise<UserActionState> {
   const admin = await requireAdmin();
   return refreshOnSuccess(
-    await resetWorkspaceUserPassword({
+    await resetProjectUserPassword({
       actorId: admin.id,
-      workspaceId: admin.workspaceId,
+      projectId: admin.projectId,
       userId: String(formData.get("userId") ?? ""),
       password: String(formData.get("password") ?? ""),
     }),
@@ -70,9 +70,9 @@ export async function deactivateUserAction(
 ): Promise<UserActionState> {
   const admin = await requireAdmin();
   return refreshOnSuccess(
-    await deactivateWorkspaceUser({
+    await deactivateProjectUser({
       actorId: admin.id,
-      workspaceId: admin.workspaceId,
+      projectId: admin.projectId,
       userId: String(formData.get("userId") ?? ""),
     }),
   );
@@ -84,9 +84,9 @@ export async function reactivateUserAction(
 ): Promise<UserActionState> {
   const admin = await requireAdmin();
   return refreshOnSuccess(
-    await reactivateWorkspaceUser({
+    await reactivateProjectUser({
       actorId: admin.id,
-      workspaceId: admin.workspaceId,
+      projectId: admin.projectId,
       userId: String(formData.get("userId") ?? ""),
     }),
   );
@@ -98,9 +98,9 @@ export async function deleteUserAction(
 ): Promise<UserActionState> {
   const admin = await requireAdmin();
   return refreshOnSuccess(
-    await deleteWorkspaceUser({
+    await deleteProjectUser({
       actorId: admin.id,
-      workspaceId: admin.workspaceId,
+      projectId: admin.projectId,
       userId: String(formData.get("userId") ?? ""),
     }),
   );
