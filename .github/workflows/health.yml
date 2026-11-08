@@ -27,12 +27,13 @@ jobs:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
         with:
-          version: 10.33.0
+          version: 12.18.0
       - uses: actions/setup-node@v4
         with:
-          node-version: 24.22.1
+          node-version-file: .nvmrc
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      - run: pnpm run format:check
       - run: pnpm run db:migrate
       - run: pnpm exec playwright install --with-deps chromium
       - run: pnpm run health
@@ -46,10 +47,10 @@ jobs:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
         with:
-          version: 10.33.0
+          version: 12.18.0
       - uses: actions/setup-node@v4
         with:
-          node-version: 24.22.1
+          node-version-file: .nvmrc
           cache: pnpm
       # The Darwin screenshot baselines require macOS; start PostgreSQL natively here.
       - name: Set up PostgreSQL
@@ -94,10 +95,10 @@ jobs:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
         with:
-          version: 10.33.0
+          version: 12.18.0
       - uses: actions/setup-node@v4
         with:
-          node-version: 24.22.1
+          node-version-file: .nvmrc
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm run db:migrate

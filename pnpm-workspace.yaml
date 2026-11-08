@@ -1,3 +1,6 @@
+autoInstallPeers: false
+allowBuilds:
+  esbuild: true
 packages:
   - packages/react
 linkWorkspacePackages: true
