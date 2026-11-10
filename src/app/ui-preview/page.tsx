@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { PreviewDropdown, PreviewToolbar } from "ui-preview-kit";
 import { Topbar } from "@/app/components/Topbar";
-import type { CurrentUser, OrganizationAdmin } from "@/lib/auth";
 import { ChartDataView } from "@/app/dashboard/chart-data/view";
 import { TrafficMetricProvider } from "@/app/dashboard/components/TrafficMetric";
 import { RecentEventsView } from "@/app/dashboard/events/view";
@@ -17,9 +17,9 @@ import { CreateSiteForm } from "@/app/settings/sites/components/CreateSiteForm";
 import { SiteListView } from "@/app/settings/sites/SiteListView";
 import { UserList } from "@/app/settings/users/components/UserList";
 import { UsersManager } from "@/app/settings/users/UsersManager";
-import { type Scenario, scenarios, sites } from "./fixtures";
+import type { CurrentUser, OrganizationAdmin } from "@/lib/auth";
+import { projectCreationSuccess, type Scenario, scenarios, sites } from "./fixtures";
 import { PreviewGuard } from "./PreviewGuard";
-import { PreviewDropdown, PreviewToolbar } from "ui-preview-kit";
 
 const previewScreens = [
   "traffic",
@@ -30,6 +30,7 @@ const previewScreens = [
   "settings-setup",
   "projects",
   "project-admin",
+  "project-created",
 ] as const;
 
 export default async function Preview({
@@ -125,7 +126,7 @@ export default async function Preview({
           options={previewScreens.map((item) => ({
             value: item,
             label: item.replace(/-/g, " ").replace(/\b\w/g, (letter) => letter.toUpperCase()),
-            href: "/ui-preview?screen=" + encodeURIComponent(item) + "&scenario=" + selected,
+            href: `/ui-preview?screen=${encodeURIComponent(item)}&scenario=${selected}`,
           }))}
         />
         <PreviewDropdown
@@ -134,16 +135,16 @@ export default async function Preview({
           options={Object.entries(scenarios).map(([key, item]) => ({
             value: key,
             label: item.label,
-            href: "/ui-preview?screen=" + encodeURIComponent(screen) + "&scenario=" + key,
+            href: `/ui-preview?screen=${encodeURIComponent(screen)}&scenario=${key}`,
           }))}
         />
       </PreviewToolbar>
       <PreviewGuard>
         {screen !== "projects" && (
           <Topbar
-            user={screen === "project-admin" ? previewAdmin : previewUser}
+            user={screen.startsWith("project-") ? previewAdmin : previewUser}
             section={
-              screen === "project-admin"
+              screen.startsWith("project-")
                 ? "organization-admin"
                 : screen?.startsWith("settings")
                   ? "settings"
@@ -261,7 +262,7 @@ export default async function Preview({
               }}
             />
           )}
-          {screen === "project-admin" && (
+          {(screen === "project-admin" || screen === "project-created") && (
             <main className={projectStyles.adminPage}>
               <ProjectManager
                 projects={
@@ -273,6 +274,16 @@ export default async function Preview({
                           archivedAt: null,
                           deletionPendingAt: null,
                         },
+                        ...(screen === "project-created"
+                          ? [
+                              {
+                                id: "preview-created-project",
+                                name: "New example project",
+                                archivedAt: null,
+                                deletionPendingAt: null,
+                              },
+                            ]
+                          : []),
                         {
                           id: "preview-archived",
                           name: "Archived example",
@@ -287,6 +298,9 @@ export default async function Preview({
                         },
                       ]
                     : []
+                }
+                createInitialState={
+                  screen === "project-created" ? projectCreationSuccess : undefined
                 }
               />
             </main>

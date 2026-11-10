@@ -157,6 +157,14 @@
   justify-items: start;
   gap: 7px;
 }
+.deleteActions {
+  display: grid;
+  justify-items: start;
+  gap: 7px;
+  margin-top: 4px;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+}
 .keyActionLine {
   display: flex;
   align-items: center;

@@ -8,10 +8,11 @@ import { projects } from "@/db/schema";
 import { requireOrganizationAdmin } from "@/lib/auth";
 import { bootstrapVisitoringProjectAdmin, revokeVisitoringProjectGrants } from "@/lib/perminister";
 
-export type ProjectActionState = { message: string; error?: boolean };
+export type ProjectActionState = { message: string; error?: boolean; createdProjectId?: string };
 
 const failure = (message: string): ProjectActionState => ({ message, error: true });
-const success = (message: string): ProjectActionState => ({ message });
+const success = (message: string, createdProjectId?: string): ProjectActionState =>
+  createdProjectId ? { message, createdProjectId } : { message };
 
 function revalidateProjectManagement() {
   revalidatePath("/organization/admin");
@@ -83,7 +84,7 @@ export async function createProjectAction(
   }
 
   revalidateProjectManagement();
-  return success(`${name} added. You now have admin access to its project.`);
+  return success(`${name} added. You now have admin access to its project.`, projectId);
 }
 
 export async function manageProjectAction(

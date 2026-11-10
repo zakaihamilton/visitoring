@@ -1,6 +1,6 @@
 "use server";
 
-import { eq, and } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { db } from "@/db";
 import { sites } from "@/db/schema";
@@ -95,4 +95,25 @@ export async function rotateSiteKeyAction(
       "Tracking key replaced. The new key is available in Settings → Sites; update your site now.",
     key,
   });
+}
+
+export async function deleteSiteAction(
+  _state: SiteActionState,
+  formData: FormData,
+): Promise<SiteActionState> {
+  const user = await requireAdmin();
+  const siteId = String(formData.get("siteId") ?? "").trim();
+  if (!siteId) return { message: "Choose a site to delete.", error: true };
+
+  const [deleted] = await db
+    .delete(sites)
+    .where(and(eq(sites.id, siteId), eq(sites.projectId, user.projectId)))
+    .returning({ id: sites.id });
+  if (!deleted) return { message: "We couldn't find that site in your project.", error: true };
+
+  revalidatePath("/settings/sites");
+  revalidatePath("/dashboard");
+  revalidatePath("/dashboard/events");
+  revalidatePath("/dashboard/chart-data");
+  return { message: "Site deleted. Its tracking key and analytics have been permanently removed." };
 }

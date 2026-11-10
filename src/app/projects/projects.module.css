@@ -185,9 +185,17 @@
   grid-template-columns: minmax(180px, 1fr) auto;
   align-items: end;
   gap: 14px;
+  margin-top: 0;
+}
+.createProjectSection {
   margin-top: 22px;
   padding-bottom: 22px;
   border-bottom: 1px solid var(--line);
+}
+.projectCreateFeedback {
+  display: grid;
+  gap: 12px;
+  margin-top: 12px;
 }
 .createProjectForm > div {
   display: grid;
@@ -197,6 +205,9 @@
 }
 .createProjectForm input {
   width: 100%;
+}
+.projectCreateFeedback form {
+  margin: 0;
 }
 .managedProjects {
   display: grid;

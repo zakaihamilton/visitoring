@@ -1,6 +1,6 @@
 "use client";
 
-import type { MouseEvent, ReactNode } from "react";
+import type { FormEvent, MouseEvent, ReactNode } from "react";
 
 function blockLinkNavigation(event: MouseEvent<HTMLDivElement>) {
   const target = event.target;
@@ -10,6 +10,19 @@ function blockLinkNavigation(event: MouseEvent<HTMLDivElement>) {
   }
 }
 
+function blockFormSubmission(event: FormEvent<HTMLDivElement>) {
+  const form = event.target;
+  if (
+    form instanceof HTMLFormElement &&
+    form.dataset.previewConfirmable === "true" &&
+    !form.querySelector("dialog[open]")
+  ) {
+    return;
+  }
+  event.preventDefault();
+  event.stopPropagation();
+}
+
 // Production links and forms target real routes. Keep this fixture sandbox local.
 export function PreviewGuard({ children }: { children: ReactNode }) {
   return (
@@ -17,10 +30,7 @@ export function PreviewGuard({ children }: { children: ReactNode }) {
       onClickCapture={blockLinkNavigation}
       onAuxClickCapture={blockLinkNavigation}
       onContextMenuCapture={blockLinkNavigation}
-      onSubmitCapture={(event) => {
-        event.preventDefault();
-        event.stopPropagation();
-      }}
+      onSubmitCapture={blockFormSubmission}
     >
       {children}
     </div>

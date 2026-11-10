@@ -1,5 +1,6 @@
-import { analyticsPeriod, emptyMetrics } from "@/lib/analytics-period";
 import type { DashboardData } from "@/app/dashboard/components/types";
+import type { ProjectActionState } from "@/app/projects/manage-actions";
+import { analyticsPeriod, emptyMetrics } from "@/lib/analytics-period";
 
 const generated = analyticsPeriod(
   "2026-10-01T00:00:00.000Z",
@@ -97,3 +98,7 @@ export const scenarios = {
 } satisfies Record<string, { label: string; data: DashboardData; event: string }>;
 export type Scenario = keyof typeof scenarios;
 export const sites = [{ id: "demo-site", name: "Example site" }];
+export const projectCreationSuccess: ProjectActionState = {
+  message: "New example project added. You now have admin access to its workspace.",
+  createdProjectId: "preview-created-project",
+};

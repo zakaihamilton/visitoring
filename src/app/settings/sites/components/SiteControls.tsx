@@ -1,20 +1,33 @@
 "use client";
 
 import { useActionState, useEffect, useRef, useState } from "react";
-import { Tooltip } from "@/app/components/Tooltip";
 import { guardConfirmableSubmit } from "@/app/components/confirmable-form";
-import { rotateSiteKeyAction, updateDomainsAction } from "@/app/sites/actions";
+import { Tooltip } from "@/app/components/Tooltip";
+import { deleteSiteAction, rotateSiteKeyAction, updateDomainsAction } from "@/app/sites/actions";
 import dialogStyles from "../../confirm-dialog.module.css";
+import styles from "../../settings-page.module.css";
 import { ActionNotice } from "./ActionNotice";
 import { initialState } from "./initialState";
-import styles from "../../settings-page.module.css";
 
-export function SiteControls({ siteId, domains }: { siteId: string; domains: string[] }) {
+export function SiteControls({
+  siteId,
+  siteName,
+  domains,
+}: {
+  siteId: string;
+  siteName: string;
+  domains: string[];
+}) {
   const [state, action, pending] = useActionState(rotateSiteKeyAction, initialState);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const dialogRef = useRef<HTMLDialogElement>(null);
   const cancelButtonRef = useRef<HTMLButtonElement>(null);
   const confirmedRef = useRef(false);
+  const [deleteState, deleteAction, deleting] = useActionState(deleteSiteAction, initialState);
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const deleteDialogRef = useRef<HTMLDialogElement>(null);
+  const deleteCancelButtonRef = useRef<HTMLButtonElement>(null);
+  const confirmedDeleteRef = useRef(false);
   const [domainState, domainAction, savingDomains] = useActionState(
     updateDomainsAction,
     initialState,
@@ -30,6 +43,16 @@ export function SiteControls({ siteId, domains }: { siteId: string; domains: str
     }
     if (!confirmOpen && dialog.open) dialog.close();
   }, [confirmOpen]);
+
+  useEffect(() => {
+    const dialog = deleteDialogRef.current;
+    if (!dialog) return;
+    if (deleteConfirmOpen && !dialog.open) {
+      dialog.showModal();
+      deleteCancelButtonRef.current?.focus();
+    }
+    if (!deleteConfirmOpen && dialog.open) dialog.close();
+  }, [deleteConfirmOpen]);
 
   return (
     <div className={styles.siteControls}>
@@ -115,6 +138,62 @@ export function SiteControls({ siteId, domains }: { siteId: string; domains: str
               }}
             >
               Replace key
+            </button>
+          </div>
+        </dialog>
+      </form>
+      <form
+        action={deleteAction}
+        className={styles.deleteActions}
+        data-preview-confirmable="true"
+        onSubmit={(event) =>
+          guardConfirmableSubmit(event, confirmedDeleteRef, setDeleteConfirmOpen)
+        }
+      >
+        <input type="hidden" name="siteId" value={siteId} />
+        <button type="submit" className="button buttonDanger" disabled={deleting}>
+          {deleting ? "Deleting…" : "Delete site"}
+        </button>
+        <ActionNotice state={deleteState} />
+        <dialog
+          ref={deleteDialogRef}
+          className="confirmationDialogSurface"
+          aria-labelledby={`delete-site-title-${siteId}`}
+          aria-describedby={`delete-site-description-${siteId}`}
+          onCancel={(event) => {
+            event.preventDefault();
+            setDeleteConfirmOpen(false);
+          }}
+          onClose={() => setDeleteConfirmOpen(false)}
+        >
+          <h3
+            id={`delete-site-title-${siteId}`}
+            className={`${dialogStyles.title} ${styles.confirmTitle}`}
+          >
+            Delete {siteName}?
+          </h3>
+          <p id={`delete-site-description-${siteId}`} className={dialogStyles.copy}>
+            This permanently removes the site's tracking key, collected events, and rate-limit
+            history. This action can't be undone.
+          </p>
+          <div className={`${dialogStyles.actions} ${styles.confirmActions}`}>
+            <button
+              type="button"
+              className="button buttonQuiet"
+              ref={deleteCancelButtonRef}
+              onClick={() => setDeleteConfirmOpen(false)}
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="button buttonDanger"
+              disabled={deleting}
+              onClick={() => {
+                confirmedDeleteRef.current = true;
+              }}
+            >
+              Delete site
             </button>
           </div>
         </dialog>

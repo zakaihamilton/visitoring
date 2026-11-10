@@ -1,9 +1,16 @@
-import type { ManagedProject } from "./project-types";
-import { ManagedProjectList } from "./components/ManagedProjectList";
 import { CreateProjectForm } from "./components/CreateProjectForm";
+import { ManagedProjectList } from "./components/ManagedProjectList";
+import type { ProjectActionState } from "./manage-actions";
+import type { ManagedProject } from "./project-types";
 import styles from "./projects.module.css";
 
-export function ProjectManager({ projects }: { projects: ManagedProject[] }) {
+export function ProjectManager({
+  projects,
+  createInitialState,
+}: {
+  projects: ManagedProject[];
+  createInitialState?: ProjectActionState;
+}) {
   const active = projects.filter((project) => !project.archivedAt);
   const archived = projects.filter((project) => project.archivedAt);
 
@@ -17,7 +24,7 @@ export function ProjectManager({ projects }: { projects: ManagedProject[] }) {
         </div>
       </div>
 
-      <CreateProjectForm />
+      <CreateProjectForm initialActionState={createInitialState} />
 
       <div className={styles.managedProjects}>
         <ManagedProjectList

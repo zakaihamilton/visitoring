@@ -29,7 +29,7 @@ export function SiteListView({
                 <li key={domain}>{domain}</li>
               ))}
             </ul>
-            <SiteControls siteId={site.id} domains={site.allowedDomains} />
+            <SiteControls siteId={site.id} siteName={site.name} domains={site.allowedDomains} />
           </section>
         ))
       ) : (

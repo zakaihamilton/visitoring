@@ -13,7 +13,7 @@ The gallery uses fixed, synthetic data and real production view components. The 
 | `/dashboard/events` | `?screen=events` | Real `RecentEventsView`; synthetic events or empty table. |
 | `/dashboard/chart-data` | `?screen=chart` | Real `ChartDataView`; fixed chart data. |
 | `/projects` | `?screen=projects` | Real `ProjectsView`; project card, empty and access-error states. |
-| `/organization/admin` | `?screen=project-admin` | Real `ProjectManager`; active, archived and pending-cleanup states, form actions are blocked. |
+| `/organization/admin` | `?screen=project-admin` or `?screen=project-created` | Real `ProjectManager`; active, archived and pending-cleanup states, plus the post-create open-project button. Form actions are blocked. |
 | `/settings/sites` | `?screen=settings` | Real site form and site list with synthetic key and domains. |
 | `/settings/users` | `?screen=settings-users` | Real user form and list with synthetic members. |
 | `/settings/setup` | `?screen=settings-setup` | Real tracker instructions and settings navigation. |
@@ -22,6 +22,6 @@ The gallery uses fixed, synthetic data and real production view components. The 
 
 `/auth/*`, `/api/*`, and `/tracker.js` are auth, API or tracker endpoints, not page views; they are outside the gallery. Public links leave the sandbox and follow normal application behavior. Dashboard, settings and admin previews include the real authenticated top bar with a synthetic user; project selection includes its actual header. Settings pages reproduce their layout around the real components, so changes to page-level wrappers need to be reflected in the preview. Auth, loading/error responses from real services, persistence, and server-side behavior are not simulated.
 
-Within the gallery, application links and form submissions are intercepted, and a `form-action 'none'` response policy blocks native form posts before hydration. The policy is scoped to `/ui-preview` and does not replace server authorization; never use this development server as a security boundary. Dropdowns, charts and tooltips can be inspected, but form-driven confirmation dialogs do not open and forms do not save or navigate. The scenario and public-page links in the banner are outside that guard. Direct public pages use normal production links and actions.
+Within the gallery, application links and form submissions are intercepted, and a `form-action 'none'` response policy blocks native form posts before hydration. The policy is scoped to `/ui-preview` and does not replace server authorization; never use this development server as a security boundary. Dropdowns, charts and tooltips can be inspected. The site deletion confirmation can be opened, but confirming it is blocked; other form-driven confirmation dialogs do not open, and forms do not save or navigate. The scenario and public-page links in the banner are outside that guard. Direct public pages use normal production links and actions.
 
 For a UI task, open the relevant screen, inspect desktop and mobile widths, edit the production component/CSS, and reload. Add typed, synthetic fixture states as needed; never put customer data in fixtures. The fixed dates make screenshot comparisons reproducible.
