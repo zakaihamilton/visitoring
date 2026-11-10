@@ -93,7 +93,10 @@ export function TrackerSection({ numbered = true }: { numbered?: boolean }) {
                 content="Choose either the standard script or the React package for a page. Do not install both."
               />
             </div>
-            <p>Choose the setup that matches how your website is built.</p>
+            <p>
+              Use the script without a package, or install <code>visitoring</code> from npm for
+              React. Choose React app for the install command and setup.
+            </p>
           </div>
         </div>
 
