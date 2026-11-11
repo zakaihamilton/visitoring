@@ -94,7 +94,12 @@
 
 @media (max-width: 760px) {
   .container {
-    max-width: min(34vw, 180px);
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .trigger {
+    width: 100%;
   }
 
   .options {
