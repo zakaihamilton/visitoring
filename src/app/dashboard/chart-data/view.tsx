@@ -1,10 +1,6 @@
 import Form from "next/form";
-import { DataFreshness } from "../components/DataFreshness";
 /* eslint-disable jsx-a11y/no-noninteractive-tabindex -- Scrollable tables need keyboard access. */
 import { DropdownSelect } from "@/app/components/DropdownSelect";
-import { dateLabel } from "@/lib/analytics-period";
-import { DashboardFiltersForm } from "../components/DashboardFilters";
-import { TrafficFilterSummary } from "../components/TrafficFilterSummary";
 import {
   chartMeasures,
   chartMetric,
@@ -13,6 +9,8 @@ import {
 } from "../components/chart-data";
 import { formatNumber, type DashboardProps } from "../components/types";
 import styles from "../dashboard.module.css";
+import { TrafficPageControls } from "../components/TrafficPageControls";
+import { TrafficPageHeader } from "../components/TrafficPageHeader";
 
 export function ChartDataView({ sites, siteId, data, filters }: DashboardProps) {
   const measure = chartMetric(filters.metric);
@@ -20,30 +18,20 @@ export function ChartDataView({ sites, siteId, data, filters }: DashboardProps) 
   const hourly = data.period.granularity === "hour";
   return (
     <main className={styles.main}>
-      <div className={styles.heading}>
-        <div>
-          <div className="eyebrow">{site?.name ?? "Site activity"}</div>
-          <h1>Chart data</h1>
-          <p>
-            {dateLabel(`${filters.from}T00:00:00Z`, false, true)} –{" "}
-            {dateLabel(`${filters.to}T00:00:00Z`, false, true)} · UTC
-            {data.period.partial ? " · Today is partial" : ""}
-          </p>
-        </div>
-        <DataFreshness retrievedAt={data.retrievedAt} />
-      </div>
-      <TrafficFilterSummary
-        siteId={siteId}
+      <TrafficPageHeader
+        siteName={site?.name ?? "Site activity"}
+        title="Chart data"
         filters={filters}
         retrievedAt={data.retrievedAt}
-        pathname="/dashboard/chart-data"
+        partial={data.period.partial}
       />
-      <DashboardFiltersForm
-        key={`${siteId}:${JSON.stringify(filters)}`}
+      <TrafficPageControls
         sites={sites}
         siteId={siteId}
         data={data}
         filters={filters}
+        retrievedAt={data.retrievedAt}
+        pathname="/dashboard/chart-data"
       />
       <section className={styles.card}>
         <div className={styles.cardTitle}>

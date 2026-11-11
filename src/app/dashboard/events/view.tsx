@@ -1,11 +1,9 @@
-import { DataFreshness } from "../components/DataFreshness";
 import Link from "next/link";
-import { dateLabel } from "@/lib/analytics-period";
-import { DashboardFiltersForm } from "../components/DashboardFilters";
-import { TrafficFilterSummary } from "../components/TrafficFilterSummary";
 import { RecentEventsTable } from "../components/RecentEventsTable";
 import type { DashboardProps, RecentEventsData } from "../components/types";
 import styles from "../dashboard.module.css";
+import { TrafficPageControls } from "../components/TrafficPageControls";
+import { TrafficPageHeader } from "../components/TrafficPageHeader";
 
 type Props = Omit<DashboardProps, "data"> & { data: RecentEventsData };
 export function RecentEventsView({ sites, siteId, data, filters }: Props) {
@@ -15,29 +13,19 @@ export function RecentEventsView({ sites, siteId, data, filters }: Props) {
   }
   return (
     <main className={styles.main}>
-      <div className={styles.heading}>
-        <div>
-          <div className="eyebrow">{site?.name ?? "Site activity"}</div>
-          <h1>Recent events</h1>
-          <p>
-            {dateLabel(`${filters.from}T00:00:00Z`, false, true)} –{" "}
-            {dateLabel(`${filters.to}T00:00:00Z`, false, true)} · UTC
-          </p>
-        </div>
-        <DataFreshness retrievedAt={data.retrievedAt} />
-      </div>
-      <TrafficFilterSummary
-        siteId={siteId}
+      <TrafficPageHeader
+        siteName={site?.name ?? "Site activity"}
+        title="Recent events"
         filters={filters}
         retrievedAt={data.retrievedAt}
-        pathname="/dashboard/events"
       />
-      <DashboardFiltersForm
-        key={`${siteId}:${JSON.stringify(filters)}`}
+      <TrafficPageControls
         sites={sites}
         siteId={siteId}
         data={data}
         filters={filters}
+        retrievedAt={data.retrievedAt}
+        pathname="/dashboard/events"
       />
       <RecentEventsTable data={data} />
       {data.pages > 1 ? (

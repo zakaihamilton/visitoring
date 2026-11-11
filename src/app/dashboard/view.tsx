@@ -1,15 +1,13 @@
-import { DataFreshness } from "./components/DataFreshness";
 /* eslint-disable jsx-a11y/no-noninteractive-tabindex -- Scrollable regions need keyboard access. */
 import Link from "next/link";
 import { chartMetric } from "./components/chart-data";
-import { dateLabel } from "@/lib/analytics-period";
-import { TrafficFilterSummary } from "./components/TrafficFilterSummary";
 import styles from "./dashboard.module.css";
 import { ActivityChart } from "./components/ActivityChart";
 import { BreakdownList } from "./components/BreakdownList";
-import { DashboardFiltersForm } from "./components/DashboardFilters";
 import { DashboardMetrics } from "./components/DashboardMetrics";
 import type { DashboardProps } from "./components/types";
+import { TrafficPageControls } from "./components/TrafficPageControls";
+import { TrafficPageHeader } from "./components/TrafficPageHeader";
 
 export function Dashboard({ sites, siteId, data, filters }: DashboardProps) {
   const hasLocation = [...data.countries, ...data.regions].some((row) => row.label !== "Unknown");
@@ -17,18 +15,13 @@ export function Dashboard({ sites, siteId, data, filters }: DashboardProps) {
 
   return (
     <main className={styles.main}>
-      <div className={styles.heading}>
-        <div>
-          <div className="eyebrow">{currentSite?.name ?? "Site overview"}</div>
-          <h1>Traffic, at a glance.</h1>
-          <p>
-            {dateLabel(`${filters.from}T00:00:00Z`, false, true)} –{" "}
-            {dateLabel(`${filters.to}T00:00:00Z`, false, true)} · UTC
-            {data.period.partial ? " · Today is partial" : ""}
-          </p>
-        </div>
-        <DataFreshness retrievedAt={data.retrievedAt} />
-      </div>
+      <TrafficPageHeader
+        siteName={currentSite?.name ?? "Site overview"}
+        title="Traffic, at a glance."
+        filters={filters}
+        retrievedAt={data.retrievedAt}
+        partial={data.period.partial}
+      />
 
       {!data.hasSiteActivity ? (
         <section className={styles.setupGuideCard} aria-label="Tracking setup guide">
@@ -59,13 +52,12 @@ export function Dashboard({ sites, siteId, data, filters }: DashboardProps) {
         </section>
       ) : null}
 
-      <TrafficFilterSummary siteId={siteId} filters={filters} retrievedAt={data.retrievedAt} />
-      <DashboardFiltersForm
-        key={`${siteId}:${JSON.stringify(filters)}`}
+      <TrafficPageControls
         sites={sites}
         siteId={siteId}
         data={data}
         filters={filters}
+        retrievedAt={data.retrievedAt}
       />
       {data.hasSiteActivity && data.total === 0 ? (
         <div className={styles.setupGuideCard}>

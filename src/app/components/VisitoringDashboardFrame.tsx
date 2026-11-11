@@ -10,7 +10,7 @@ import { selectOrganizationAction } from "@/app/organizations/actions";
 import { selectProjectAction } from "@/app/projects/actions";
 import type { CurrentUser, OrganizationAdmin } from "@/lib/auth";
 
-export type VisitoringPage =
+type VisitoringPage =
   | "overview"
   | "events"
   | "chart-data"

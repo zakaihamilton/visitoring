@@ -1,7 +1,16 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-25T04:27:43.640Z",
+  "generatedAt": "2026-11-11T19:54:37.509Z",
   "entries": [
+    {
+      "fingerprint": "723977897c7c607fee29303d",
+      "provider": "jscpd",
+      "category": "duplication",
+      "type": "duplication",
+      "scope": ".",
+      "file": "src/app/settings/sites/components/SiteControls.tsx",
+      "line": 177
+    },
     {
       "fingerprint": "4758308c9edf3756a676b26d",
       "provider": "jscpd",
@@ -10,15 +19,6 @@
       "scope": ".",
       "file": "src/app/dashboard/components/CoreDashboardFilters.tsx",
       "line": 7
-    },
-    {
-      "fingerprint": "03a8fea7bfed272855999cf7",
-      "provider": "jscpd",
-      "category": "duplication",
-      "type": "duplication",
-      "scope": ".",
-      "file": "src/app/dashboard/chart-data/view.tsx",
-      "line": 23
     },
     {
       "fingerprint": "d4d52fd91a1731cec8e21a8e",
@@ -48,24 +48,6 @@
       "line": 39
     },
     {
-      "fingerprint": "b0fe0fa375f8b5bac9eeb077",
-      "provider": "jscpd",
-      "category": "duplication",
-      "type": "duplication",
-      "scope": ".",
-      "file": "src/app/dashboard/view.tsx",
-      "line": 57
-    },
-    {
-      "fingerprint": "94f47c06ffa7741ef0ad8cfc",
-      "provider": "jscpd",
-      "category": "duplication",
-      "type": "duplication",
-      "scope": ".",
-      "file": "src/app/dashboard/view.tsx",
-      "line": 24
-    },
-    {
       "fingerprint": "60ad6e257516dc1e1056cd3e",
       "provider": "jscpd",
       "category": "duplication",
@@ -91,33 +73,6 @@
       "scope": ".",
       "file": "src/app/components/OrganizationSwitcher.tsx",
       "line": 55
-    },
-    {
-      "fingerprint": "ca1ba0b5d4df89946cf4aff8",
-      "provider": "jscpd",
-      "category": "duplication",
-      "type": "duplication",
-      "scope": ".",
-      "file": "src/app/ui-preview/page.tsx",
-      "line": 180
-    },
-    {
-      "fingerprint": "1c84bdc2b4dbec3e09f1042c",
-      "provider": "jscpd",
-      "category": "duplication",
-      "type": "duplication",
-      "scope": ".",
-      "file": "src/app/ui-preview/page.tsx",
-      "line": 219
-    },
-    {
-      "fingerprint": "b0e4ee056a8dfffe8846edaf",
-      "provider": "jscpd",
-      "category": "duplication",
-      "type": "duplication",
-      "scope": ".",
-      "file": "src/app/ui-preview/page.tsx",
-      "line": 255
     }
   ]
 }

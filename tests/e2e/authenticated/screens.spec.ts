@@ -19,6 +19,11 @@ async function signIn(page: Page) {
   await expect(page).toHaveURL(/\/dashboard$/);
 }
 
+async function openMobileNavigation(page: Page) {
+  const button = page.getByRole("button", { name: "Open navigation", exact: true });
+  if (await button.isVisible()) await button.click();
+}
+
 async function openScreen(page: Page, screen: Screen) {
   if (screen === "dashboard" || screen === "events" || screen === "chart-data") {
     await page.goto(
@@ -38,10 +43,12 @@ async function openScreen(page: Page, screen: Screen) {
     return;
   }
 
-  await page.getByRole("link", { name: "Settings" }).click();
+  await openMobileNavigation(page);
+  await page.getByRole("link", { name: "Sites and tracking" }).click();
   await expect(page).toHaveURL(/\/settings\/sites$/);
   if (screen === "users") {
-    await page.getByRole("link", { name: "Users" }).click();
+    await openMobileNavigation(page);
+    await page.getByRole("link", { name: "Team members" }).click();
     await expect(page).toHaveURL(/\/settings\/users$/);
   }
 }
@@ -92,6 +99,7 @@ for (const size of sizes) {
           await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth),
         ).toBe(true);
       } else if (screen === "dashboard") {
+        if (size.width <= 760) await openMobileNavigation(page);
         await expect(page.getByTestId("recent-events")).toHaveCount(0);
         await expect(page.getByRole("link", { name: "Recent events", exact: true })).toBeVisible();
       } else if (screen === "sites") {
@@ -301,7 +309,9 @@ test("traffic mobile filters collapse, recover inline, and chart has one tab sto
   await expect(page.getByLabel("Start date", { exact: true })).toBeVisible();
   await page.goto("/dashboard?from=2026-10-15&to=2026-10-01&event=signup");
   await expect(page.getByRole("heading", { name: "Traffic, at a glance." })).toBeVisible();
+  await openMobileNavigation(page);
   await expect(page.getByRole("navigation", { name: "Traffic navigation" })).toBeVisible();
+  await page.getByRole("button", { name: "Close navigation", exact: true }).click();
   await expect(page.getByLabel("Start date", { exact: true })).toHaveAttribute(
     "aria-invalid",
     "true",
