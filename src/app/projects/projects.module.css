@@ -1,6 +1,6 @@
 .page {
-  min-height: 100vh;
-  padding: 28px clamp(20px, 6vw, 84px) 72px;
+  min-height: 100%;
+  padding: 0;
   background:
     radial-gradient(circle at 86% 12%, light-dark(#dcece4, #13231b) 0, transparent 24rem),
     var(--background);
@@ -45,7 +45,7 @@
 }
 .content {
   width: min(100%, 1080px);
-  margin: clamp(64px, 13vh, 132px) auto 0;
+  margin: 0 auto;
 }
 .adminPage {
   max-width: 1060px;

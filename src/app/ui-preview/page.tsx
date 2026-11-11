@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { PreviewDropdown, PreviewToolbar } from "ui-preview-kit";
-import { Topbar } from "@/app/components/Topbar";
+import { VisitoringDashboardFrame } from "@/app/components/VisitoringDashboardFrame";
 import { ChartDataView } from "@/app/dashboard/chart-data/view";
 import { TrafficMetricProvider } from "@/app/dashboard/components/TrafficMetric";
 import { RecentEventsView } from "@/app/dashboard/events/view";
@@ -10,7 +10,6 @@ import { TrackerSection } from "@/app/developers/components/TrackerSection";
 import { ProjectManager } from "@/app/projects/ProjectManager";
 import { ProjectsView } from "@/app/projects/ProjectsView";
 import projectStyles from "@/app/projects/projects.module.css";
-import { SettingsNavigation } from "@/app/settings/SettingsNavigation";
 import { SettingsPageIntro } from "@/app/settings/SettingsPageIntro";
 import settingsStyles from "@/app/settings/settings-page.module.css";
 import { CreateSiteForm } from "@/app/settings/sites/components/CreateSiteForm";
@@ -140,22 +139,46 @@ export default async function Preview({
         />
       </PreviewToolbar>
       <PreviewGuard>
-        {screen !== "projects" && (
-          <Topbar
-            user={screen.startsWith("project-") ? previewAdmin : previewUser}
-            section={
-              screen.startsWith("project-")
-                ? "organization-admin"
-                : screen?.startsWith("settings")
-                  ? "settings"
-                  : "dashboard"
-            }
-          />
-        )}
+        <VisitoringDashboardFrame
+          user={screen.startsWith("project-") ? previewAdmin : previewUser}
+          active={
+            screen === "traffic"
+              ? "overview"
+              : screen === "events"
+                ? "events"
+                : screen === "chart"
+                  ? "chart-data"
+                  : screen === "projects"
+                    ? "projects"
+                    : screen === "settings"
+                      ? "sites"
+                      : screen === "settings-users"
+                        ? "users"
+                        : screen === "settings-setup"
+                          ? "setup"
+                          : "organization-admin"
+          }
+          title={
+            screen === "traffic"
+              ? "Traffic overview"
+              : screen === "events"
+                ? "Recent events"
+                : screen === "chart"
+                  ? "Chart data"
+                  : screen === "projects"
+                    ? "Your projects"
+                    : screen === "settings"
+                      ? "Sites and tracking"
+                      : screen === "settings-users"
+                        ? "Team members"
+                        : screen === "settings-setup"
+                          ? "Installation guide"
+                          : "Organization admin"
+          }
+        >
         <TrafficMetricProvider key={selected}>
           {screen === "settings" && (
             <>
-              <SettingsNavigation active="sites" />
               <main className={settingsStyles.page}>
                 <SettingsPageIntro
                   eyebrow="Settings · Sites"
@@ -189,7 +212,6 @@ export default async function Preview({
           )}
           {screen === "settings-users" && (
             <>
-              <SettingsNavigation active="users" />
               <main className={settingsStyles.page}>
                 <SettingsPageIntro
                   eyebrow="Settings · Users"
@@ -223,7 +245,6 @@ export default async function Preview({
           )}
           {screen === "settings-setup" && (
             <>
-              <SettingsNavigation active="setup" />
               <main className={settingsStyles.page}>
                 <SettingsPageIntro
                   eyebrow="Settings · Setup"
@@ -315,6 +336,7 @@ export default async function Preview({
             <RecentEventsView sites={sites} siteId="demo-site" data={eventData} filters={filters} />
           )}
         </TrafficMetricProvider>
+        </VisitoringDashboardFrame>
       </PreviewGuard>
     </>
   );

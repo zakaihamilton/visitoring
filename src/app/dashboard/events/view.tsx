@@ -1,7 +1,6 @@
 import { DataFreshness } from "../components/DataFreshness";
 import Link from "next/link";
 import { dateLabel } from "@/lib/analytics-period";
-import { DashboardNavigation } from "../components/DashboardNavigation";
 import { DashboardFiltersForm } from "../components/DashboardFilters";
 import { TrafficFilterSummary } from "../components/TrafficFilterSummary";
 import { RecentEventsTable } from "../components/RecentEventsTable";
@@ -27,7 +26,6 @@ export function RecentEventsView({ sites, siteId, data, filters }: Props) {
         </div>
         <DataFreshness retrievedAt={data.retrievedAt} />
       </div>
-      <DashboardNavigation siteId={siteId} filters={filters} current="events" />
       <TrafficFilterSummary
         siteId={siteId}
         filters={filters}

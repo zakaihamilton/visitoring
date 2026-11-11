@@ -6,7 +6,7 @@ import { db } from "@/db";
 import { sites } from "@/db/schema";
 import { getAnalyticsData, getRecentEventsData } from "@/lib/analytics";
 import { dashboardDates } from "@/lib/analytics-period";
-import { Topbar } from "@/app/components/Topbar";
+import { VisitoringDashboardFrame } from "@/app/components/VisitoringDashboardFrame";
 import { Dashboard } from "./view";
 import { DashboardLoading } from "./DashboardLoading";
 import { RecentEventsView } from "./events/view";
@@ -81,9 +81,15 @@ export async function DashboardPageShell({ searchParams, view }: Props) {
     ...(value(params.metric) ? { metric: chartMetric(value(params.metric)) } : {}),
   };
   return (
-    <>
-      <Topbar user={user} section="dashboard" />
-      <TrafficMetricProvider key={JSON.stringify(filters)} initialMetric={filters.metric}>
+    <TrafficMetricProvider key={JSON.stringify(filters)} initialMetric={filters.metric}>
+      <VisitoringDashboardFrame
+        user={user}
+        active={view}
+        title={view === "overview" ? "Traffic overview" : view === "events" ? "Recent events" : "Chart data"}
+        analyticsNavigation={
+          <DashboardNavigation variant="sidebar" siteId={selectedSite?.id} filters={filters} current={view} />
+        }
+      >
         {selectedSite && dates.error ? (
           <main className={styles.main}>
             <div className={styles.heading}>
@@ -99,7 +105,6 @@ export async function DashboardPageShell({ searchParams, view }: Props) {
                 <p>Adjust your date range · UTC</p>
               </div>
             </div>
-            <DashboardNavigation siteId={selectedSite.id} filters={filters} current={view} />
             <TrafficFilterSummary
               siteId={selectedSite.id}
               filters={filters}
@@ -161,7 +166,7 @@ export async function DashboardPageShell({ searchParams, view }: Props) {
             )}
           </main>
         )}
-      </TrafficMetricProvider>
-    </>
+      </VisitoringDashboardFrame>
+    </TrafficMetricProvider>
   );
 }

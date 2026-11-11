@@ -1,8 +1,8 @@
 import { Suspense } from "react";
 import { asc, eq } from "drizzle-orm";
+import { VisitoringDashboardFrame } from "@/app/components/VisitoringDashboardFrame";
 import { db } from "@/db";
 import { projects } from "@/db/schema";
-import { Topbar } from "@/app/components/Topbar";
 import { requireOrganizationAdmin } from "@/lib/auth";
 import { ProjectManager } from "@/app/projects/ProjectManager";
 import type { ManagedProject } from "@/app/projects/project-types";
@@ -52,13 +52,12 @@ export default async function OrganizationAdminPage() {
   const admin = await requireOrganizationAdmin();
 
   return (
-    <>
-      <Topbar user={admin} section="organization-admin" />
+    <VisitoringDashboardFrame user={admin} active="organization-admin" title="Organization admin">
       <main className={styles.adminPage}>
         <Suspense fallback={<ProjectsLoading />}>
           <ManagedProjectsSection organizationId={admin.organizationId} />
         </Suspense>
       </main>
-    </>
+    </VisitoringDashboardFrame>
   );
 }

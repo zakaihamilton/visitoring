@@ -3,7 +3,6 @@ import { DataFreshness } from "../components/DataFreshness";
 /* eslint-disable jsx-a11y/no-noninteractive-tabindex -- Scrollable tables need keyboard access. */
 import { DropdownSelect } from "@/app/components/DropdownSelect";
 import { dateLabel } from "@/lib/analytics-period";
-import { DashboardNavigation } from "../components/DashboardNavigation";
 import { DashboardFiltersForm } from "../components/DashboardFilters";
 import { TrafficFilterSummary } from "../components/TrafficFilterSummary";
 import {
@@ -33,7 +32,6 @@ export function ChartDataView({ sites, siteId, data, filters }: DashboardProps) 
         </div>
         <DataFreshness retrievedAt={data.retrievedAt} />
       </div>
-      <DashboardNavigation siteId={siteId} filters={filters} current="chart-data" />
       <TrafficFilterSummary
         siteId={siteId}
         filters={filters}

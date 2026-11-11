@@ -1,11 +1,10 @@
 import { desc, eq } from "drizzle-orm";
 import { Suspense } from "react";
-import { Topbar } from "@/app/components/Topbar";
+import { VisitoringDashboardFrame } from "@/app/components/VisitoringDashboardFrame";
 import { db } from "@/db";
 import { sites } from "@/db/schema";
 import { requireAdmin } from "@/lib/auth";
 import { SiteCardsSkeleton } from "../SettingsLoading";
-import { SettingsNavigation } from "../SettingsNavigation";
 import { SettingsPageIntro } from "../SettingsPageIntro";
 import styles from "../settings-page.module.css";
 import { CreateSiteForm } from "./components/CreateSiteForm";
@@ -33,9 +32,7 @@ export default async function SettingsSitesPage() {
   const user = await requireAdmin();
 
   return (
-    <>
-      <Topbar user={user} section="settings" />
-      <SettingsNavigation active="sites" />
+    <VisitoringDashboardFrame user={user} active="sites" title="Sites and tracking">
       <main className={styles.page}>
         <SettingsPageIntro
           eyebrow="Settings · Sites"
@@ -55,6 +52,6 @@ export default async function SettingsSitesPage() {
           <SiteList projectId={user.projectId} />
         </Suspense>
       </main>
-    </>
+    </VisitoringDashboardFrame>
   );
 }

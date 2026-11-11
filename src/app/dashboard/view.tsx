@@ -9,7 +9,6 @@ import { ActivityChart } from "./components/ActivityChart";
 import { BreakdownList } from "./components/BreakdownList";
 import { DashboardFiltersForm } from "./components/DashboardFilters";
 import { DashboardMetrics } from "./components/DashboardMetrics";
-import { DashboardNavigation } from "./components/DashboardNavigation";
 import type { DashboardProps } from "./components/types";
 
 export function Dashboard({ sites, siteId, data, filters }: DashboardProps) {
@@ -31,7 +30,6 @@ export function Dashboard({ sites, siteId, data, filters }: DashboardProps) {
         <DataFreshness retrievedAt={data.retrievedAt} />
       </div>
 
-      <DashboardNavigation siteId={siteId} filters={filters} current="overview" />
       {!data.hasSiteActivity ? (
         <section className={styles.setupGuideCard} aria-label="Tracking setup guide">
           <div className={styles.setupGuideHeader}>
