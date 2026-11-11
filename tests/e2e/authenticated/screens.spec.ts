@@ -20,8 +20,15 @@ async function signIn(page: Page) {
 }
 
 async function openMobileNavigation(page: Page) {
+  if ((page.viewportSize()?.width ?? Number.POSITIVE_INFINITY) > 760) return;
+
+  const drawer = page.getByRole("dialog", { name: "Primary navigation" });
+  if (await drawer.isVisible()) return;
+
   const button = page.getByRole("button", { name: "Open navigation", exact: true });
-  if (await button.isVisible()) await button.click();
+  await expect(button).toBeVisible();
+  await button.click();
+  await expect(drawer).toBeVisible();
 }
 
 async function openScreen(page: Page, screen: Screen) {
@@ -311,7 +318,10 @@ test("traffic mobile filters collapse, recover inline, and chart has one tab sto
   await expect(page.getByRole("heading", { name: "Traffic, at a glance." })).toBeVisible();
   await openMobileNavigation(page);
   await expect(page.getByRole("navigation", { name: "Traffic navigation" })).toBeVisible();
-  await page.getByRole("button", { name: "Close navigation", exact: true }).click();
+  await page
+    .getByRole("button", { name: "Close dashboard navigation", exact: true })
+    .click();
+  await expect(page.getByRole("dialog", { name: "Primary navigation" })).toBeHidden();
   await expect(page.getByLabel("Start date", { exact: true })).toHaveAttribute(
     "aria-invalid",
     "true",
