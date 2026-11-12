@@ -1,5 +1,4 @@
 import Form from "next/form";
-/* eslint-disable jsx-a11y/no-noninteractive-tabindex -- Scrollable tables need keyboard access. */
 import { DropdownSelect } from "@/app/components/DropdownSelect";
 import {
   chartMeasures,

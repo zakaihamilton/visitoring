@@ -1,4 +1,3 @@
-/* eslint-disable jsx-a11y/no-noninteractive-tabindex -- Scrollable regions need keyboard access. */
 import styles from "../dashboard.module.css";
 import { formatNumber, type RecentEventsData } from "./types";
 

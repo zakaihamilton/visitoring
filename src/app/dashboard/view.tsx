@@ -1,4 +1,3 @@
-/* eslint-disable jsx-a11y/no-noninteractive-tabindex -- Scrollable regions need keyboard access. */
 import Link from "next/link";
 import { chartMetric } from "./components/chart-data";
 import styles from "./dashboard.module.css";
