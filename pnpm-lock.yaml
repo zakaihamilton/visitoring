@@ -185,8 +185,8 @@ importers:
         specifier: 16.4.1
         version: 16.4.1(@playwright/test@1.64.0)(@types/node@24.19.1)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       panel-frame-ui:
-        specifier: ^0.2.3
-        version: 0.2.3(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+        specifier: ^0.2.4
+        version: 0.2.4(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       pg:
         specifier: ^8.16.3
         version: 8.23.1
@@ -2447,8 +2447,8 @@ packages:
   oxc-resolver@11.24.2:
     resolution: {integrity: sha512-FY91FiDBj7ls5MsFS9jN3tjz2o0/zsdSsymlakySaBwVJZorHhkWyICLZMKxlu1R9vYo+sd3z1jwb4J8x7bNDw==}
 
-  panel-frame-ui@0.2.3:
-    resolution: {integrity: sha512-z9duxxEezDZ+BpaPwAUQcyMT1T50hNyf2aqhi5lJUezmn3XtwqS1NHYpVzW/WcOdrGZPZB+yIHEiY3lnVyhilw==}
+  panel-frame-ui@0.2.4:
+    resolution: {integrity: sha512-GjAsrf5msTxoTx2SeWg5fgJXBFpMBBAMoJ+CHDvhDVcQHssErCulHSKK3HY5Zbn21pIsFvb8ED3AZM/r1NmFeA==}
     engines: {node: '>=22.14.0'}
     peerDependencies:
       react: '>=19.0.0 <20.0.0'
@@ -4856,7 +4856,7 @@ snapshots:
       '@oxc-resolver/binding-win32-arm64-msvc': 11.24.2
       '@oxc-resolver/binding-win32-x64-msvc': 11.24.2
 
-  panel-frame-ui@0.2.3(react-dom@19.3.0(react@19.3.0))(react@19.3.0):
+  panel-frame-ui@0.2.4(react-dom@19.3.0(react@19.3.0))(react@19.3.0):
     dependencies:
       react: 19.3.0
       react-dom: 19.3.0(react@19.3.0)
