@@ -1,8 +1,6 @@
 export const THEME_STORAGE_KEY = "visitoring-theme";
 
-export const THEME_PREFERENCES = ["system", "light", "dark"] as const;
-
-export type ThemePreference = (typeof THEME_PREFERENCES)[number];
+type ThemePreference = "system" | "light" | "dark";
 
 const THEME_COLORS = {
   light: "#f5f7f4",
@@ -13,19 +11,6 @@ const THEME_COLOR_MEDIA = {
   light: "(prefers-color-scheme: light)",
   dark: "(prefers-color-scheme: dark)",
 } as const;
-
-export function isThemePreference(value: string | null): value is ThemePreference {
-  return value !== null && THEME_PREFERENCES.some((preference) => preference === value);
-}
-
-export function readThemePreference(): ThemePreference {
-  try {
-    const stored = window.localStorage.getItem(THEME_STORAGE_KEY);
-    return isThemePreference(stored) ? stored : "system";
-  } catch {
-    return "system";
-  }
-}
 
 export function applyThemePreference(preference: ThemePreference) {
   document.documentElement.dataset.theme = preference;

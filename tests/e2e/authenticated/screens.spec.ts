@@ -206,7 +206,7 @@ test("traffic custom dropdown remains readable in dark mode", async ({ page }, t
   await signIn(page);
   await page.goto("/dashboard?from=2026-10-01&to=2026-10-15");
   await page.getByRole("combobox", { name: "Metric", exact: true }).click();
-  await expect(page.getByRole("listbox", { name: "Metric options" })).toBeVisible();
+  await expect(page.getByRole("listbox", { name: "Metric" })).toBeVisible();
   await captureScreen(page, testInfo, "dashboard", "dark-dropdown");
   const results = await new AxeBuilder({ page })
     .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"])

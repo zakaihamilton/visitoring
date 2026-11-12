@@ -3,7 +3,7 @@ import { logoutAction } from "@/app/login/actions";
 import { selectOrganizationAction } from "@/app/organizations/actions";
 import { selectProjectAction } from "@/app/projects/actions";
 import type { CurrentUser, OrganizationAdmin } from "@/lib/auth";
-import type { ProjectChoice } from "./project-switcher/useProjectSwitcher";
+import type { ProjectChoice } from "./project-switcher/types";
 import { BrandIcon } from "./BrandIcon";
 import { OrganizationSwitcher } from "./OrganizationSwitcher";
 import { ProjectSwitcher } from "./ProjectSwitcher";

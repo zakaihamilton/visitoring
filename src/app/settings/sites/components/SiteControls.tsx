@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useRef, useState } from "react";
+import { useActionState, useRef, useState, type RefObject } from "react";
 import { AlertDialog } from "panel-frame-ui";
 import { guardConfirmableSubmit } from "@/app/components/confirmable-form";
 import { Tooltip } from "@/app/components/Tooltip";
@@ -8,6 +8,41 @@ import { deleteSiteAction, rotateSiteKeyAction, updateDomainsAction } from "@/ap
 import styles from "../../settings-page.module.css";
 import { ActionNotice } from "./ActionNotice";
 import { initialState } from "./initialState";
+
+function ConfirmationActions({
+  cancelButtonRef,
+  confirmLabel,
+  disabled,
+  onCancel,
+  onConfirm,
+}: {
+  cancelButtonRef: RefObject<HTMLButtonElement | null>;
+  confirmLabel: string;
+  disabled: boolean;
+  onCancel: () => void;
+  onConfirm: () => void;
+}) {
+  return (
+    <div className={styles.confirmActions}>
+      <button
+        type="button"
+        className="button buttonQuiet"
+        ref={cancelButtonRef}
+        onClick={onCancel}
+      >
+        Cancel
+      </button>
+      <button
+        type="submit"
+        className="button buttonDanger"
+        disabled={disabled}
+        onClick={onConfirm}
+      >
+        {confirmLabel}
+      </button>
+    </div>
+  );
+}
 
 export function SiteControls({
   siteId,
@@ -84,26 +119,15 @@ export function SiteControls({
           open={confirmOpen}
           title="Replace tracking key?"
         >
-          <div className={styles.confirmActions}>
-            <button
-              type="button"
-              className="button buttonQuiet"
-              ref={cancelButtonRef}
-              onClick={() => setConfirmOpen(false)}
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              className="button buttonDanger"
-              disabled={pending}
-              onClick={() => {
-                confirmedRef.current = true;
-              }}
-            >
-              Replace key
-            </button>
-          </div>
+          <ConfirmationActions
+            cancelButtonRef={cancelButtonRef}
+            confirmLabel="Replace key"
+            disabled={pending}
+            onCancel={() => setConfirmOpen(false)}
+            onConfirm={() => {
+              confirmedRef.current = true;
+            }}
+          />
         </AlertDialog>
       </form>
       <form
@@ -126,26 +150,15 @@ export function SiteControls({
           open={deleteConfirmOpen}
           title={`Delete ${siteName}?`}
         >
-          <div className={styles.confirmActions}>
-            <button
-              type="button"
-              className="button buttonQuiet"
-              ref={deleteCancelButtonRef}
-              onClick={() => setDeleteConfirmOpen(false)}
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              className="button buttonDanger"
-              disabled={deleting}
-              onClick={() => {
-                confirmedDeleteRef.current = true;
-              }}
-            >
-              Delete site
-            </button>
-          </div>
+          <ConfirmationActions
+            cancelButtonRef={deleteCancelButtonRef}
+            confirmLabel="Delete site"
+            disabled={deleting}
+            onCancel={() => setDeleteConfirmOpen(false)}
+            onConfirm={() => {
+              confirmedDeleteRef.current = true;
+            }}
+          />
         </AlertDialog>
       </form>
     </div>

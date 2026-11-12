@@ -2,13 +2,18 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
+import { ThemeProvider } from "panel-frame-ui";
 import { PublicHeader } from "@/app/components/PublicHeader";
 import { OrganizationSwitcher } from "@/app/components/OrganizationSwitcher";
 
 describe("public navigation", () => {
   it("supports keyboard access to the main links", async () => {
     const user = userEvent.setup();
-    render(<PublicHeader page="welcome" />);
+    render(
+      <ThemeProvider>
+        <PublicHeader page="welcome" />
+      </ThemeProvider>,
+    );
     await user.tab();
     expect(document.activeElement).toBe(screen.getByRole("link", { name: "Visitoring home" }));
     await user.tab();

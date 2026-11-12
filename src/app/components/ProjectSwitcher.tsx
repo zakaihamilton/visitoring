@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { ContextSwitcher } from "panel-frame-ui";
-import type { ProjectChoice } from "./project-switcher/useProjectSwitcher";
+import type { ProjectChoice } from "./project-switcher/types";
 import styles from "./organization-switcher.module.css";
 
 type Props = {
