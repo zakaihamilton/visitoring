@@ -185,8 +185,8 @@ importers:
         specifier: 16.4.1
         version: 16.4.1(@playwright/test@1.64.0)(@types/node@24.19.1)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       panel-frame-ui:
-        specifier: ^0.1.1
-        version: 0.1.1(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+        specifier: ^0.2.1
+        version: 0.2.1(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       pg:
         specifier: ^8.16.3
         version: 8.23.1
@@ -2980,8 +2980,8 @@ packages:
     resolution: {integrity: sha512-LaNjtRWUBY++zB5nE/NwcaoMylSPk+S+ZHNB1TzdbMJMny6dynpAGt7X/tl/QYq3TIeE6nxHppbo2LGymrG5Pw==}
     engines: {node: '>=10'}
 
-  panel-frame-ui@0.1.1:
-    resolution: {integrity: sha512-XLBZmKODA5d1P2dNqs9SitQfrOA62KyNc1U+dKHdlR7Co874n7NmuevT06PcypjOphJT6CijyrK46fQG18DIIA==}
+  panel-frame-ui@0.2.1:
+    resolution: {integrity: sha512-X/anMpCnRzRo9lDMxu/EUB++b7fmlvQ3ZDFarlBTmSNmwilHxKP5cHJHPCFQaoYKwdC1/r5R1YE1c/xpCxHi7w==}
     engines: {node: '>=22.14.0'}
     peerDependencies:
       react: '>=19.0.0 <20.0.0'
@@ -6220,7 +6220,7 @@ snapshots:
     dependencies:
       p-limit: 3.1.0
 
-  panel-frame-ui@0.1.1(react-dom@19.3.0(react@19.3.0))(react@19.3.0):
+  panel-frame-ui@0.2.1(react-dom@19.3.0(react@19.3.0))(react@19.3.0):
     dependencies:
       react: 19.3.0
       react-dom: 19.3.0(react@19.3.0)

@@ -55,10 +55,10 @@ export function VisitoringDashboardFrame({
     <DashboardShell
       contentAsMain={false}
       brand={
-        <Link className="pf-brand" href={projectUser ? "/dashboard" : "/projects"}>
+        <span className="pf-brand">
           <BrandIcon />
           <span>Visitoring</span>
-        </Link>
+        </span>
       }
       sidebarContext={
         organizations && organizationId ? (

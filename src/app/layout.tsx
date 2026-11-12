@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import Script from "next/script";
+import { ThemeProviderClient } from "./components/ThemeProviderClient";
 import { THEME_BOOTSTRAP_SCRIPT } from "./components/theme";
 import "./globals.css";
 
@@ -14,8 +15,12 @@ export const metadata: Metadata = {
       { url: "/favicon.ico", type: "image/x-icon" },
       { url: "/favicon.svg", type: "image/svg+xml" },
     ],
-    apple: [{ url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
-    other: [{ rel: "mask-icon", url: "/safari-pinned-tab.svg", color: "#28745f" }],
+    apple: [
+      { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
+    ],
+    other: [
+      { rel: "mask-icon", url: "/safari-pinned-tab.svg", color: "#28745f" },
+    ],
   },
   appleWebApp: {
     capable: true,
@@ -53,14 +58,21 @@ export const viewport: Viewport = {
   colorScheme: "light dark",
 };
 
-export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+export default function RootLayout({
+  children,
+}: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" data-theme="system" data-scroll-behavior="smooth" suppressHydrationWarning>
+    <html
+      lang="en"
+      data-theme="system"
+      data-scroll-behavior="smooth"
+      suppressHydrationWarning
+    >
       <body>
         <Script id="visitoring-theme-bootstrap" strategy="beforeInteractive">
           {THEME_BOOTSTRAP_SCRIPT}
         </Script>
-        {children}
+        <ThemeProviderClient>{children}</ThemeProviderClient>
       </body>
     </html>
   );
