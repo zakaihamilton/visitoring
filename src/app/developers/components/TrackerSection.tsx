@@ -42,12 +42,10 @@ function CopyableCode({ code }: { code: string }) {
             ? " Could not copy. Select the code and copy it manually."
             : ""}
       </span>
-      {/* eslint-disable jsx-a11y/no-noninteractive-tabindex -- Keyboard scrolling */}
       {/* biome-ignore lint/a11y/noNoninteractiveTabindex: Keyboard users need to scroll long snippets. */}
       <pre className={styles.codeBlock} tabIndex={0}>
         <code>{code}</code>
       </pre>
-      {/* eslint-enable jsx-a11y/no-noninteractive-tabindex */}
     </div>
   );
 }

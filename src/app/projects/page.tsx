@@ -1,5 +1,6 @@
 import { requireOrganizationProjects } from "@/lib/auth";
 import { PerministerApiError } from "@/lib/perminister";
+import { VisitoringDashboardFrame } from "@/app/components/VisitoringDashboardFrame";
 import { ProjectsView } from "./ProjectsView";
 
 export const dynamic = "force-dynamic";
@@ -18,5 +19,21 @@ export default async function ProjectsPage({ searchParams }: Props) {
     searchParams,
   ]);
 
-  return <ProjectsView projectsData={projectResult.projects} error={error} />;
+  const organizationContext = projectResult.projects
+    ? {
+        organizationId: projectResult.projects.organizationId,
+        organizations: projectResult.projects.organizations,
+        canManageOrganization: projectResult.projects.canManageProjects,
+      }
+    : undefined;
+
+  return (
+    <VisitoringDashboardFrame
+      active="projects"
+      title="Your projects"
+      organizationContext={organizationContext}
+    >
+      <ProjectsView projectsData={projectResult.projects} error={error} />
+    </VisitoringDashboardFrame>
+  );
 }

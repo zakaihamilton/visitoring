@@ -45,7 +45,7 @@ describe("recent event properties", () => {
 });
 
 describe("recent events page", () => {
-  it("keeps navigation and date shortcuts scoped to the current site and filters", () => {
+  it("keeps date shortcuts scoped to the current site and filters", () => {
     render(
       <RecentEventsView
         sites={[{ id: "site-1", name: "Production" }]}
@@ -66,9 +66,6 @@ describe("recent events page", () => {
     expect(screen.getByRole("heading", { name: /^Recent events$/ })).toBeDefined();
     expect(screen.getByText("No events found. Try changing your filters.")).toBeDefined();
     expect(screen.queryByRole("heading", { name: "Traffic over time" })).toBeNull();
-    expect(screen.getByRole("link", { name: "Traffic overview" }).getAttribute("href")).toBe(
-      "/dashboard?from=2026-10-01&to=2026-10-15&event=signup&metric=visitors&site=site-1",
-    );
     expect(screen.getByRole("link", { name: "Last 7 days" }).getAttribute("href")).toContain(
       "/dashboard/events?",
     );

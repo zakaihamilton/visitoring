@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { AuthCard, AuthShell } from "panel-frame-ui";
 import { loginAction } from "./actions";
 import { BrandIcon } from "@/app/components/BrandIcon";
 import { ThemeControl } from "@/app/components/ThemeControl";
@@ -10,13 +11,16 @@ type Props = { searchParams: Promise<{ error?: string }> };
 export default async function LoginPage({ searchParams }: Props) {
   const { error } = await searchParams;
   const recoveryUrl = perministerRecoveryUrl();
+
   return (
-    <main className={styles.page}>
-      <section className={styles.panel}>
+    <AuthShell
+      brand={
         <Link href="/" className={styles.brand} aria-label="Visitoring home">
           <BrandIcon />
           <span>Visitoring</span>
         </Link>
+      }
+      aside={
         <div className={styles.copy}>
           <div className="eyebrow">Private website analytics</div>
           <h1>
@@ -26,20 +30,23 @@ export default async function LoginPage({ searchParams }: Props) {
           </h1>
           <p>Private analytics for the sites you run, with no public sign-up.</p>
         </div>
+      }
+      utility={<ThemeControl />}
+      footer={
         <div className={styles.mini}>
           <span className={styles.pulse} /> Your data stays in your project
         </div>
-      </section>
-      <section className={styles.formSide}>
+      }
+    >
+      <AuthCard>
         <div className={styles.form}>
           <div className={styles.formIntro}>
             <div className="eyebrow">Welcome back</div>
-            <ThemeControl />
           </div>
           <h2>Sign in to Visitoring</h2>
           <p className={styles.sub}>Sign in with your account to open your Visitoring projects.</p>
           <form action="/auth/perminister/start" method="get" className={styles.ssoForm}>
-            <button type="submit" className={`button buttonPrimary ${styles.ssoButton}`}>
+            <button type="submit" className={"button buttonPrimary " + styles.ssoButton}>
               Sign in with Perminister <span aria-hidden>↗</span>
             </button>
           </form>
@@ -91,7 +98,7 @@ export default async function LoginPage({ searchParams }: Props) {
             them to create your account or reset your password.
           </p>
         </div>
-      </section>
-    </main>
+      </AuthCard>
+    </AuthShell>
   );
 }

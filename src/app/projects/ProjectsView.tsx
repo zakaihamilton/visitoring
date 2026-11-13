@@ -1,33 +1,7 @@
 import Link from "next/link";
-import type { ReactNode } from "react";
-import { BrandIcon } from "@/app/components/BrandIcon";
-import { OrganizationSwitcher } from "@/app/components/OrganizationSwitcher";
-import { ThemeControl } from "@/app/components/ThemeControl";
-import { logoutAction } from "@/app/login/actions";
-import { selectOrganizationAction } from "@/app/organizations/actions";
 import type { requireOrganizationProjects } from "@/lib/auth";
 import { selectProjectAction } from "./actions";
 import styles from "./projects.module.css";
-
-function ProjectsHeader({ children }: { children?: ReactNode }) {
-  return (
-    <header className={styles.header}>
-      <Link href="/projects" className={styles.brand}>
-        <BrandIcon />
-        <span>Visitoring</span>
-      </Link>
-      <div className={styles.account}>
-        <ThemeControl />
-        {children}
-        <form action={logoutAction}>
-          <button type="submit" className="button buttonQuiet">
-            Sign out
-          </button>
-        </form>
-      </div>
-    </header>
-  );
-}
 
 export function ProjectsView({
   projectsData,
@@ -39,8 +13,6 @@ export function ProjectsView({
   if (!projectsData) {
     return (
       <main className={styles.page}>
-        <ProjectsHeader />
-
         <section className={styles.content} aria-labelledby="projects-title">
           <div className="eyebrow">Your projects</div>
           <h1 id="projects-title">Projects are temporarily unavailable</h1>
@@ -62,21 +34,6 @@ export function ProjectsView({
 
   return (
     <main className={styles.page}>
-      <ProjectsHeader>
-        <div className={styles.organization}>
-          <OrganizationSwitcher
-            organizations={organizations}
-            currentOrganizationId={organizationId}
-            action={selectOrganizationAction}
-          />
-        </div>
-        {canManageProjects ? (
-          <Link href="/organization/admin" className="button buttonQuiet">
-            Admin
-          </Link>
-        ) : null}
-      </ProjectsHeader>
-
       <section className={styles.content} aria-labelledby="projects-title">
         <div className="eyebrow">Your projects</div>
         <h1 id="projects-title">Choose a project</h1>

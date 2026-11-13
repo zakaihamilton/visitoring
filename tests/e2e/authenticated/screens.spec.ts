@@ -19,6 +19,18 @@ async function signIn(page: Page) {
   await expect(page).toHaveURL(/\/dashboard$/);
 }
 
+async function openMobileNavigation(page: Page) {
+  if ((page.viewportSize()?.width ?? Number.POSITIVE_INFINITY) > 760) return;
+
+  const drawer = page.getByRole("dialog", { name: "Primary navigation" });
+  if (await drawer.isVisible()) return;
+
+  const button = page.getByRole("button", { name: "Open navigation", exact: true });
+  await expect(button).toBeVisible();
+  await button.click();
+  await expect(drawer).toBeVisible();
+}
+
 async function openScreen(page: Page, screen: Screen) {
   if (screen === "dashboard" || screen === "events" || screen === "chart-data") {
     await page.goto(
@@ -38,10 +50,12 @@ async function openScreen(page: Page, screen: Screen) {
     return;
   }
 
-  await page.getByRole("link", { name: "Settings" }).click();
+  await openMobileNavigation(page);
+  await page.getByRole("link", { name: "Sites and tracking" }).click();
   await expect(page).toHaveURL(/\/settings\/sites$/);
   if (screen === "users") {
-    await page.getByRole("link", { name: "Users" }).click();
+    await openMobileNavigation(page);
+    await page.getByRole("link", { name: "Team members" }).click();
     await expect(page).toHaveURL(/\/settings\/users$/);
   }
 }
@@ -92,6 +106,7 @@ for (const size of sizes) {
           await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth),
         ).toBe(true);
       } else if (screen === "dashboard") {
+        if (size.width <= 760) await openMobileNavigation(page);
         await expect(page.getByTestId("recent-events")).toHaveCount(0);
         await expect(page.getByRole("link", { name: "Recent events", exact: true })).toBeVisible();
       } else if (screen === "sites") {
@@ -191,7 +206,7 @@ test("traffic custom dropdown remains readable in dark mode", async ({ page }, t
   await signIn(page);
   await page.goto("/dashboard?from=2026-10-01&to=2026-10-15");
   await page.getByRole("combobox", { name: "Metric", exact: true }).click();
-  await expect(page.getByRole("listbox", { name: "Metric options" })).toBeVisible();
+  await expect(page.getByRole("listbox", { name: "Metric" })).toBeVisible();
   await captureScreen(page, testInfo, "dashboard", "dark-dropdown");
   const results = await new AxeBuilder({ page })
     .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"])
@@ -301,7 +316,12 @@ test("traffic mobile filters collapse, recover inline, and chart has one tab sto
   await expect(page.getByLabel("Start date", { exact: true })).toBeVisible();
   await page.goto("/dashboard?from=2026-10-15&to=2026-10-01&event=signup");
   await expect(page.getByRole("heading", { name: "Traffic, at a glance." })).toBeVisible();
+  await openMobileNavigation(page);
   await expect(page.getByRole("navigation", { name: "Traffic navigation" })).toBeVisible();
+  await page
+    .getByRole("button", { name: "Close dashboard navigation", exact: true })
+    .click();
+  await expect(page.getByRole("dialog", { name: "Primary navigation" })).toBeHidden();
   await expect(page.getByLabel("Start date", { exact: true })).toHaveAttribute(
     "aria-invalid",
     "true",

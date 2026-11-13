@@ -253,7 +253,7 @@ describe("Dashboard setup guide empty state", () => {
     expect(screen.getByRole("link", { name: "Last 7 days" }).getAttribute("href")).toContain(
       "/dashboard/chart-data?",
     );
-    expect(screen.getByRole("link", { name: "Traffic overview" }).getAttribute("href")).toContain(
+    expect(screen.getByRole("link", { name: "Last 7 days" }).getAttribute("href")).toContain(
       "metric=pageViews",
     );
   });

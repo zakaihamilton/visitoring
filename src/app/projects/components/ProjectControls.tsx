@@ -1,6 +1,7 @@
 "use client";
 
-import { useActionState, useEffect, useId, useRef, useState } from "react";
+import { useActionState, useId, useRef, useState } from "react";
+import { AlertDialog } from "panel-frame-ui";
 import { guardConfirmableSubmit } from "@/app/components/confirmable-form";
 import { manageProjectAction } from "../manage-actions";
 import type { ManagedProject } from "../project-types";
@@ -11,20 +12,9 @@ import styles from "../projects.module.css";
 export function ProjectControls({ project }: { project: ManagedProject }) {
   const [state, action, pending] = useActionState(manageProjectAction, initialState);
   const [confirmOpen, setConfirmOpen] = useState(false);
-  const dialogRef = useRef<HTMLDialogElement>(null);
   const cancelRef = useRef<HTMLButtonElement>(null);
   const confirmedRef = useRef(false);
   const formId = useId();
-
-  useEffect(() => {
-    const dialog = dialogRef.current;
-    if (!dialog) return;
-    if (confirmOpen && !dialog.open) {
-      dialog.showModal();
-      cancelRef.current?.focus();
-    }
-    if (!confirmOpen && dialog.open) dialog.close();
-  }, [confirmOpen]);
 
   return (
     <div className={styles.projectControls}>
@@ -69,22 +59,13 @@ export function ProjectControls({ project }: { project: ManagedProject }) {
                   : "Delete permanently"}
             </button>
           </form>
-          <dialog
-            ref={dialogRef}
-            className={`confirmationDialogSurface ${styles.confirmDialog}`}
-            aria-labelledby={`delete-project-title-${project.id}`}
-            aria-describedby={`delete-project-description-${project.id}`}
-            onCancel={(event) => {
-              event.preventDefault();
-              setConfirmOpen(false);
-            }}
-            onClose={() => setConfirmOpen(false)}
+          <AlertDialog
+            description="This permanently removes the project, its sites, tracking keys, and analytics. This cannot be undone."
+            initialFocusRef={cancelRef}
+            onOpenChange={setConfirmOpen}
+            open={confirmOpen}
+            title={`Delete ${project.name} permanently?`}
           >
-            <h3 id={`delete-project-title-${project.id}`}>Delete {project.name} permanently?</h3>
-            <p id={`delete-project-description-${project.id}`}>
-              This permanently removes the project, its sites, tracking keys, and analytics. This
-              cannot be undone.
-            </p>
             <div className={styles.confirmActions}>
               <button
                 type="button"
@@ -106,7 +87,7 @@ export function ProjectControls({ project }: { project: ManagedProject }) {
                 Delete permanently
               </button>
             </div>
-          </dialog>
+          </AlertDialog>
         </>
       ) : null}
       <ProjectNotice state={state} />

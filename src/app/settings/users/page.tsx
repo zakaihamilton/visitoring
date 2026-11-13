@@ -1,9 +1,8 @@
 import { MembersSkeleton } from "../SettingsLoading";
 import { Suspense } from "react";
-import { Topbar } from "@/app/components/Topbar";
+import { VisitoringDashboardFrame } from "@/app/components/VisitoringDashboardFrame";
 import { listPerministerProjectMembers } from "@/lib/perminister";
 import { requireAdmin } from "@/lib/auth";
-import { SettingsNavigation } from "../SettingsNavigation";
 import { SettingsPageIntro } from "../SettingsPageIntro";
 import pageStyles from "../settings-page.module.css";
 import { UsersManager } from "./UsersManager";
@@ -33,9 +32,7 @@ export default async function SettingsUsersPage() {
   const admin = await requireAdmin();
 
   return (
-    <>
-      <Topbar user={admin} section="settings" />
-      <SettingsNavigation active="users" />
+    <VisitoringDashboardFrame user={admin} active="users" title="Team members">
       <main className={pageStyles.page}>
         <SettingsPageIntro
           eyebrow="Settings · Users"
@@ -51,6 +48,6 @@ export default async function SettingsUsersPage() {
           />
         </Suspense>
       </main>
-    </>
+    </VisitoringDashboardFrame>
   );
 }

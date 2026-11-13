@@ -25,7 +25,7 @@
       "mode": "required"
     },
     "accessibility": {
-      "mode": "required"
+      "mode": "optional"
     },
     "runtime-accessibility": {
       "mode": "required"

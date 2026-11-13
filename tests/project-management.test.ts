@@ -88,8 +88,9 @@ describe("organization project management actions", () => {
   it("creates a project and grants the creator admin access", async () => {
     const result = await createProjectAction(initial, formData({ name: "  Example  " }));
 
-    expect(result).toEqual({
+    expect(result).toMatchObject({
       message: "Example added. You now have admin access to its project.",
+      createdProjectId: expect.any(String),
     });
     expect(mocks.insertValues).toHaveBeenCalledWith(
       expect.objectContaining({

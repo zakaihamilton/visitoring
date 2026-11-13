@@ -8,7 +8,7 @@
   white-space: nowrap;
 }
 
-.control :global(button[role="combobox"]:focus-visible) {
+.control :global(select:focus-visible) {
   outline: 3px solid var(--accent);
   outline-offset: 2px;
 }

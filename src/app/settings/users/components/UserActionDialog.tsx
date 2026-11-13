@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState, useEffect, useId, useRef, useState } from "react";
+import { Dialog } from "panel-frame-ui";
 import type { UserAction } from "../user-types";
 import type { ManagedUser } from "../user-types";
 import dialogStyles from "../../confirm-dialog.module.css";
@@ -30,17 +31,9 @@ export function UserActionDialog({
   const [state, formAction, pending] = useActionState(action, initialState);
   const [open, setOpen] = useState(false);
   const [showFeedback, setShowFeedback] = useState(false);
-  const dialogRef = useRef<HTMLDialogElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
   const pendingRef = useRef(false);
   const id = useId();
-
-  useEffect(() => {
-    const dialog = dialogRef.current;
-    if (!dialog) return;
-    if (open && !dialog.open) dialog.showModal();
-    if (!open && dialog.open) dialog.close();
-  }, [open]);
 
   useEffect(() => {
     if (pendingRef.current && !pending) {
@@ -72,25 +65,16 @@ export function UserActionDialog({
       >
         {triggerLabel}
       </button>
-      <dialog
-        ref={dialogRef}
-        className={dialogStyles.dialog}
-        aria-labelledby={`${id}-title`}
-        aria-describedby={`${id}-description`}
-        onCancel={(event) => {
-          event.preventDefault();
-          closeDialog();
+      <Dialog
+        description={description}
+        onOpenChange={(nextOpen) => {
+          if (!nextOpen) closeDialog();
         }}
-        onClose={() => setOpen(false)}
+        open={open}
+        title={title}
       >
         <form action={formAction} ref={formRef} className={styles.confirmDialogForm}>
           <input type="hidden" name="userId" value={user.id} />
-          <h3 id={`${id}-title`} className={`${dialogStyles.title} ${styles.confirmTitle}`}>
-            {title}
-          </h3>
-          <p id={`${id}-description`} className={dialogStyles.copy}>
-            {description}
-          </p>
           {password ? (
             <div className={`${styles.field} ${styles.dialogPassword}`}>
               <label htmlFor={`${id}-password`}>New password</label>
@@ -120,7 +104,7 @@ export function UserActionDialog({
             </button>
           </div>
         </form>
-      </dialog>
+      </Dialog>
       {!open && showFeedback ? <ActionFeedback state={state} /> : null}
     </div>
   );
