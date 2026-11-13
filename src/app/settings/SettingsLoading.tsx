@@ -1,5 +1,5 @@
-import { Skeleton, LoadingStatus, TopbarSkeleton } from "@/app/components/Skeleton";
-import { SettingsNavigation } from "./SettingsNavigation";
+import { Skeleton, LoadingStatus } from "@/app/components/Skeleton";
+import { VisitoringDashboardFrame } from "@/app/dashboard/VisitoringDashboardFrame";
 import page from "./settings-page.module.css";
 import styles from "./loading.module.css";
 
@@ -69,9 +69,7 @@ export function MembersSkeleton({ announce = true }: { announce?: boolean }) {
 
 export function SettingsLoading({ view = "sites" }: { view?: keyof typeof titles }) {
   return (
-    <>
-      <TopbarSkeleton />
-      <SettingsNavigation active={view} />
+    <VisitoringDashboardFrame active={view} title={titles[view]}>
       <LoadingStatus>Loading {view} settings…</LoadingStatus>
       <main className={page.page} aria-busy="true" aria-label={`Loading ${view} settings`}>
         <div className={page.intro} aria-hidden="true">
@@ -123,6 +121,6 @@ export function SettingsLoading({ view = "sites" }: { view?: keyof typeof titles
           </>
         )}
       </main>
-    </>
+    </VisitoringDashboardFrame>
   );
 }

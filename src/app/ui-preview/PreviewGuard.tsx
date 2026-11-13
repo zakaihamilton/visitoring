@@ -5,6 +5,7 @@ import type { FormEvent, MouseEvent, ReactNode } from "react";
 function blockLinkNavigation(event: MouseEvent<HTMLDivElement>) {
   const target = event.target;
   if (target instanceof Element && target.closest("a")) {
+    if (target.closest("a[data-preview-navigation='true']")) return;
     event.preventDefault();
     event.stopPropagation();
   }

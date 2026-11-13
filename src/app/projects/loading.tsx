@@ -1,25 +1,14 @@
 import { Skeleton, LoadingStatus } from "@/app/components/Skeleton";
-import { BrandIcon } from "@/app/components/BrandIcon";
+import { VisitoringDashboardFrame } from "@/app/dashboard/VisitoringDashboardFrame";
 import styles from "./projects.module.css";
 
 const projectSkeletons = ["first", "second", "third"];
 
 export default function Loading() {
   return (
-    <>
+    <VisitoringDashboardFrame active="projects" title="Projects">
       <LoadingStatus>Loading projects…</LoadingStatus>
       <main className={styles.page} aria-busy="true" aria-label="Loading projects">
-        <header className={styles.header}>
-          <span className={styles.brand}>
-            <BrandIcon />
-            <span>Visitoring</span>
-          </span>
-          <div className={styles.account} aria-hidden="true">
-            <Skeleton width={150} height={34} />
-            <Skeleton width={78} height={34} />
-          </div>
-        </header>
-
         <section className={styles.content} aria-hidden="true">
           <div className="eyebrow">Your projects</div>
           <h1>Choose a project</h1>
@@ -41,6 +30,6 @@ export default function Loading() {
           </div>
         </section>
       </main>
-    </>
+    </VisitoringDashboardFrame>
   );
 }

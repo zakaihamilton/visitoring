@@ -2454,6 +2454,13 @@ packages:
       react: '>=19.0.0 <20.0.0'
       react-dom: '>=19.0.0 <20.0.0'
 
+  panel-frame-ui@0.2.5:
+    resolution: {integrity: sha512-m9k0gHqQIP0dcLNsuHQVsWzVcPstW2fJ3iqVakZmHpu+iw5dYv2NgTCOlbHYqNLmDfiu/MtC60LmwZxa0cAaOg==}
+    engines: {node: '>=22.14.0'}
+    peerDependencies:
+      react: '>=19.0.0 <20.0.0'
+      react-dom: '>=19.0.0 <20.0.0'
+
   parent-module@1.0.1:
     resolution: {integrity: sha512-GQ2EWRpQV8/o+Aw8YqtfZZPfNRWZYkbidE9k5rpl/hC3vtHHBfGm2Ifi6qWV+coDGkrUKZAxE3Lot5kcsRlh+g==}
     engines: {node: '>=6'}
@@ -4855,6 +4862,11 @@ snapshots:
       '@oxc-resolver/binding-wasm32-wasi': 11.24.2
       '@oxc-resolver/binding-win32-arm64-msvc': 11.24.2
       '@oxc-resolver/binding-win32-x64-msvc': 11.24.2
+
+  panel-frame-ui@0.2.5(react-dom@19.3.0(react@19.3.0))(react@19.3.0):
+    dependencies:
+      react: 19.3.0
+      react-dom: 19.3.0(react@19.3.0)
 
   panel-frame-ui@0.2.5(react-dom@19.3.0(react@19.3.0))(react@19.3.0):
     dependencies:
