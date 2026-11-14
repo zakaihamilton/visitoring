@@ -11,9 +11,9 @@ type Screen = (typeof screens)[number];
 
 async function signIn(page: Page) {
   await page.goto("/login");
-  await page.getByLabel("Email").fill("e2e-admin@example.test");
-  await page.getByLabel("Password").fill("e2e-local-password");
-  await page.getByRole("button", { name: "Continue" }).click();
+  await expect(page).toHaveURL(/127\.0\.0\.1:4322\/oauth\/authorize/);
+  await expect(page.getByLabel("Email")).toHaveCount(0);
+  await page.getByRole("button", { name: "Continue as test user" }).click();
   await expect(page).toHaveURL(/\/projects(?:\?.*)?$/);
   await page.getByRole("button", { name: /Open project/ }).click();
   await expect(page).toHaveURL(/\/dashboard$/);

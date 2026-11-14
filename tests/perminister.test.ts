@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { generateKeyPairSync, sign as signBytes } from "node:crypto";
 
 const { dbSelect, dbFrom, dbWhere, dbLimit } = vi.hoisted(() => ({
   dbSelect: vi.fn(),
@@ -16,7 +17,7 @@ import {
   bootstrapVisitoringProjectAdmin,
   isVisitoringOrganizationAdmin,
   listPerministerProjectMembers,
-  loginWithPerminister,
+  exchangePerministerAuthorizationCode,
   readPerministerSession,
   revokeVisitoringProjectGrants,
   requestPerminister,
@@ -52,32 +53,83 @@ describe("Visitoring Perminister client", () => {
     vi.restoreAllMocks();
   });
 
-  it("sends login only from the server with the dynamic client credentials", async () => {
-    const fetchMock = vi.fn().mockResolvedValue(
-      Response.json({
+  it("uses the standard OIDC authorization request with PKCE, nonce, and prompt", async () => {
+    const { perministerAuthorizationUrl } = await import("@/lib/perminister");
+    const destination = new URL(
+      perministerAuthorizationUrl("s".repeat(43), "c".repeat(43), "n".repeat(43), "https://visitoring.example", "login"),
+    );
+    expect(destination.origin).toBe("https://www.perminister.com");
+    expect(destination.searchParams.get("scope")).toBe("openid profile email perminister_api");
+    expect(destination.searchParams.get("state")).toBe("s".repeat(43));
+    expect(destination.searchParams.get("nonce")).toBe("n".repeat(43));
+    expect(destination.searchParams.get("code_challenge")).toBe("c".repeat(43));
+    expect(destination.searchParams.get("prompt")).toBe("login");
+  });
+
+  it("exchanges a code with client_secret_basic and verifies issuer, audience, and nonce", async () => {
+    const { privateKey, publicKey } = generateKeyPairSync("rsa", { modulusLength: 2048 });
+    const kid = "visitoring-test-key";
+    const publicJwk = {
+      ...(publicKey.export({ format: "jwk" }) as Record<string, string>),
+      alg: "RS256",
+      kid,
+      use: "sig",
+    };
+    const encode = (value: unknown) => Buffer.from(JSON.stringify(value)).toString("base64url");
+    const header = encode({ alg: "RS256", typ: "JWT", kid });
+    const payload = encode({
+      iss: "https://www.perminister.com",
+      sub: "subject-id",
+      aud: "dynamic-client-id",
+      iat: Math.floor(Date.now() / 1000),
+      exp: Math.floor(Date.now() / 1000) + 300,
+      nonce: "expected-nonce",
+    });
+    const signingInput = `${header}.${payload}`;
+    const idToken = `${signingInput}.${signBytes("RSA-SHA256", Buffer.from(signingInput), privateKey).toString("base64url")}`;
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce(Response.json({
+        issuer: "https://www.perminister.com",
+        authorization_endpoint: "https://www.perminister.com/oauth/authorize",
+        token_endpoint: "https://www.perminister.com/oauth/token",
+        jwks_uri: "https://www.perminister.com/.well-known/jwks.json",
+        response_types_supported: ["code"],
+        id_token_signing_alg_values_supported: ["RS256"],
+        code_challenge_methods_supported: ["S256"],
+        token_endpoint_auth_methods_supported: ["client_secret_basic"],
+        scopes_supported: ["openid", "profile", "email", "perminister_api"],
+      }))
+      .mockResolvedValueOnce(Response.json({
+        access_token: "opaque-access-token",
+        token_type: "Bearer",
+        expires_in: 3600,
+        scope: "openid profile email perminister_api",
+        id_token: idToken,
+      }))
+      .mockResolvedValueOnce(Response.json({ keys: [publicJwk] }))
+      .mockResolvedValueOnce(Response.json({
         authenticated: true,
-        sessionToken: "issued-token",
         account: { subjectId: "subject-id", email: "person@example.com" },
         organizations: [],
-      }),
-    );
+      }));
     vi.stubGlobal("fetch", fetchMock);
 
-    await loginWithPerminister("person@example.com", "legacy-password");
-
-    const [url, init] = fetchMock.mock.calls[0] as [URL, RequestInit];
-    const headers = new Headers(init.headers);
-    expect(url.toString()).toBe("https://www.perminister.com/api/auth/consumer/login");
-    expect(init.method).toBe("POST");
-    expect(init.cache).toBe("no-store");
-    expect(init.redirect).toBe("error");
-    expect(headers.get("X-Perminister-Client-Id")).toBe("dynamic-client-id");
-    expect(headers.get("X-Perminister-Client-Secret")).toBe("a-secret-value");
-    expect(headers.has("Authorization")).toBe(false);
-    expect(JSON.parse(String(init.body))).toEqual({
-      identifier: "person@example.com",
-      password: "legacy-password",
+    await expect(
+      exchangePerministerAuthorizationCode(
+        "authorization-code",
+        "v".repeat(43),
+        "expected-nonce",
+        "https://visitoring.example/auth/perminister/callback",
+      ),
+    ).resolves.toMatchObject({
+      authenticated: true,
+      sessionToken: "opaque-access-token",
     });
+    const [tokenUrl, tokenInit] = fetchMock.mock.calls[1] as [URL, RequestInit];
+    expect(tokenUrl.toString()).toBe("https://www.perminister.com/oauth/token");
+    expect(new Headers(tokenInit.headers).get("Authorization")).toBe(
+      `Basic ${Buffer.from("dynamic-client-id:a-secret-value").toString("base64")}`,
+    );
   });
 
   it("lists the unique Visitoring organizations in name order", () => {

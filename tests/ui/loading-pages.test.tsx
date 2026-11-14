@@ -1,6 +1,8 @@
 // @vitest-environment jsdom
-import { cleanup, render, screen } from "@testing-library/react";
-import { afterEach, expect, it } from "vitest";
+import { cleanup, render, screen, within } from "@testing-library/react";
+import { afterEach, expect, it, vi } from "vitest";
+vi.mock("server-only", () => ({}));
+vi.mock("@/app/components/ThemeControl", () => ({ ThemeControl: () => null }));
 import DashboardLoading from "@/app/dashboard/loading";
 import EventsLoading from "@/app/dashboard/events/loading";
 import ChartDataLoading from "@/app/dashboard/chart-data/loading";
@@ -13,6 +15,20 @@ import { TrafficLoading } from "@/app/dashboard/components/TrafficLoading";
 
 afterEach(cleanup);
 
+Object.defineProperty(window, "matchMedia", {
+  configurable: true,
+  value: (media: string) => ({
+    matches: false,
+    media,
+    onchange: null,
+    addListener: vi.fn(),
+    removeListener: vi.fn(),
+    addEventListener: vi.fn(),
+    removeEventListener: vi.fn(),
+    dispatchEvent: vi.fn(() => false),
+  }),
+});
+
 it.each([
   [DashboardLoading, "Traffic, at a glance.", "Loading traffic overview…"],
   [EventsLoading, "Recent events", "Loading recent events…"],
@@ -23,7 +39,8 @@ it.each([
   [SetupLoading, "Connect your website", "Loading setup settings…"],
 ] as const)("%s uses its destination heading and announces loading", (Loading, title, status) => {
   render(<Loading />);
-  expect(screen.getByRole("main").getAttribute("aria-busy")).toBe("true");
+  const main = screen.getByRole("main");
+  expect(main.getAttribute("aria-busy")).toBe("true");
   expect(screen.getByRole("heading", { name: title, level: 1, hidden: true })).toBeDefined();
   expect(screen.getAllByRole("status").some((element) => element.textContent === status)).toBe(
     true,
@@ -31,8 +48,8 @@ it.each([
   for (const announcement of screen.getAllByRole("status")) {
     expect(announcement.closest('[aria-busy="true"]')).toBeNull();
   }
-  expect(screen.queryByRole("button")).toBeNull();
-  expect(screen.queryByRole("textbox")).toBeNull();
+  expect(within(main).queryByRole("button")).toBeNull();
+  expect(within(main).queryByRole("textbox")).toBeNull();
 });
 
 it("retains the existing topbar while streaming traffic data", () => {

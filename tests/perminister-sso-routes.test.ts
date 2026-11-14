@@ -35,8 +35,18 @@ beforeEach(() => {
   vi.clearAllMocks();
   mocks.clientSecret.mockReturnValue("test-client-secret");
   mocks.authorizationUrl.mockImplementation(
-    (state: string, challenge: string, origin: string) =>
-      `https://perminister.test/oauth/authorize?${new URLSearchParams({ state, challenge, origin })}`,
+    (state: string, challenge: string, nonce: string, origin: string, prompt?: string) =>
+      `https://perminister.test/oauth/authorize?${new URLSearchParams({
+        client_id: "11111111-1111-4111-8111-111111111111",
+        redirect_uri: `${origin}/auth/perminister/callback`,
+        response_type: "code",
+        scope: "openid profile email perminister_api",
+        state,
+        nonce,
+        ...(prompt ? { prompt } : {}),
+        code_challenge: challenge,
+        code_challenge_method: "S256",
+      })}`,
   );
   mocks.visitoringOrganizations.mockReturnValue([
     {
@@ -49,16 +59,21 @@ beforeEach(() => {
 describe("Perminister SSO organization selection", () => {
   it("starts and completes SSO without an organization parameter", async () => {
     const startResponse = await startPerministerSso(
-      new Request("https://visitoring.test/auth/perminister/start"),
+      new Request("https://visitoring.test/auth/perminister/start?next=%2Fprojects%2Fdemo%3Ftab%3Dactivity"),
     );
     const authorization = new URL(startResponse.headers.get("location") ?? "");
     const state = authorization.searchParams.get("state");
     expect(state).toMatch(/^[A-Za-z0-9_-]{43}$/);
+    expect(authorization.searchParams.get("nonce")).toMatch(/^[A-Za-z0-9_-]{43}$/);
+    expect(authorization.searchParams.get("scope")).toBe("openid profile email perminister_api");
+    expect(authorization.searchParams.get("code_challenge_method")).toBe("S256");
     expect(authorization.searchParams.has("organizationId")).toBe(false);
     expect(mocks.authorizationUrl).toHaveBeenCalledWith(
       state,
       expect.any(String),
+      expect.any(String),
       "https://visitoring.test",
+      undefined,
     );
 
     const cookieName = `visitoring_sso-${state}`;
@@ -75,10 +90,12 @@ describe("Perminister SSO organization selection", () => {
     );
 
     expect(callbackResponse.status).toBe(303);
-    expect(callbackResponse.headers.get("location")).toBe("https://visitoring.test/projects");
+    expect(callbackResponse.headers.get("location")).toBe("https://visitoring.test/projects/demo?tab=activity");
     expect(mocks.exchangeAuthorizationCode).toHaveBeenCalledWith(
       "authorization-code",
       expect.any(String),
+      authorization.searchParams.get("nonce"),
+      "https://visitoring.test/auth/perminister/callback",
     );
     expect(mocks.setInitialVisitoringOrganization).toHaveBeenCalledWith(
       mocks.visitoringOrganizations.mock.results[0]?.value,
@@ -106,9 +123,7 @@ describe("Perminister SSO organization selection", () => {
       ),
     );
 
-    expect(callbackResponse.headers.get("location")).toBe(
-      "https://visitoring.test/login?error=invalid",
-    );
+    expect(callbackResponse.headers.get("location")).toBe("https://visitoring.test/login?error=invalid");
     expect(mocks.revokePerministerSession).toHaveBeenCalledWith("unscoped-token");
     expect(mocks.setSessionCookie).not.toHaveBeenCalled();
   });

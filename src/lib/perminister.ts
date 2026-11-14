@@ -4,6 +4,7 @@ import { cookies } from "next/headers";
 import { db } from "@/db";
 import { projects } from "@/db/schema";
 import { perministerBaseUrl } from "./perminister-origin";
+import { exchangePerministerOidcCode } from "./perminister-oidc";
 
 export const PERMINISTER_SESSION_COOKIE = "visitoring_session";
 const VISITORING_PRODUCT_ID = "visitoring";
@@ -143,7 +144,9 @@ export function perministerClientSecretForSso(): string {
 export function perministerAuthorizationUrl(
   state: string,
   challenge: string,
+  nonce: string,
   appOrigin: string,
+  prompt?: "login",
 ): string {
   const config = configuration();
   const redirectUri = new URL("/auth/perminister/callback", appOrigin);
@@ -152,7 +155,10 @@ export function perministerAuthorizationUrl(
     client_id: config.clientId,
     redirect_uri: redirectUri.toString(),
     response_type: "code",
+    scope: "openid profile email perminister_api",
     state,
+    nonce,
+    ...(prompt ? { prompt } : {}),
     code_challenge: challenge,
     code_challenge_method: "S256",
   }).toString();
@@ -254,26 +260,25 @@ export async function requestPerminister<T>(
   return payload as T;
 }
 
-export function loginWithPerminister(identifier: string, password: string): Promise<ConsumerLogin> {
-  return requestPerminister<ConsumerLogin>("/api/auth/consumer/login", {
-    method: "POST",
-    token: null,
-    body: { identifier, password },
-  });
-}
-
 export function exchangePerministerAuthorizationCode(
   code: string,
   codeVerifier: string,
+  nonce: string,
+  redirectUri: string,
 ): Promise<ConsumerLogin> {
-  return requestPerminister<ConsumerLogin>("/api/auth/consumer/token", {
-    method: "POST",
-    token: null,
-    body: {
-      grant_type: "authorization_code",
-      code,
-      code_verifier: codeVerifier,
-    },
+  const config = configuration();
+  return exchangePerministerOidcCode({
+    baseUrl: config.baseUrl.toString(),
+    clientId: config.clientId,
+    clientSecret: config.clientSecret,
+    code,
+    codeVerifier,
+    nonce,
+    redirectUri,
+  }).then(async ({ accessToken }) => {
+    const session = await readPerministerSession(accessToken);
+    if (!session.authenticated) throw new PerministerApiError(401, "Please sign in again.");
+    return { ...session, sessionToken: accessToken };
   });
 }
 

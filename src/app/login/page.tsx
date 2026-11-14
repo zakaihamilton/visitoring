@@ -1,16 +1,40 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { AuthCard, AuthShell } from "panel-frame-ui";
-import { loginAction } from "./actions";
 import { BrandIcon } from "@/app/components/BrandIcon";
 import { ThemeControl } from "@/app/components/ThemeControl";
 import { perministerRecoveryUrl } from "@/lib/perminister-origin";
+import { safeVisitoringReturnTo } from "@/lib/perminister-sso";
 import styles from "./login.module.css";
 
-type Props = { searchParams: Promise<{ error?: string }> };
+type Props = {
+  searchParams: Promise<{ error?: string | string[]; loggedOut?: string | string[]; next?: string | string[] }>;
+};
+
+function first(value: string | string[] | undefined): string {
+  return Array.isArray(value) ? value[0] ?? "" : value ?? "";
+}
 
 export default async function LoginPage({ searchParams }: Props) {
-  const { error } = await searchParams;
+  const query = await searchParams;
+  const error = first(query.error);
+  const loggedOut = first(query.loggedOut) === "1";
+  const next = safeVisitoringReturnTo(first(query.next));
+  if (!error && !loggedOut) {
+    const start = new URLSearchParams();
+    if (next) start.set("next", next);
+    redirect(`/auth/perminister/start${start.size ? `?${start}` : ""}`);
+  }
+
+  const retry = new URLSearchParams();
+  if (next) retry.set("next", next);
+  retry.set("prompt", "login");
   const recoveryUrl = perministerRecoveryUrl();
+  const message = loggedOut
+    ? "You’re signed out of Visitoring. Sign in again through Perminister to continue."
+    : error === "invalid"
+      ? "This Perminister account does not have access to Visitoring. Ask your organization administrator for access."
+      : "Perminister sign-in could not be completed. Try again, or reset your Perminister password.";
 
   return (
     <AuthShell
@@ -43,60 +67,21 @@ export default async function LoginPage({ searchParams }: Props) {
           <div className={styles.formIntro}>
             <div className="eyebrow">Welcome back</div>
           </div>
-          <h2>Sign in to Visitoring</h2>
-          <p className={styles.sub}>Sign in with your account to open your Visitoring projects.</p>
-          <form action="/auth/perminister/start" method="get" className={styles.ssoForm}>
-            <button type="submit" className={"button buttonPrimary " + styles.ssoButton}>
-              Sign in with Perminister <span aria-hidden>↗</span>
-            </button>
-          </form>
-          <div className={styles.authDivider}>
-            <span>or sign in with email and password</span>
-          </div>
-          <form action={loginAction} className={styles.credentialsForm}>
-            <label htmlFor="email">
-              Email
-              <input
-                id="email"
-                name="email"
-                type="email"
-                autoComplete="username"
-                required
-                placeholder="you@example.com"
-              />
-            </label>
-            <label htmlFor="password">
-              Password
-              <input
-                id="password"
-                name="password"
-                type="password"
-                autoComplete="current-password"
-                required
-              />
-            </label>
-            {error ? (
-              <p className={styles.error} role="alert">
-                {error === "unavailable"
-                  ? "Sign-in is temporarily unavailable. Please try again shortly."
-                  : error === "sso"
-                    ? "Perminister sign-in could not be completed. Please try again."
-                    : "We couldn't find a match for that email or password, or your account doesn't have Visitoring access."}
-              </p>
-            ) : null}
-            <button type="submit" className="button buttonQuiet">
-              Continue <span aria-hidden>↗</span>
-            </button>
-          </form>
-          <p className={styles.foot}>
-            {recoveryUrl && (
-              <>
-                Use Perminister? <a href={recoveryUrl}>Reset your Perminister password</a>.{" "}
-              </>
-            )}
-            For a Visitoring account or access, contact the administrator who invited you and ask
-            them to create your account or reset your password.
+          <h2>{loggedOut ? "You’re signed out" : "Continue with Perminister"}</h2>
+          <p className={styles.sub} role={error || loggedOut ? "alert" : undefined}>
+            {message}
           </p>
+          <Link
+            href={`/auth/perminister/start?${retry}`}
+            className={"button buttonPrimary " + styles.ssoButton}
+          >
+            {loggedOut ? "Sign in again" : "Try again with Perminister"} <span aria-hidden>↗</span>
+          </Link>
+          {recoveryUrl ? (
+            <p className={styles.foot}>
+              Need help signing in? <a href={recoveryUrl}>Reset your Perminister password</a>.
+            </p>
+          ) : null}
         </div>
       </AuthCard>
     </AuthShell>

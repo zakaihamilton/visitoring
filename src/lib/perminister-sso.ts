@@ -2,25 +2,49 @@ import "server-only";
 
 import { createHash, createHmac, randomBytes, timingSafeEqual } from "node:crypto";
 
-const PERMINISTER_SSO_COOKIE_PREFIX =
+const COOKIE_PREFIX =
   process.env.NODE_ENV === "production" ? "__Host-visitoring-sso-" : "visitoring_sso-";
+
+export type PerministerSsoTransaction = {
+  state: string;
+  verifier: string;
+  nonce: string;
+  redirectUri: string;
+  returnTo: string | null;
+};
 
 export function perministerSsoCookieName(state: string): string | null {
   if (!/^[A-Za-z0-9_-]{43}$/.test(state)) return null;
-  return `${PERMINISTER_SSO_COOKIE_PREFIX}${state}`;
+  return `${COOKIE_PREFIX}${state}`;
 }
 
-type PerministerSsoTransaction = {
-  state: string;
-  verifier: string;
-};
+export function safeVisitoringReturnTo(value: string | null | undefined): string | null {
+  if (!value || value.length > 2048 || !value.startsWith("/") || value.startsWith("//") || value.includes("\\")) {
+    return null;
+  }
+  try {
+    const url = new URL(value, "https://visitoring.invalid");
+    if (
+      url.origin !== "https://visitoring.invalid" ||
+      url.pathname === "/login" ||
+      url.pathname.startsWith("/auth/perminister/")
+    ) {
+      return null;
+    }
+    return `${url.pathname}${url.search}`;
+  } catch {
+    return null;
+  }
+}
 
 export function createPerministerSsoTransaction() {
   const state = randomBytes(32).toString("base64url");
   const verifier = randomBytes(32).toString("base64url");
+  const nonce = randomBytes(32).toString("base64url");
   return {
     state,
     verifier,
+    nonce,
     challenge: createHash("sha256").update(verifier).digest("base64url"),
   };
 }
@@ -38,28 +62,47 @@ export function readPerministerSsoTransaction(
   value: string | undefined,
   clientSecret: string,
 ): PerministerSsoTransaction | null {
-  if (!value || value.length > 700) return null;
+  if (!value || value.length > 4096) return null;
   const [payload, signature, ...extra] = value.split(".");
   if (!payload || !signature || extra.length) return null;
   const expected = createHmac("sha256", clientSecret).update(payload).digest();
   const actual = Buffer.from(signature, "base64url");
   if (expected.length !== actual.length || !timingSafeEqual(expected, actual)) return null;
+
   try {
     const parsed = JSON.parse(Buffer.from(payload, "base64url").toString("utf8")) as {
       state?: unknown;
       verifier?: unknown;
+      nonce?: unknown;
+      redirectUri?: unknown;
+      returnTo?: unknown;
     };
+    const returnTo =
+      parsed.returnTo === null
+        ? null
+        : typeof parsed.returnTo === "string"
+          ? safeVisitoringReturnTo(parsed.returnTo)
+          : undefined;
     if (
       typeof parsed.state !== "string" ||
       !/^[A-Za-z0-9_-]{43}$/.test(parsed.state) ||
       typeof parsed.verifier !== "string" ||
-      !/^[A-Za-z0-9_-]{43}$/.test(parsed.verifier)
+      !/^[A-Za-z0-9_-]{43,128}$/.test(parsed.verifier) ||
+      typeof parsed.nonce !== "string" ||
+      !/^[A-Za-z0-9_-]{43}$/.test(parsed.nonce) ||
+      typeof parsed.redirectUri !== "string" ||
+      parsed.redirectUri.length > 2048 ||
+      returnTo === undefined ||
+      (parsed.returnTo !== null && returnTo !== parsed.returnTo)
     ) {
       return null;
     }
     return {
       state: parsed.state,
       verifier: parsed.verifier,
+      nonce: parsed.nonce,
+      redirectUri: parsed.redirectUri,
+      returnTo,
     };
   } catch {
     return null;

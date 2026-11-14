@@ -4,6 +4,7 @@ import { makeVisitoringLastOrganizationCookieAvailable } from "@/lib/organizatio
 import {
   createPerministerSsoTransaction,
   perministerSsoCookieName,
+  safeVisitoringReturnTo,
   sealPerministerSsoTransaction,
 } from "@/lib/perminister-sso";
 
@@ -21,15 +22,27 @@ export async function GET(request: Request) {
     await makeVisitoringLastOrganizationCookieAvailable();
     const transaction = createPerministerSsoTransaction();
     const secret = perministerClientSecretForSso();
+    const prompt = url.searchParams.get("prompt") === "login" ? "login" : undefined;
     const destination = perministerAuthorizationUrl(
       transaction.state,
       transaction.challenge,
+      transaction.nonce,
       url.origin,
+      prompt,
     );
+    const redirectUri = new URL(destination).searchParams.get("redirect_uri") ?? "";
+    if (!redirectUri) throw new Error("Perminister callback is missing.");
+    const signedTransaction = {
+      state: transaction.state,
+      verifier: transaction.verifier,
+      nonce: transaction.nonce,
+      redirectUri,
+      returnTo: safeVisitoringReturnTo(url.searchParams.get("next")),
+    };
     const cookieName = perministerSsoCookieName(transaction.state);
     if (!cookieName) throw new Error("Invalid SSO transaction state.");
     const response = NextResponse.redirect(destination, 302);
-    response.cookies.set(cookieName, sealPerministerSsoTransaction(transaction, secret), {
+    response.cookies.set(cookieName, sealPerministerSsoTransaction(signedTransaction, secret), {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",

@@ -12,12 +12,21 @@ import {
   matchesPerministerSsoState,
   perministerSsoCookieName,
   readPerministerSsoTransaction,
+  safeVisitoringReturnTo,
 } from "@/lib/perminister-sso";
 
 export const runtime = "nodejs";
 
-function responseToLogin(request: Request, error = "sso", state = "") {
-  const response = NextResponse.redirect(new URL(`/login?error=${error}`, request.url), 303);
+function responseToLogin(
+  request: Request,
+  error = "sso",
+  state = "",
+  returnTo: string | null = null,
+) {
+  const query = new URLSearchParams({ error });
+  const safeReturn = safeVisitoringReturnTo(returnTo);
+  if (safeReturn) query.set("next", safeReturn);
+  const response = NextResponse.redirect(new URL(`/login?${query}`, request.url), 303);
   const cookieName = perministerSsoCookieName(state);
   if (cookieName) {
     response.cookies.set(cookieName, "", {
@@ -35,13 +44,16 @@ function responseToLogin(request: Request, error = "sso", state = "") {
 
 export async function GET(request: Request) {
   const url = new URL(request.url);
-  const code = url.searchParams.get("code") ?? "";
   const state = url.searchParams.get("state") ?? "";
-  if (url.searchParams.has("error") || !code || !state)
+  let returnTo: string | null = null;
+  const codes = url.searchParams.getAll("code");
+  if (url.searchParams.getAll("state").length !== 1) {
     return responseToLogin(request, "sso", state);
-
+  }
   const cookieName = perministerSsoCookieName(state);
-  if (!cookieName) return responseToLogin(request, "sso", state);
+  if (!cookieName || url.searchParams.getAll("state").length !== 1) {
+    return responseToLogin(request, "sso", state);
+  }
 
   try {
     const secret = perministerClientSecretForSso();
@@ -50,22 +62,40 @@ export async function GET(request: Request) {
     if (!transaction || !matchesPerministerSsoState(transaction.state, state)) {
       return responseToLogin(request, "sso", state);
     }
+    returnTo = transaction.returnTo;
+    if (
+      url.searchParams.has("error") ||
+      url.searchParams.getAll("error").length > 1 ||
+      codes.length !== 1 ||
+      !codes[0] ||
+      codes[0].length > 2048
+    ) {
+      return responseToLogin(request, "sso", state, returnTo);
+    }
 
-    const auth = await exchangePerministerAuthorizationCode(code, transaction.verifier);
+    const auth = await exchangePerministerAuthorizationCode(
+      codes[0],
+      transaction.verifier,
+      transaction.nonce,
+      transaction.redirectUri,
+    );
     const organizations = visitoringOrganizations(auth);
     if (organizations.length === 0) {
       try {
         await revokePerministerSession(auth.sessionToken);
       } catch {
-        // Missing Visitoring access is rejected locally; the new token is never returned.
+        // Reject the product session locally even if central revocation is unavailable.
       }
-      return responseToLogin(request, "invalid", state);
+      return responseToLogin(request, "invalid", state, transaction.returnTo);
     }
 
     await setInitialVisitoringOrganization(organizations);
     await setSessionCookie(auth.sessionToken);
 
-    const response = NextResponse.redirect(new URL("/projects", request.url), 303);
+    const response = NextResponse.redirect(
+      new URL(transaction.returnTo ?? "/projects", request.url),
+      303,
+    );
     response.cookies.set(cookieName, "", {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
@@ -77,6 +107,6 @@ export async function GET(request: Request) {
     response.headers.set("Referrer-Policy", "no-referrer");
     return response;
   } catch {
-    return responseToLogin(request, "sso", state);
+    return responseToLogin(request, "sso", state, returnTo);
   }
 }
