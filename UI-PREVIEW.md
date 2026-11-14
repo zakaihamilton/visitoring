@@ -2,7 +2,15 @@
 
 Install with `pnpm install --frozen-lockfile`, then run `pnpm ui:preview` and open <http://127.0.0.1:3100/ui-preview>. No login, database or environment file is required for the preview. The script binds to loopback and uses a polling watcher; do not expose this development server to a network. The preview route returns 404 outside Next.js development mode.
 
-The gallery uses fixed, synthetic data and real production view components. The banner selects screens and states; URLs can be shared locally. The state labels originate in the dashboard: on other screens, “Traffic” selects populated fixtures, while “New site” and “No matching activity” select empty fixtures (the latter also shows the project access error). The admin populated fixture includes active, archived and pending-cleanup projects.
+The gallery uses fixed, synthetic data and real production view components. The banner selects screens and states; URLs can be shared locally. Each analytics state carries through to traffic, chart, and event views. “New site” shows the onboarding state, “No matching activity” applies an event filter, and “Project access error” displays the access-denied project state. The admin populated fixture includes active, archived and pending-cleanup projects.
+
+| Scenario | Coverage |
+| --- | --- |
+| Traffic / new site / no matching activity | Populated analytics, first-event onboarding, and filtered-empty results |
+| High traffic / long project and URL names | Dense tables, event pagination, charts, and wrapping in project/site/path labels |
+| No activity in date range | A fixed future date range with zero traffic and chart buckets |
+| Tracking blocked / delayed ingestion / ingestion error | Site status feedback, stale-data timing, and recoverable ingestion failure |
+| Project access error | Project list permission error |
 
 | Production route | How to inspect | Coverage |
 | --- | --- | --- |

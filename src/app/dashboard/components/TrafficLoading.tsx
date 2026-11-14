@@ -1,4 +1,5 @@
-import { Skeleton, LoadingStatus, TopbarSkeleton } from "@/app/components/Skeleton";
+import { Skeleton, LoadingStatus } from "@/app/components/Skeleton";
+import { VisitoringDashboardFrame } from "../VisitoringDashboardFrame";
 import styles from "../dashboard.module.css";
 import loading from "./traffic-loading.module.css";
 
@@ -176,9 +177,8 @@ function TableSkeleton({ events }: { events: boolean }) {
 }
 
 export function TrafficLoading({ view, showTopbar = false }: { view: View; showTopbar?: boolean }) {
-  return (
+  const content = (
     <>
-      {showTopbar ? <TopbarSkeleton /> : null}
       <LoadingStatus>
         Loading {view === "overview" ? "traffic overview" : titles[view].toLowerCase()}…
       </LoadingStatus>
@@ -198,13 +198,6 @@ export function TrafficLoading({ view, showTopbar = false }: { view: View; showT
               <Skeleton width={185} />
               <Skeleton width={40} height={40} round />
             </div>
-          </div>
-          <div className={`${styles.dashboardNavigation} ${loading.navigation}`}>
-            {(["overview", "events", "chart-data"] as const).map((tab) => (
-              <span key={tab} data-current={tab === view}>
-                {tab === "overview" ? "Traffic overview" : titles[tab]}
-              </span>
-            ))}
           </div>
           <LoadingFilters />
           {view === "overview" ? (
@@ -241,5 +234,13 @@ export function TrafficLoading({ view, showTopbar = false }: { view: View; showT
         </div>
       </main>
     </>
+  );
+
+  return showTopbar ? (
+    <VisitoringDashboardFrame active={view} title="Visitoring">
+      {content}
+    </VisitoringDashboardFrame>
+  ) : (
+    content
   );
 }

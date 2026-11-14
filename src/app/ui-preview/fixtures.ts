@@ -87,6 +87,92 @@ const populated: DashboardData = {
   eventNames: ["page_view", "signup", "purchase"],
 };
 
+const highTraffic: DashboardData = {
+  ...populated,
+  ...metrics(94852, 2381),
+  previous: metrics(81126, 2034),
+  breakdownTotal: 189704,
+  trend: populated.trend.map((bucket, index) => ({
+    ...bucket,
+    current: metrics([12900, 13840, 14220, 11740, 15320, 16600, 10232][index], 320),
+    previous: metrics([11000, 12000, 13000, 10200, 13500, 14100, 7326][index], 280),
+  })),
+  pages: rows(
+    Array.from({ length: 18 }, (_, index) => [
+      index === 0 ? "/" : `/resources/guide-${String(index + 1).padStart(2, "0")}`,
+      17400 - index * 731,
+    ] as [string, number]),
+  ),
+  referrers: rows(
+    Array.from({ length: 14 }, (_, index) => [
+      ["Direct", "google.com", "newsletter.example", "docs.partner.test"][index % 4] +
+        (index > 3 ? ` · ${index + 1}` : ""),
+      28600 - index * 1390,
+    ] as [string, number]),
+  ),
+  countries: rows([
+    ["United States", 72100],
+    ["United Kingdom", 31000],
+    ["Germany", 24900],
+    ["Israel", 18700],
+    ["Japan", 13004],
+  ]),
+  regions: rows([
+    ["California", 27100],
+    ["New York", 22000],
+    ["London", 21000],
+    ["Berlin", 18000],
+    ["Tel Aviv", 16000],
+  ]),
+  eventNames: ["page_view", "signup", "purchase", "trial_started", "invite_sent"],
+};
+
+const longNames: DashboardData = {
+  ...populated,
+  pages: rows([
+    [
+      "/resources/customer-stories/how-distributed-product-teams-coordinate-regional-launches-and-keep-analytics-consistent",
+      720,
+    ],
+    ["/documentation/integrations/enterprise-single-sign-on/configuration-guide", 350],
+    ["/pricing", 245],
+  ]),
+  referrers: rows([
+    ["partner-network-for-independent-publishers-and-creative-studios.example", 420],
+    ["newsletter.example", 314],
+  ]),
+};
+
+const dateRangeGenerated = analyticsPeriod(
+  "2027-01-01T00:00:00.000Z",
+  "2027-01-07T23:59:59.999Z",
+  new Date("2027-01-08T12:00:00Z"),
+);
+const { buckets: dateRangeBuckets, ...dateRangePeriod } = dateRangeGenerated;
+const dateRangeEmpty: DashboardData = {
+  ...empty,
+  previous: emptyMetrics,
+  period: dateRangePeriod,
+  retrievedAt: "2027-01-08T12:00:00.000Z",
+  hasSiteActivity: true,
+  eventNames: populated.eventNames,
+  trend: dateRangeBuckets.map((bucket) => ({
+    ...bucket,
+    current: emptyMetrics,
+    previous: emptyMetrics,
+  })),
+};
+
+const delayedIngestion: DashboardData = {
+  ...populated,
+  retrievedAt: "2026-10-04T08:30:00.000Z",
+};
+const ingestionError: DashboardData = {
+  ...empty,
+  hasSiteActivity: true,
+  eventNames: populated.eventNames,
+};
+
 export const scenarios = {
   populated: { label: "Traffic", data: populated, event: "" },
   onboarding: { label: "New site", data: empty, event: "" },
@@ -95,7 +181,50 @@ export const scenarios = {
     data: { ...empty, hasSiteActivity: true, eventNames: ["signup"] },
     event: "signup",
   },
-} satisfies Record<string, { label: string; data: DashboardData; event: string }>;
+  "high-traffic": { label: "High traffic", data: highTraffic, event: "" },
+  "long-names": {
+    label: "Long project and URL names",
+    data: longNames,
+    event: "",
+    projectName: "Example project for distributed product and analytics teams",
+    siteName: "Regional publishing platform · customer analytics and events",
+  },
+  "date-range-empty": {
+    label: "No activity in date range",
+    data: dateRangeEmpty,
+    event: "",
+    from: "2027-01-01",
+    to: "2027-01-07",
+  },
+  "tracking-blocked": {
+    label: "Tracking blocked",
+    data: empty,
+    event: "",
+    siteName: "Example site · tracking blocked",
+  },
+  "delayed-ingestion": {
+    label: "Delayed ingestion",
+    data: delayedIngestion,
+    event: "",
+  },
+  "ingestion-error": { label: "Ingestion error", data: ingestionError, event: "" },
+  "project-access-error": {
+    label: "Project access error",
+    data: populated,
+    event: "",
+  },
+} satisfies Record<
+  string,
+  {
+    label: string;
+    data: DashboardData;
+    event: string;
+    from?: string;
+    to?: string;
+    projectName?: string;
+    siteName?: string;
+  }
+>;
 export type Scenario = keyof typeof scenarios;
 export const sites = [{ id: "demo-site", name: "Example site" }];
 export const projectCreationSuccess: ProjectActionState = {
