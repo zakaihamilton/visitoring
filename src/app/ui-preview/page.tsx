@@ -16,6 +16,7 @@ import { CreateSiteForm } from "@/app/settings/sites/components/CreateSiteForm";
 import { SiteListView } from "@/app/settings/sites/SiteListView";
 import { UserList } from "@/app/settings/users/components/UserList";
 import { UsersManager } from "@/app/settings/users/UsersManager";
+import type { DashboardData } from "@/app/dashboard/components/types";
 import type { CurrentUser, OrganizationAdmin } from "@/lib/auth";
 import { projectCreationSuccess, type Scenario, scenarios, sites } from "./fixtures";
 import { PreviewGuard } from "./PreviewGuard";
@@ -32,6 +33,16 @@ const previewScreens = [
   "project-created",
 ] as const;
 
+type PreviewFixture = {
+  label: string;
+  data: DashboardData;
+  event: string;
+  from?: string;
+  to?: string;
+  projectName?: string;
+  siteName?: string;
+};
+
 export default async function Preview({
   searchParams,
 }: {
@@ -42,10 +53,21 @@ export default async function Preview({
   const screen = previewScreens.find((item) => item === requestedScreen) ?? "traffic";
   const selected: Scenario =
     scenario && Object.hasOwn(scenarios, scenario) ? (scenario as Scenario) : "populated";
-  const fixture = scenarios[selected];
+  const fixture: PreviewFixture = scenarios[selected];
+  const previewSites = [{ ...sites[0], name: fixture.siteName ?? sites[0].name }];
+  const hasConfiguredProject = selected !== "onboarding";
+  const isTrafficScreen = screen === "traffic" || screen === "events" || screen === "chart";
+  const previewStatusMessage =
+    selected === "tracking-blocked"
+      ? "Tracking requests are being rejected because this site is not on the approved domain list. Review the site’s allowed domains and tracking key."
+      : selected === "delayed-ingestion"
+        ? "Analytics data is arriving late. The latest complete batch was received on October 4 at 08:30 UTC."
+        : selected === "ingestion-error"
+          ? "Visitoring could not retrieve the latest analytics batch. The data below is empty until ingestion recovers."
+          : null;
   const filters = {
-    from: "2026-10-01",
-    to: "2026-10-07",
+    from: fixture.from ?? "2026-10-01",
+    to: fixture.to ?? "2026-10-07",
     event: fixture.event,
     path: "",
     property: "",
@@ -57,7 +79,7 @@ export default async function Preview({
   const previewUser: CurrentUser = {
     id: "preview-user",
     projectId: "preview",
-    projectName: "Example project",
+    projectName: fixture.projectName ?? "Example project",
     organizationId: "preview-org",
     organizationName: "Example Studio",
     email: "alex@example.test",
@@ -72,37 +94,34 @@ export default async function Preview({
     email: "alex@example.test",
     organizations,
   };
+  const hasEvents =
+    selected === "populated" ||
+    selected === "high-traffic" ||
+    selected === "long-names" ||
+    selected === "delayed-ingestion";
+  const eventCount = selected === "high-traffic" ? 42 : hasEvents ? 2 : 0;
   const eventData = {
-    total: selected === "populated" ? 2 : 0,
+    total: eventCount,
     page: 1,
-    pages: 1,
+    pages: Math.max(1, Math.ceil(eventCount / 20)),
     pageSize: 20,
     snapshotAt: "2026-10-07T23:59:59.999Z",
     retrievedAt: fixture.data.retrievedAt,
     eventNames: fixture.data.eventNames,
-    events:
-      selected === "populated"
-        ? [
-            {
-              id: 1,
-              eventName: "page_view",
-              path: "/pricing",
-              visitorId: "visitor-example-123456",
-              sessionId: "session-1",
-              properties: { source: "search" },
-              createdAt: "2026-10-07T10:00:00.000Z",
-            },
-            {
-              id: 2,
-              eventName: "signup",
-              path: "/register",
-              visitorId: "visitor-example-987654",
-              sessionId: "session-2",
-              properties: { plan: "starter" },
-              createdAt: "2026-10-06T09:00:00.000Z",
-            },
-          ]
-        : [],
+    events: Array.from({ length: Math.min(eventCount, 20) }, (_, index) => ({
+      id: index + 1,
+      eventName: index % 2 ? "signup" : "page_view",
+      path:
+        selected === "long-names" && index === 0
+          ? "/resources/customer-stories/how-distributed-product-teams-coordinate-regional-launches-and-keep-analytics-consistent"
+          : index % 2
+            ? "/register"
+            : "/pricing",
+      visitorId: `visitor-example-${String(index + 1).padStart(6, "0")}`,
+      sessionId: `session-${index + 1}`,
+      properties: index % 2 ? { plan: "starter" } : { source: "search" },
+      createdAt: "2026-10-07T10:00:00.000Z",
+    })),
   };
   return (
     <>
@@ -177,6 +196,11 @@ export default async function Preview({
           }
         >
         <TrafficMetricProvider key={selected}>
+          {isTrafficScreen && previewStatusMessage ? (
+            <div className={settingsStyles.notice} role={selected === "ingestion-error" ? "alert" : "status"}>
+              <p>{previewStatusMessage}</p>
+            </div>
+          ) : null}
           {screen === "settings" && (
             <>
               <main className={settingsStyles.page}>
@@ -194,11 +218,11 @@ export default async function Preview({
                 </section>
                 <SiteListView
                   projectSites={
-                    selected === "populated"
+                    hasConfiguredProject
                       ? [
                           {
                             id: "preview",
-                            name: "Example site",
+                            name: previewSites[0].name,
                             allowedDomains: ["example.test", "www.example.test"],
                             siteKey: "preview-key",
                             siteKeyPrefix: "preview",
@@ -222,7 +246,7 @@ export default async function Preview({
                 <UserList
                   currentUserId="preview-admin"
                   users={
-                    selected === "populated"
+                    hasConfiguredProject
                       ? [
                           {
                             id: "preview-admin",
@@ -257,7 +281,7 @@ export default async function Preview({
           )}
           {screen === "projects" && (
             <ProjectsView
-              error={selected === "filtered" ? "access" : undefined}
+              error={selected === "project-access-error" ? "access" : undefined}
               projectsData={{
                 organizationId: "preview-org",
                 organizationName: "Example Studio",
@@ -269,11 +293,11 @@ export default async function Preview({
                 ],
                 canManageProjects: true,
                 projects:
-                  selected === "populated"
+                  hasConfiguredProject
                     ? [
                         {
                           id: "preview",
-                          name: "Example project",
+                          name: previewUser.projectName,
                           organizationId: "preview-org",
                           organizationName: "Example Studio",
                           role: "admin",
@@ -287,11 +311,11 @@ export default async function Preview({
             <main className={projectStyles.adminPage}>
               <ProjectManager
                 projects={
-                  selected === "populated"
+                  hasConfiguredProject
                     ? [
                         {
                           id: "preview",
-                          name: "Example project",
+                          name: previewUser.projectName,
                           archivedAt: null,
                           deletionPendingAt: null,
                         },
@@ -327,13 +351,13 @@ export default async function Preview({
             </main>
           )}
           {screen === "traffic" && (
-            <Dashboard sites={sites} siteId="demo-site" data={fixture.data} filters={filters} />
+            <Dashboard sites={previewSites} siteId="demo-site" data={fixture.data} filters={filters} />
           )}
           {screen === "chart" && (
-            <ChartDataView sites={sites} siteId="demo-site" data={fixture.data} filters={filters} />
+            <ChartDataView sites={previewSites} siteId="demo-site" data={fixture.data} filters={filters} />
           )}
           {screen === "events" && (
-            <RecentEventsView sites={sites} siteId="demo-site" data={eventData} filters={filters} />
+            <RecentEventsView sites={previewSites} siteId="demo-site" data={eventData} filters={filters} />
           )}
         </TrafficMetricProvider>
         </VisitoringDashboardFrame>
