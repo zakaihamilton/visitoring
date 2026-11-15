@@ -1,6 +1,7 @@
 {
   "name": "visitoring",
   "version": "0.1.0",
+  "license": "MIT",
   "description": "React integration for Visitoring website analytics",
   "repository": {
     "type": "git",
@@ -21,7 +22,8 @@
   "type": "module",
   "files": [
     "dist",
-    "README.md"
+    "README.md",
+    "LICENSE"
   ],
   "sideEffects": false,
   "types": "./dist/index.d.ts",
