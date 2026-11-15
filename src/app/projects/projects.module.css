@@ -1,6 +1,6 @@
 .page {
   min-height: 100%;
-  padding: 0;
+  padding: 32px clamp(20px, 3vw, 42px) 72px;
   background:
     radial-gradient(circle at 86% 12%, light-dark(#dcece4, #13231b) 0, transparent 24rem),
     var(--background);
@@ -305,10 +305,12 @@
   box-shadow: 0 8px 24px light-dark(rgb(29 61 52 / 5%), rgb(194 226 217 / 5%));
   transform: none;
 }
-@media (max-width: 760px) {
+@media (max-width: 780px) {
   .page {
     padding: 20px 18px 56px;
   }
+}
+@media (max-width: 760px) {
   .adminPage {
     padding: 28px 18px 56px;
   }
@@ -331,9 +333,6 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-  }
-  .content {
-    margin-top: 72px;
   }
   .manager {
     margin-top: 0;
