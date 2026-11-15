@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-11T19:54:37.509Z",
+  "generatedAt": "2026-11-15T07:56:38.897Z",
   "entries": [
     {
       "fingerprint": "723977897c7c607fee29303d",
@@ -73,6 +73,195 @@
       "scope": ".",
       "file": "src/app/components/OrganizationSwitcher.tsx",
       "line": 55
+    },
+    {
+      "fingerprint": "eb91a52481f79e15a65a1027",
+      "provider": "Knip",
+      "category": "dead-code",
+      "type": "unused-export",
+      "scope": ".",
+      "file": "src/lib/privacy.ts",
+      "line": 32
+    },
+    {
+      "fingerprint": "89eecf54f7c0817b5313be97",
+      "provider": "Knip",
+      "category": "dead-code",
+      "type": "unused-export",
+      "scope": ".",
+      "file": "src/app/components/Skeleton.tsx",
+      "line": 34
+    },
+    {
+      "fingerprint": "6abae66810e4a16511ee7dc3",
+      "provider": "Knip",
+      "category": "dead-code",
+      "type": "unused-export",
+      "scope": ".",
+      "file": "src/lib/perminister-sso.ts",
+      "line": 8
+    },
+    {
+      "fingerprint": "44f76910acd73196cc1ab22a",
+      "provider": "Knip",
+      "category": "dead-code",
+      "type": "unused-export",
+      "scope": ".",
+      "file": "src/app/dashboard/VisitoringDashboardFrame.tsx",
+      "line": 13
+    },
+    {
+      "fingerprint": "72766fc36651b7804d22d07e",
+      "provider": "jscpd",
+      "category": "duplication",
+      "type": "duplication",
+      "scope": ".",
+      "file": "src/app/components/VisitoringDashboardFrame.tsx",
+      "line": 75
+    },
+    {
+      "fingerprint": "6ca735fc7e1babbba6c2c5fb",
+      "provider": "jscpd",
+      "category": "duplication",
+      "type": "duplication",
+      "scope": ".",
+      "file": "src/app/components/VisitoringDashboardFrame.tsx",
+      "line": 2
+    },
+    {
+      "fingerprint": "fbe701155826a1b80ad4b9bd",
+      "provider": "jscpd",
+      "category": "duplication",
+      "type": "duplication",
+      "scope": ".",
+      "file": "src/app/globals.css",
+      "line": 42
+    },
+    {
+      "fingerprint": "b88e6d15297bec5c6577a69d",
+      "provider": "stylelint",
+      "category": "styles",
+      "type": "css-style",
+      "scope": ".",
+      "file": "src/app/globals.css",
+      "line": 36
+    },
+    {
+      "fingerprint": "2f15c0634e65c1b989c61bf9",
+      "provider": "stylelint",
+      "category": "styles",
+      "type": "css-style",
+      "scope": ".",
+      "file": "src/app/globals.css",
+      "line": 37
+    },
+    {
+      "fingerprint": "3ee175944a0955aca40626c3",
+      "provider": "stylelint",
+      "category": "styles",
+      "type": "css-style",
+      "scope": ".",
+      "file": "src/app/globals.css",
+      "line": 38
+    },
+    {
+      "fingerprint": "946c85cd7d4cade31132dfb5",
+      "provider": "stylelint",
+      "category": "styles",
+      "type": "css-style",
+      "scope": ".",
+      "file": "src/app/globals.css",
+      "line": 39
+    },
+    {
+      "fingerprint": "24e2e1808357a3e3edff50f2",
+      "provider": "stylelint",
+      "category": "styles",
+      "type": "css-style",
+      "scope": ".",
+      "file": "src/app/globals.css",
+      "line": 40
+    },
+    {
+      "fingerprint": "6b2fe276833335b4b936de5d",
+      "provider": "stylelint",
+      "category": "styles",
+      "type": "css-style",
+      "scope": ".",
+      "file": "src/app/globals.css",
+      "line": 41
+    },
+    {
+      "fingerprint": "66d7074f936f4b9af3d36dfb",
+      "provider": "stylelint",
+      "category": "styles",
+      "type": "css-style",
+      "scope": ".",
+      "file": "src/app/globals.css",
+      "line": 42
+    },
+    {
+      "fingerprint": "3450dce48fc889c5e2357a17",
+      "provider": "stylelint",
+      "category": "styles",
+      "type": "css-style",
+      "scope": ".",
+      "file": "src/app/globals.css",
+      "line": 43
+    },
+    {
+      "fingerprint": "46cf1e47b6a5f46530e7cea0",
+      "provider": "stylelint",
+      "category": "styles",
+      "type": "css-style",
+      "scope": ".",
+      "file": "src/app/globals.css",
+      "line": 44
+    },
+    {
+      "fingerprint": "4beb5ec6ace58a22f890e80b",
+      "provider": "stylelint",
+      "category": "styles",
+      "type": "css-style",
+      "scope": ".",
+      "file": "src/app/globals.css",
+      "line": 45
+    },
+    {
+      "fingerprint": "4f4b82f5512b39599aafe224",
+      "provider": "stylelint",
+      "category": "styles",
+      "type": "css-style",
+      "scope": ".",
+      "file": "src/app/globals.css",
+      "line": 46
+    },
+    {
+      "fingerprint": "199626a8c8fa976f8e7594a2",
+      "provider": "stylelint",
+      "category": "styles",
+      "type": "css-style",
+      "scope": ".",
+      "file": "src/app/globals.css",
+      "line": 47
+    },
+    {
+      "fingerprint": "5581d2b7d9bbcc37ce0e0f38",
+      "provider": "stylelint",
+      "category": "styles",
+      "type": "css-style",
+      "scope": ".",
+      "file": "src/app/globals.css",
+      "line": 48
+    },
+    {
+      "fingerprint": "df7a5419ee4a06e05aee9817",
+      "provider": "stylelint",
+      "category": "styles",
+      "type": "css-style",
+      "scope": ".",
+      "file": "src/app/globals.css",
+      "line": 49
     }
   ]
 }

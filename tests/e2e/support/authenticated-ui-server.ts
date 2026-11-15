@@ -1,5 +1,5 @@
-import { createHash, generateKeyPairSync, randomBytes, sign as signBytes } from "node:crypto";
 import type { ChildProcess } from "node:child_process";
+import { createHash, generateKeyPairSync, randomBytes, sign as signBytes } from "node:crypto";
 import { createServer, type Server } from "node:http";
 import { Pool } from "pg";
 import { buildNext, startNextProduction } from "./next-production";
@@ -85,6 +85,24 @@ function signTestIdToken(nonce: string) {
   return `${input}.${signBytes("RSA-SHA256", Buffer.from(input), privateKey).toString("base64url")}`;
 }
 
+function isExpectedCallbackUri(value: string): boolean {
+  try {
+    const callback = new URL(value);
+    return (
+      callback.protocol === "http:" &&
+      ["127.0.0.1", "localhost"].includes(callback.hostname) &&
+      callback.port === String(nextPort) &&
+      callback.pathname === "/auth/perminister/callback" &&
+      !callback.username &&
+      !callback.password &&
+      !callback.search &&
+      !callback.hash
+    );
+  } catch {
+    return false;
+  }
+}
+
 const provider: Server = createServer(async (request, response) => {
   const url = new URL(request.url ?? "/", `http://127.0.0.1:${stubPort}`);
   if (request.method === "GET" && url.pathname === "/.well-known/openid-configuration") {
@@ -108,7 +126,6 @@ const provider: Server = createServer(async (request, response) => {
   }
   if (request.method === "GET" && url.pathname === "/oauth/authorize") {
     const redirectUri = url.searchParams.get("redirect_uri") ?? "";
-    const expectedRedirect = `http://127.0.0.1:${nextPort}/auth/perminister/callback`;
     if (
       url.searchParams.get("client_id") !== clientId ||
       url.searchParams.get("response_type") !== "code" ||
@@ -117,7 +134,7 @@ const provider: Server = createServer(async (request, response) => {
       url.searchParams.get("nonce")?.length !== 43 ||
       url.searchParams.get("code_challenge_method") !== "S256" ||
       url.searchParams.get("code_challenge")?.length !== 43 ||
-      redirectUri !== expectedRedirect
+      !isExpectedCallbackUri(redirectUri)
     ) {
       json(response, 400, { error: "Invalid OIDC test request." });
       return;

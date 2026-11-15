@@ -1,6 +1,7 @@
 import { defineConfig, devices } from "@playwright/test";
 
-const baseURL = process.env.PLAYWRIGHT_AUTH_BASE_URL ?? "http://127.0.0.1:3115";
+// Keep the callback and app on one hostname so the loopback SSO cookie is sent.
+const baseURL = process.env.PLAYWRIGHT_AUTH_BASE_URL ?? "http://localhost:3115";
 
 export default defineConfig({
   testDir: "./tests/e2e/authenticated",
