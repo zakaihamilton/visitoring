@@ -30,6 +30,17 @@ test("synthetic dashboard stays responsive across widths and themes", async ({ p
         page.locator(".ui-preview-toolbar__controls .ui-preview-dropdown__value").nth(1),
       ).toHaveText("Long project and URL names");
 
+      const dropdownHeights = await page
+        .locator(".ui-preview-toolbar__controls .ui-preview-dropdown__trigger")
+        .evaluateAll((triggers) =>
+          triggers.map((trigger) => trigger.getBoundingClientRect().height),
+        );
+      expect(dropdownHeights, `${theme} theme at ${width}px: preview dropdowns`).toHaveLength(2);
+      expect(
+        Math.max(...dropdownHeights) - Math.min(...dropdownHeights),
+        `${theme} theme at ${width}px: same-row dropdown heights`,
+      ).toBeLessThanOrEqual(1);
+
       const layout = await page.evaluate(() => {
         const rect = (name: string, element: Element): Box => {
           const bounds = element.getBoundingClientRect();
