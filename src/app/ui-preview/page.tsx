@@ -48,7 +48,12 @@ export default async function Preview({
 }: {
   searchParams: Promise<{ scenario?: string; screen?: string }>;
 }) {
-  if (process.env.NODE_ENV !== "development") notFound();
+  if (
+    process.env.NODE_ENV !== "development" &&
+    process.env.VERCEL_ENV !== "preview"
+  ) {
+    notFound();
+  }
   const { scenario, screen: requestedScreen } = await searchParams;
   const screen = previewScreens.find((item) => item === requestedScreen) ?? "traffic";
   const selected: Scenario =
