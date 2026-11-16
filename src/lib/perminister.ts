@@ -282,8 +282,16 @@ export function exchangePerministerAuthorizationCode(
   });
 }
 
-export function readPerministerSession(token: string): Promise<ConsumerSession> {
-  return requestPerminister<ConsumerSession>("/api/auth/consumer/session", { token });
+export function readPerministerSession(
+  token: string,
+  selectedOrganizationId?: string,
+): Promise<ConsumerSession> {
+  const sessionPath = selectedOrganizationId
+    ? `/api/auth/consumer/session?${new URLSearchParams({
+        organization_id: selectedOrganizationId,
+      })}`
+    : "/api/auth/consumer/session";
+  return requestPerminister<ConsumerSession>(sessionPath, { token });
 }
 
 export async function revokePerministerSession(token: string): Promise<void> {

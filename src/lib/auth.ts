@@ -39,11 +39,11 @@ async function getCurrentUser(): Promise<CurrentUser | null> {
   const jar = await cookies();
   const token = jar.get(SESSION_COOKIE)?.value;
   if (!token) return null;
+  const organizationId = jar.get(ACTIVE_ORGANIZATION_COOKIE)?.value;
 
   try {
-    const session = await readPerministerSession(token);
+    const session = await readPerministerSession(token, organizationId);
     if (!session.authenticated) return null;
-    const organizationId = jar.get(ACTIVE_ORGANIZATION_COOKIE)?.value;
     const projectId =
       jar.get(ACTIVE_PROJECT_COOKIE)?.value ?? jar.get("visitoring_workspace_id")?.value;
     if (!organizationId || !projectId) return null;
@@ -62,12 +62,14 @@ async function getCurrentUser(): Promise<CurrentUser | null> {
 }
 
 export async function requirePerministerSession() {
-  const token = (await cookies()).get(SESSION_COOKIE)?.value;
+  const jar = await cookies();
+  const token = jar.get(SESSION_COOKIE)?.value;
   if (!token) redirect("/login");
+  const organizationId = jar.get(ACTIVE_ORGANIZATION_COOKIE)?.value;
 
   let session: Awaited<ReturnType<typeof readPerministerSession>>;
   try {
-    session = await readPerministerSession(token);
+    session = await readPerministerSession(token, organizationId);
   } catch (error) {
     if (error instanceof PerministerApiError && error.status === 401) redirect("/login");
     throw error;
