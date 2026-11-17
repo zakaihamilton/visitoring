@@ -995,6 +995,18 @@
   font-style: italic;
 }
 
+.footerLink {
+  color: var(--muted);
+  text-decoration: underline;
+  text-decoration-color: light-dark(#b8c9bf, #36584d);
+  text-underline-offset: 3px;
+  white-space: nowrap;
+}
+
+.footerLink:hover {
+  color: var(--accent-strong);
+}
+
 @keyframes riseIn {
   from {
     opacity: 0;

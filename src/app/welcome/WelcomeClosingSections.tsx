@@ -148,6 +148,9 @@ export function WelcomeFooter() {
       <span>
         Private analytics for the sites you run. Accounts are created by a project administrator.
       </span>
+      <Link href="/privacy" className={styles.footerLink}>
+        Privacy policy
+      </Link>
     </footer>
   );
 }
