@@ -1,9 +1,12 @@
-import "dotenv/config";
+import { config as loadEnv } from "dotenv";
 import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { pathToFileURL } from "node:url";
-import { Pool, type PoolClient } from "pg";
+import type { PoolClient } from "pg";
+import { endDatabasePools, getDatabase } from "@/db";
 import { applyMigration, parseMigrationSql, type MigrationFile } from "./migration-runner";
+
+loadEnv({ path: [".env.local", ".env"] });
 
 type MigrationJournal = {
   entries: Array<{ tag: string; when: number }>;
@@ -200,25 +203,18 @@ async function applyMigrations(client: PoolClient, migrations: MigrationFile[]):
 }
 
 export async function main(): Promise<void> {
-  const connectionString = process.env.MIGRATION_DATABASE_URL ?? process.env.DATABASE_URL;
-  if (!connectionString) {
-    throw new Error(
-      "MIGRATION_DATABASE_URL or DATABASE_URL is required to run database migrations.",
-    );
+  const ownerRole = process.env.NANOGRES_MIGRATION_OWNER_ROLE?.trim();
+  if (ownerRole && !/^[a-z][a-z0-9_]{0,62}$/.test(ownerRole)) {
+    throw new Error("NANOGRES_MIGRATION_OWNER_ROLE must be a lowercase PostgreSQL role name.");
   }
 
-  const migrationRole = process.env.MIGRATION_DATABASE_ROLE?.trim();
-  if (migrationRole && !/^[a-z][a-z0-9_]{0,62}$/.test(migrationRole)) {
-    throw new Error("MIGRATION_DATABASE_ROLE must be a lowercase PostgreSQL role name.");
-  }
-
-  const pool = new Pool({ connectionString, max: 1 });
+  const { pool } = await getDatabase("migration");
   let client: PoolClient | undefined;
   let lockAcquired = false;
   try {
     client = await pool.connect();
-    if (migrationRole) {
-      await client.query(`SET ROLE "${migrationRole}"`);
+    if (ownerRole) {
+      await client.query(`SET ROLE "${ownerRole}"`);
     }
     await client.query("SELECT pg_advisory_lock($1)", [ADVISORY_LOCK_KEY]);
     lockAcquired = true;
@@ -231,7 +227,7 @@ export async function main(): Promise<void> {
         .catch(() => undefined);
     }
     client?.release();
-    await pool.end();
+    await endDatabasePools();
   }
 }
 

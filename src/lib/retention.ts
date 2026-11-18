@@ -1,4 +1,4 @@
-import { pool } from "@/db";
+import { getPool } from "@/db";
 
 const EVENT_PRUNE_BATCH_SIZE = 10_000;
 
@@ -15,6 +15,7 @@ export function retentionCutoff(now = new Date(), months = 24): Date {
 }
 
 export async function pruneExpiredData(cutoff: Date, now = new Date()) {
+  const pool = await getPool();
   let removedEventCount = 0;
   while (true) {
     const removedEvents = await pool.query(

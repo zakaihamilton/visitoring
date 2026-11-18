@@ -1,7 +1,9 @@
-import "dotenv/config";
-import { db, pool } from "@/db";
+import { config as loadEnv } from "dotenv";
+import { endDatabasePools, getDb } from "@/db";
 import { projects } from "@/db/schema";
 import { parseArgs, requiredArg } from "./args";
+
+loadEnv({ path: [".env.local", ".env"] });
 
 async function main(): Promise<void> {
   const args = parseArgs(process.argv.slice(2));
@@ -13,6 +15,7 @@ async function main(): Promise<void> {
     )
   )
     throw new Error("Organization ID must be a valid UUID.");
+  const db = await getDb();
   const [project] = await db.insert(projects).values({ name, organizationId }).returning();
   if (!project) throw new Error("Project was not created.");
   console.log(`Project ${project.name} created; id=${project.id}.`);
@@ -26,4 +29,4 @@ main()
     console.error(error instanceof Error ? error.message : error);
     process.exitCode = 1;
   })
-  .finally(() => pool.end());
+  .finally(() => endDatabasePools());

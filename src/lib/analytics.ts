@@ -1,5 +1,5 @@
 import { and, count, desc, eq, gte, ilike, lt, sql } from "drizzle-orm";
-import { db, pool } from "@/db";
+import { getDatabase } from "@/db";
 import { siteEvents } from "@/db/schema";
 import { analyticsPeriod, emptyMetrics, type Metrics } from "./analytics-period";
 
@@ -168,6 +168,7 @@ function mappedLabelCounts(rows: LabelCountRow[]): Breakdown[] {
 }
 
 export async function getAnalyticsData(filters: AnalyticsFilters) {
+  const { db, pool } = await getDatabase();
   const period = analyticsPeriod(filters.from, filters.to);
   filters = { ...filters, from: period.from, to: period.to };
   const previousFilters = { ...filters, from: period.previousFrom, to: period.previousTo };
@@ -231,7 +232,7 @@ export async function getAnalyticsData(filters: AnalyticsFilters) {
       breakdownQuery.replace("/* whereClause */", breakdownConditions.clause),
       breakdownConditions.parameters,
     ),
-    eventNamesQuery(filters),
+    eventNamesQuery(db, filters),
   ]);
   const totals = totalRows[0];
 
@@ -268,7 +269,7 @@ export async function getAnalyticsData(filters: AnalyticsFilters) {
   };
 }
 
-function eventNamesQuery(filters: AnalyticsFilters) {
+function eventNamesQuery(db: Awaited<ReturnType<typeof getDatabase>>["db"], filters: AnalyticsFilters) {
   return db
     .selectDistinct({ name: siteEvents.eventName })
     .from(siteEvents)
@@ -288,6 +289,7 @@ export async function getRecentEventsData(
   requestedPage = 1,
   before?: string,
 ) {
+  const { db } = await getDatabase();
   const period = analyticsPeriod(filters.from, filters.to);
   const timestamp = before ? Date.parse(before) : Number.NaN;
   // Keep pagination on the same population; reject malformed or out-of-range cutoffs.
@@ -322,7 +324,7 @@ export async function getRecentEventsData(
       .orderBy(desc(siteEvents.createdAt), desc(siteEvents.id))
       .limit(pageSize)
       .offset((page - 1) * pageSize),
-    eventNamesQuery(filters),
+    eventNamesQuery(db, filters),
   ]);
   return {
     total,

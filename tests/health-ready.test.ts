@@ -2,7 +2,7 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vites
 
 const mocks = vi.hoisted(() => ({ query: vi.fn() }));
 
-vi.mock("@/db", () => ({ pool: { query: mocks.query } }));
+vi.mock("@/db", () => ({ getPool: async () => ({ query: mocks.query }) }));
 
 import { GET as getRetentionCron } from "@/app/api/cron/retention/route";
 import { GET } from "@/app/api/health/ready/route";

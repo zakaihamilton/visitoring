@@ -14,12 +14,13 @@ Records older than the rolling 24-month window are pruned daily.
 
 ## Run locally
 
-Requirements: Node.js 24.22.1 or later within the 24.x line, pnpm 10.33.0, and Docker Compose (or a local PostgreSQL 15+ database).
+Requirements: Node.js 24.22.1 or later within the 24.x line and pnpm 10.33.0. Local development can connect to Nanogres with Vercel OIDC or use an isolated PostgreSQL server.
 
 ```sh
 cp .env.example .env
-docker compose up -d db
 pnpm install --frozen-lockfile
+vercel link
+vercel env pull .env.local --environment=development
 pnpm run db:migrate
 pnpm run dev
 ```
@@ -27,17 +28,13 @@ pnpm run dev
 Use `pnpm run db:migrate` to apply migrations locally. It serializes migrations and supports the
 explicitly marked concurrent-index migrations used for production-safe index builds.
 
-The Compose database listens on host port `5433` to avoid colliding with a local PostgreSQL server. If using your existing local PostgreSQL instead, set `DATABASE_URL` to that server (commonly port `5432`) and skip `docker compose up -d db`.
+For Nanogres local development, link the Visitoring Vercel project and pull its Development environment. Vercel supplies a short-lived OIDC token locally; Nanogres grants should allow only the Visitoring project’s development identity. You can refresh the token by running `vercel env pull .env.local --environment=development` again. To use the optional Docker database instead, start it with `docker compose up -d db` and set `LOCAL_DATABASE_URL` in `.env.local`. Local database URLs are ignored in production.
 
 Open [http://localhost:3000](http://localhost:3000). For local testing, add `localhost:3000` to the site's website addresses.
 
-The required local variables are `DATABASE_URL` and the Perminister app client settings in `.env`. Deployed environments must set `RATE_LIMIT_SECRET` to a random value containing at least 32 UTF-8 bytes; production readiness fails if it is missing or too short. `COLLECTOR_RATE_LIMIT_MAX_EVENTS` optionally changes the per-site/IP cap for each 15-minute window; it defaults to `120` and must be a positive integer. Production deployments must set `TRUST_PROXY_HEADERS=true` and expose the app only through a trusted reverse proxy that overwrites `x-real-ip` or `x-forwarded-for` with a single client IP. Without that setting, Visitoring ignores forwarded headers and the ready endpoint returns 503. Vercel deployments also need `CRON_SECRET` for the protected daily retention job.
+The required local settings are the Nanogres organization, database, runtime role, migration role, and Perminister app client settings. Deployed environments must set `RATE_LIMIT_SECRET` to a random value containing at least 32 UTF-8 bytes; production readiness fails if it is missing or too short. `COLLECTOR_RATE_LIMIT_MAX_EVENTS` optionally changes the per-site/IP cap for each 15-minute window; it defaults to `120` and must be a positive integer. Production deployments must set `TRUST_PROXY_HEADERS=true` and expose the app only through a trusted reverse proxy that overwrites `x-real-ip` or `x-forwarded-for` with a single client IP. Without that setting, Visitoring ignores forwarded headers and the ready endpoint returns 503. Vercel deployments also need `CRON_SECRET` for the protected daily retention job.
 
-The production app uses `DATABASE_URL` for runtime queries. The migration runner uses
-`MIGRATION_DATABASE_URL` when set and otherwise falls back to `DATABASE_URL`. When using Nanogres,
-set the migration URL to its session-pooling endpoint and set `MIGRATION_DATABASE_ROLE` to the
-owner role shown in Nanogres' migration connection snippet. The runner assumes that role only for
-the migration session; keep these credentials separate from the runtime database URL. `GEOIP_DB_PATH` is optional. Do not commit `.env` or a GeoIP database.
+Production and preview connect through short-lived Nanogres workload certificates. Set `NANOGRES_ORGANIZATION_ID`, `NANOGRES_DATABASE`, `NANOGRES_RUNTIME_ROLE`, and `NANOGRES_MIGRATION_ROLE` for each environment. Set `NANOGRES_MIGRATION_OWNER_ROLE` when the migration login must assume the database owner role. In Nanogres, grant each Vercel environment’s exact OIDC issuer, audience, and subject to only its intended database role. Product deployments never receive a PostgreSQL URL, password, or Nanogres management token. Remove the old `DATABASE_URL`, `MIGRATION_DATABASE_URL`, and `MIGRATION_DATABASE_ROLE` Vercel settings after the Nanogres migration is verified. `GEOIP_DB_PATH` is optional. Do not commit `.env`, `.env.local`, OIDC tokens, or a GeoIP database.
 
 Visitoring uses Perminister for identities, passwords, sessions, and project access in every environment. Configure a Visitoring product app client for production and a separate client for local development. The setup and project bootstrap steps are in [the Perminister guide](docs/perminister.md).
 

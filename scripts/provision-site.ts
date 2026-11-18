@@ -1,16 +1,19 @@
-import "dotenv/config";
+import { config as loadEnv } from "dotenv";
 import { eq } from "drizzle-orm";
-import { db, pool } from "@/db";
+import { endDatabasePools, getDb } from "@/db";
 import { sites, projects } from "@/db/schema";
 import { createSiteKey, sha256 } from "@/lib/crypto";
 import { parseAllowedDomains } from "@/lib/domains";
 import { parseArgs, requiredArg } from "./args";
+
+loadEnv({ path: [".env.local", ".env"] });
 
 async function main(): Promise<void> {
   const args = parseArgs(process.argv.slice(2));
   const projectId = requiredArg(args, "project-id");
   const name = requiredArg(args, "name");
   const domains = parseAllowedDomains(requiredArg(args, "domains"));
+  const db = await getDb();
   const [project] = await db
     .select({ id: projects.id })
     .from(projects)
@@ -39,4 +42,4 @@ main()
     console.error(error instanceof Error ? error.message : error);
     process.exitCode = 1;
   })
-  .finally(() => pool.end());
+  .finally(() => endDatabasePools());

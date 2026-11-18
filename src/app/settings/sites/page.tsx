@@ -1,7 +1,7 @@
 import { desc, eq } from "drizzle-orm";
 import { Suspense } from "react";
 import { VisitoringDashboardFrame } from "@/app/components/VisitoringDashboardFrame";
-import { db } from "@/db";
+import { getDb } from "@/db";
 import { sites } from "@/db/schema";
 import { requireAdmin } from "@/lib/auth";
 import { SiteCardsSkeleton } from "../SettingsLoading";
@@ -13,6 +13,7 @@ import { SiteListView } from "./SiteListView";
 export const dynamic = "force-dynamic";
 
 async function SiteList({ projectId }: { projectId: string }) {
+  const db = await getDb();
   const projectSites = await db
     .select({
       id: sites.id,

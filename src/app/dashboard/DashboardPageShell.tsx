@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Suspense } from "react";
 import { desc, eq } from "drizzle-orm";
 import { requireUser } from "@/lib/auth";
-import { db } from "@/db";
+import { getDb } from "@/db";
 import { sites } from "@/db/schema";
 import { getAnalyticsData, getRecentEventsData } from "@/lib/analytics";
 import { dashboardDates } from "@/lib/analytics-period";
@@ -60,6 +60,7 @@ async function DashboardContent({
 
 export async function DashboardPageShell({ searchParams, view }: Props) {
   const [user, params] = await Promise.all([requireUser(), searchParams]);
+  const db = await getDb();
   const now = new Date();
   const projectSites = await db
     .select({ id: sites.id, name: sites.name })
