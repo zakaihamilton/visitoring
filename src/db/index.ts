@@ -29,6 +29,7 @@ type ConnectionHandle = {
   pool: Pool;
   db: ReturnType<typeof drizzle>;
   expiresAt: number;
+  isAlive: () => boolean;
   close: () => Promise<void>;
 };
 
@@ -37,6 +38,7 @@ type WorkloadTunnel = {
   port: number;
   ssh: SshClient;
   webSocket: WebSocket;
+  isAlive: () => boolean;
 };
 
 const pools = new Map<ConnectionKind, ConnectionHandle>();
@@ -176,6 +178,15 @@ async function openWorkloadTunnel(
 
     const ssh = new SshClient();
     const transport = createWebSocketStream(webSocket);
+    let closed = false;
+    const markClosed = () => {
+      closed = true;
+    };
+    webSocket.on("close", markClosed);
+    webSocket.on("error", markClosed);
+    ssh.on("close", markClosed);
+    ssh.on("end", markClosed);
+    ssh.on("error", markClosed);
     try {
       await new Promise<void>((resolve, reject) => {
         const onReady = () => {
@@ -230,7 +241,13 @@ async function openWorkloadTunnel(
         server.close();
         throw new Error("The local SSH tunnel did not receive a TCP port.");
       }
-      return { server, port: (address as AddressInfo).port, ssh, webSocket };
+      return {
+        server,
+        port: (address as AddressInfo).port,
+        ssh,
+        webSocket,
+        isAlive: () => !closed && webSocket.readyState === WebSocket.OPEN,
+      };
     } catch (error) {
       ssh.end();
       transport.destroy();
@@ -270,10 +287,21 @@ function localConnectionString(): string | null {
 }
 
 export async function getDatabase(kind: ConnectionKind = "runtime") {
-  const existing = pools.get(kind);
-  if (existing && existing.expiresAt > Date.now() + 60_000) return existing;
   const inProgress = pending.get(kind);
   if (inProgress) return inProgress;
+
+  const existing = pools.get(kind);
+  if (
+    existing &&
+    existing.expiresAt > Date.now() + 60_000 &&
+    existing.isAlive()
+  ) {
+    return existing;
+  }
+  if (existing) {
+    pools.delete(kind);
+    void existing.close().catch(() => undefined);
+  }
 
   const next = (async () => {
     const localUrl = localConnectionString();
@@ -284,7 +312,12 @@ export async function getDatabase(kind: ConnectionKind = "runtime") {
         idleTimeoutMillis: 30_000,
         connectionTimeoutMillis: 10_000,
       });
-      const handle = { pool, db: drizzle(pool, { schema }), expiresAt: Number.POSITIVE_INFINITY };
+      const handle = {
+        pool,
+        db: drizzle(pool, { schema }),
+        expiresAt: Number.POSITIVE_INFINITY,
+        isAlive: () => true,
+      };
       const complete: ConnectionHandle = {
         ...handle,
         close: () => pool.end(),
@@ -315,6 +348,7 @@ export async function getDatabase(kind: ConnectionKind = "runtime") {
       pool,
       db: drizzle(pool, { schema }),
       expiresAt: Date.parse(credential.expiresAt),
+      isAlive: tunnel.isAlive,
       close: async () => {
         await pool.end().catch(() => undefined);
         tunnel.server.close();
@@ -323,7 +357,6 @@ export async function getDatabase(kind: ConnectionKind = "runtime") {
       },
     };
     pools.set(kind, handle);
-    if (existing) void existing.close();
     return handle;
   })().finally(() => {
     pending.delete(kind);
