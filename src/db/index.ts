@@ -192,7 +192,7 @@ async function openWorkloadTunnel(
     });
 
     const ssh = new SshClient();
-    const transport = createWebSocketStream(webSocket, { allowSynchronousEvents: true });
+    const transport = createWebSocketStream(webSocket);
     try {
       await new Promise<void>((resolve, reject) => {
         const onReady = () => {
@@ -212,9 +212,10 @@ async function openWorkloadTunnel(
           username: credential.sshUsername,
           privateKey: sshPrivateKey,
           hostHash: "sha256",
-          hostVerifier: (hash) =>
-            typeof hash === "string" &&
-            hash.toLowerCase() === credential.sshHostKeySha256.toLowerCase(),
+          hostVerifier: (hash: Buffer | string) => {
+            const fingerprint = typeof hash === "string" ? hash : hash.toString("hex");
+            return fingerprint.toLowerCase() === credential.sshHostKeySha256.toLowerCase();
+          },
           readyTimeout: 10_000,
           keepaliveInterval: 15_000,
           keepaliveCountMax: 3,
