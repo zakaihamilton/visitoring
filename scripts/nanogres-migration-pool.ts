@@ -49,7 +49,7 @@ function opensshPrivateKeyFromKeyPair(privateKeyPem: string, publicKeyDer: Buffe
   const padding = Buffer.from(Array.from({ length: paddingLength }, (_, index) => index + 1));
   const publicBlob = Buffer.concat([sshString("ssh-ed25519"), sshString(publicKey)]);
   const opensshKey = Buffer.concat([
-    Buffer.from("openssh-key-v1\\0", "ascii"),
+    Buffer.from("openssh-key-v1\0", "ascii"),
     sshString("none"),
     sshString("none"),
     sshString(Buffer.alloc(0)),
@@ -57,12 +57,12 @@ function opensshPrivateKeyFromKeyPair(privateKeyPem: string, publicKeyDer: Buffe
     sshString(publicBlob),
     sshString(Buffer.concat([privatePayload, padding])),
   ]);
-  const encoded = opensshKey.toString("base64").match(/.{1,70}/g)?.join("\\n");
+  const encoded = opensshKey.toString("base64").match(/.{1,70}/g)?.join("\n");
   if (!encoded) throw new Error("The generated SSH private key could not be encoded.");
   return (
-    "-----BEGIN OPENSSH PRIVATE KEY-----\\n" +
+    "-----BEGIN OPENSSH PRIVATE KEY-----\n" +
     encoded +
-    "\\n-----END OPENSSH PRIVATE KEY-----\\n"
+    "\n-----END OPENSSH PRIVATE KEY-----\n"
   );
 }
 
