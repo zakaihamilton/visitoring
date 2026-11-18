@@ -312,6 +312,9 @@ async function openWorkloadTunnel(
           keepaliveCountMax: 3,
         });
       });
+      ssh.on("error", () => {
+        if (webSocket.readyState === WebSocket.OPEN) webSocket.terminate();
+      });
 
       const server = net.createServer((localSocket) => {
         ssh.forwardOut(
@@ -358,8 +361,20 @@ async function openWorkloadTunnel(
 
 async function closeWorkloadTunnel(tunnel: WorkloadTunnel): Promise<void> {
   await new Promise<void>((resolve) => tunnel.server.close(() => resolve()));
-  tunnel.ssh.end();
-  tunnel.webSocket.close();
+  await new Promise<void>((resolve) => {
+    const onClose = () => {
+      clearTimeout(timer);
+      resolve();
+    };
+    const timer = setTimeout(() => {
+      tunnel.ssh.off("close", onClose);
+      resolve();
+    }, 1_000);
+    timer.unref();
+    tunnel.ssh.once("close", onClose);
+    tunnel.ssh.end();
+  });
+  if (tunnel.webSocket.readyState === WebSocket.OPEN) tunnel.webSocket.close();
 }
 
 export async function createMigrationPool(): Promise<{
