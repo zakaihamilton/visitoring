@@ -124,7 +124,17 @@ async function requestCredential(): Promise<{
     signal: AbortSignal.timeout(15_000),
   });
   if (!response.ok) {
-    throw new Error("Nanogres migration identity exchange failed (" + response.status + ").");
+    const responseError: unknown = await response.json().catch(() => null);
+    const message =
+      responseError &&
+      typeof responseError === "object" &&
+      "error" in responseError &&
+      typeof responseError.error === "string"
+        ? ": " + responseError.error.slice(0, 256)
+        : "";
+    throw new Error(
+      "Nanogres migration identity exchange failed (" + response.status + ")" + message + ".",
+    );
   }
 
   const value: unknown = await response.json();
