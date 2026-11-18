@@ -1,11 +1,10 @@
 import "server-only";
 
-import { generateKeyPairSync } from "node:crypto";
 import net, { type AddressInfo, type Server } from "node:net";
 import { headers } from "next/headers";
 import { drizzle } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
-import { Client as SshClient, type ClientChannel } from "ssh2";
+import { Client as SshClient, type ClientChannel, utils as sshUtils } from "ssh2";
 import WebSocket, { createWebSocketStream } from "ws";
 import * as schema from "./schema";
 
@@ -79,38 +78,22 @@ function configuration(kind: ConnectionKind) {
   return { organizationId, database, role, endpoint: url.toString() };
 }
 
-function sshPublicKeyFromSpki(spki: Buffer): string {
-  const ed25519SpkiPrefix = Buffer.from("302a300506032b6570032100", "hex");
-  if (
-    spki.length !== ed25519SpkiPrefix.length + 32 ||
-    !spki.subarray(0, ed25519SpkiPrefix.length).equals(ed25519SpkiPrefix)
-  ) {
-    throw new Error("The generated SSH key was not Ed25519.");
-  }
-  const algorithm = Buffer.from("ssh-ed25519");
-  const algorithmLength = Buffer.alloc(4);
-  algorithmLength.writeUInt32BE(algorithm.length);
-  const publicKeyBytes = spki.subarray(ed25519SpkiPrefix.length);
-  const publicKeyLength = Buffer.alloc(4);
-  publicKeyLength.writeUInt32BE(publicKeyBytes.length);
-  const blob = Buffer.concat([algorithmLength, algorithm, publicKeyLength, publicKeyBytes]);
-  return `ssh-ed25519 ${blob.toString("base64")}`;
-}
-
 async function requestCredential(kind: ConnectionKind): Promise<{
   credential: WorkloadCredential;
   sshPrivateKey: string;
 }> {
   const target = configuration(kind);
   const token = await getOidcToken();
-  const keyPair = generateKeyPairSync("ed25519", {
-    publicKeyEncoding: { format: "der", type: "spki" },
-    privateKeyEncoding: { format: "pem", type: "pkcs8" },
-  });
-  if (!Buffer.isBuffer(keyPair.publicKey) || typeof keyPair.privateKey !== "string") {
-    throw new Error("The generated SSH keypair could not be encoded.");
+  const keyPair = sshUtils.generateKeyPairSync("ed25519");
+  const [algorithm, encodedKey] = keyPair.public.trim().split(/\s+/, 3);
+  if (
+    algorithm !== "ssh-ed25519" ||
+    !encodedKey ||
+    !keyPair.private.includes("BEGIN OPENSSH PRIVATE KEY")
+  ) {
+    throw new Error("The SSH library could not generate an Ed25519 OpenSSH keypair.");
   }
-  const sshPublicKey = sshPublicKeyFromSpki(keyPair.publicKey);
+  const sshPublicKey = `${algorithm} ${encodedKey}`;
   const response = await fetch(target.endpoint, {
     method: "POST",
     headers: {
