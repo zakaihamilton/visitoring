@@ -144,7 +144,7 @@ async function requestCredential(kind: ConnectionKind): Promise<{
   if (!Number.isFinite(expiresAt) || expiresAt <= Date.now() + 60_000) {
     throw new Error("Nanogres returned an expired workload certificate.");
   }
-  return { credential: credential as WorkloadCredential, sshPrivateKey: keyPair.privateKey };
+  return { credential: credential as WorkloadCredential, sshPrivateKey: keyPair.private };
 }
 
 async function openWorkloadTunnel(
