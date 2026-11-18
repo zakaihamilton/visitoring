@@ -239,7 +239,10 @@ async function requestCredential(): Promise<{
     throw new Error("Nanogres returned an invalid migration SSH endpoint.");
   }
 
-  return {\n    credential: credential as WorkloadCredential,\n    sshPrivateKey: opensshPrivateKeyFromKeyPair(keyPair.privateKey, keyPair.publicKey),\n  };
+  return {
+    credential: credential as WorkloadCredential,
+    sshPrivateKey: opensshPrivateKeyFromKeyPair(keyPair.privateKey, keyPair.publicKey),
+  };
 }
 
 async function openWorkloadTunnel(
