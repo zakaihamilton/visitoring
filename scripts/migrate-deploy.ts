@@ -3,7 +3,7 @@ import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 import type { PoolClient } from "pg";
-import { endDatabasePools, getDatabase } from "@/db";
+import { createMigrationPool } from "./nanogres-migration-pool";
 import { applyMigration, parseMigrationSql, type MigrationFile } from "./migration-runner";
 
 loadEnv({ path: [".env.local", ".env"] });
@@ -208,7 +208,7 @@ export async function main(): Promise<void> {
     throw new Error("NANOGRES_MIGRATION_OWNER_ROLE must be a lowercase PostgreSQL role name.");
   }
 
-  const { pool } = await getDatabase("migration");
+  const { pool, close } = await createMigrationPool();
   let client: PoolClient | undefined;
   let lockAcquired = false;
   try {
@@ -227,7 +227,7 @@ export async function main(): Promise<void> {
         .catch(() => undefined);
     }
     client?.release();
-    await endDatabasePools();
+    await close();
   }
 }
 
