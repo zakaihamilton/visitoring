@@ -1,7 +1,7 @@
 import "server-only";
 import { and, eq, inArray, isNull } from "drizzle-orm";
 import { cookies } from "next/headers";
-import { db } from "@/db";
+import { getDb } from "@/db";
 import { projects } from "@/db/schema";
 import { perministerBaseUrl } from "./perminister-origin";
 import { exchangePerministerOidcCode } from "./perminister-oidc";
@@ -467,6 +467,8 @@ export async function visitoringProjectsForOrganization(
       ];
   if (!isOrganizationAdmin && projectIds.length === 0) return [];
 
+  const db = await getDb();
+
   const activeProjects = () =>
     db
       .select({
@@ -516,6 +518,7 @@ export async function visitoringUserForProject(
   );
   if (!organization) return null;
 
+  const db = await getDb();
   const [project] = await db
     .select({
       id: projects.id,
@@ -549,6 +552,7 @@ export async function visitoringUserForProject(
 }
 
 export async function consumerProjectScope(projectId: string) {
+  const db = await getDb();
   const [project] = await db
     .select({ organizationId: projects.organizationId })
     .from(projects)

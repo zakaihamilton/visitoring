@@ -2,7 +2,7 @@
 
 import { and, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
-import { db } from "@/db";
+import { getDb } from "@/db";
 import { sites } from "@/db/schema";
 import { requireAdmin } from "@/lib/auth";
 import { createSiteKey, sha256 } from "@/lib/crypto";
@@ -35,6 +35,7 @@ export async function createSiteAction(
   }
   if (domains.length === 0) return { message: "Add at least one website address.", error: true };
   const key = createSiteKey();
+  const db = await getDb();
   await db.insert(sites).values({
     projectId: user.projectId,
     name,
@@ -64,6 +65,7 @@ export async function updateDomainsAction(
   }
   if (!siteId || domains.length === 0)
     return { message: "Choose a site and add at least one website address.", error: true };
+  const db = await getDb();
   const [updated] = await db
     .update(sites)
     .set({ allowedDomains: domains, updatedAt: new Date() })
@@ -80,6 +82,7 @@ export async function rotateSiteKeyAction(
   const siteId = String(formData.get("siteId") ?? "");
   if (!siteId) return { message: "Choose a site to replace its tracking key.", error: true };
   const key = createSiteKey();
+  const db = await getDb();
   const [updated] = await db
     .update(sites)
     .set({
@@ -105,6 +108,7 @@ export async function deleteSiteAction(
   const siteId = String(formData.get("siteId") ?? "").trim();
   if (!siteId) return { message: "Choose a site to delete.", error: true };
 
+  const db = await getDb();
   const [deleted] = await db
     .delete(sites)
     .where(and(eq(sites.id, siteId), eq(sites.projectId, user.projectId)))

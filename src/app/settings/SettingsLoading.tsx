@@ -1,5 +1,5 @@
 import { Skeleton, LoadingStatus } from "@/app/components/Skeleton";
-import { VisitoringDashboardFrame } from "@/app/dashboard/VisitoringDashboardFrame";
+import { VisitoringDashboardFrame } from "@/app/components/VisitoringDashboardFrame";
 import page from "./settings-page.module.css";
 import styles from "./loading.module.css";
 

@@ -1,5 +1,5 @@
 import { eq, sql } from "drizzle-orm";
-import { db } from "@/db";
+import { getDb } from "@/db";
 import { authRateLimitBuckets } from "@/db/schema";
 import { hashRateLimitKey } from "@/lib/crypto";
 
@@ -9,6 +9,7 @@ const IP_ATTEMPT_LIMIT = 60;
 
 async function countAttempt(bucketKey: string, maxAttempts: number, now: Date): Promise<number> {
   const resetBefore = new Date(now.getTime() - WINDOW_MS);
+  const db = await getDb();
   const [bucket] = await db
     .insert(authRateLimitBuckets)
     .values({ bucketKey, windowStartedAt: now, count: 1 })
@@ -42,6 +43,7 @@ function accountBucketKey(input: { email: string }): string {
 }
 
 export async function clearLoginAccountAttempts(input: { email: string }): Promise<void> {
+  const db = await getDb();
   await db
     .delete(authRateLimitBuckets)
     .where(eq(authRateLimitBuckets.bucketKey, accountBucketKey(input)));

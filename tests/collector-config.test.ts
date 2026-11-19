@@ -2,7 +2,7 @@ import { afterAll, beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({ db: {} }));
 
-vi.mock("@/db", () => ({ db: mocks.db }));
+vi.mock("@/db", () => ({ getDb: async () => mocks.db }));
 
 import { POST } from "@/app/api/collect/route";
 

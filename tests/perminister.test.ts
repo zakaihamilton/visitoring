@@ -10,7 +10,7 @@ const { dbSelect, dbFrom, dbWhere, dbLimit } = vi.hoisted(() => ({
 
 vi.mock("server-only", () => ({}));
 vi.mock("next/headers", () => ({ cookies: vi.fn() }));
-vi.mock("@/db", () => ({ db: { select: dbSelect } }));
+vi.mock("@/db", () => ({ getDb: async () => ({ select: dbSelect }) }));
 
 import { cookies } from "next/headers";
 import {

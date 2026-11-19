@@ -3,7 +3,7 @@
 import { randomUUID } from "node:crypto";
 import { and, eq, isNotNull, isNull } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
-import { db } from "@/db";
+import { getDb } from "@/db";
 import { projects } from "@/db/schema";
 import { requireOrganizationAdmin } from "@/lib/auth";
 import { bootstrapVisitoringProjectAdmin, revokeVisitoringProjectGrants } from "@/lib/perminister";
@@ -46,6 +46,7 @@ export async function createProjectAction(
 
   const projectId = randomUUID();
   const pendingAt = new Date();
+  const db = await getDb();
   await db.insert(projects).values({
     id: projectId,
     name,
@@ -98,6 +99,7 @@ export async function manageProjectAction(
   if (!["archive", "restore", "delete"].includes(operation))
     return failure("Choose a valid project action.");
 
+  const db = await getDb();
   const [project] = await db
     .select({
       id: projects.id,

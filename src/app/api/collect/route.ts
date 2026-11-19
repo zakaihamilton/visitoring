@@ -1,6 +1,6 @@
 import { and, eq, isNull, sql } from "drizzle-orm";
 import { NextResponse } from "next/server";
-import { db } from "@/db";
+import { getDb } from "@/db";
 import { rateLimitBuckets, siteEvents, sites, projects } from "@/db/schema";
 import { parseAttribution } from "@/lib/attribution";
 import { parseEnvelope } from "@/lib/collect-envelope";
@@ -66,6 +66,7 @@ function corsHeaders(origin: string): HeadersInit {
 
 async function authorizedSite(siteKey: string | null, origin: string | null) {
   if (!siteKey?.startsWith("vk_")) return null;
+  const db = await getDb();
   const [site] = await db
     .select({
       id: sites.id,
@@ -137,6 +138,7 @@ export async function POST(request: Request): Promise<Response> {
 
   if (isDoNotTrack(request.headers.get("dnt")))
     return new Response(null, { status: 204, headers: cors });
+  const db = await getDb();
   const ip = clientIp(request);
   const now = new Date();
   const windowMs = 15 * 60 * 1000;

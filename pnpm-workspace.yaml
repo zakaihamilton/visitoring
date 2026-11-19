@@ -2,7 +2,9 @@ autoInstallPeers: false
 minimumReleaseAgeExclude:
   - panel-frame-ui@0.2.3 || 0.2.4 || 0.2.5
 allowBuilds:
+  cpu-features: true
   esbuild: true
+  ssh2: true
 packages:
   - packages/react
 linkWorkspacePackages: true

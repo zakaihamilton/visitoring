@@ -76,7 +76,11 @@ export function VisitoringDashboardFrame({
               action={selectOrganizationAction}
             />
           </div>
-        ) : undefined
+        ) : (
+          <div className="pf-visitoring-switchers">
+            <span className="pf-skeleton" aria-hidden="true" />
+          </div>
+        )
       }
       navigation={
         <>
@@ -125,12 +129,16 @@ export function VisitoringDashboardFrame({
       sidebarFooter={
         <>
           <ThemeControl />
-          {user?.email ? <span className="pf-account-label">{user.email}</span> : null}
-          <form action={logoutAction}>
-            <button className="pf-sidebar-link pf-sign-out" type="submit">
-              Sign out
-            </button>
-          </form>
+          {user || organizationContext ? (
+            <>
+              {user?.email ? <span className="pf-account-label">{user.email}</span> : null}
+              <form action={logoutAction}>
+                <button className="pf-sidebar-link pf-sign-out" type="submit">
+                  Sign out
+                </button>
+              </form>
+            </>
+          ) : null}
         </>
       }
       toolbar={<span className="pf-toolbar-title">{title}</span>}

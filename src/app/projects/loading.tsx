@@ -1,5 +1,5 @@
 import { Skeleton, LoadingStatus } from "@/app/components/Skeleton";
-import { VisitoringDashboardFrame } from "@/app/dashboard/VisitoringDashboardFrame";
+import { VisitoringDashboardFrame } from "@/app/components/VisitoringDashboardFrame";
 import styles from "./projects.module.css";
 
 const projectSkeletons = ["first", "second", "third"];

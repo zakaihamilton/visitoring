@@ -1,4 +1,4 @@
-import { pool } from "@/db";
+import { getPool } from "@/db";
 import { rateLimitSecretConfigurationError } from "@/lib/crypto";
 import { collectorRateLimitConfigurationError } from "@/lib/collection-policy";
 
@@ -22,6 +22,7 @@ export async function GET(): Promise<Response> {
     );
 
   try {
+    const pool = await getPool();
     await pool.query("select 1");
     return Response.json({ status: "ready", database: "connected" });
   } catch {

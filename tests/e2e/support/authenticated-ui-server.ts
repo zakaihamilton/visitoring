@@ -325,7 +325,7 @@ async function main() {
 
   const env = {
     ...process.env,
-    DATABASE_URL: databaseUrl,
+    LOCAL_DATABASE_URL: databaseUrl,
     NEXT_DIST_DIR: nextDistDir,
     PERMINISTER_BASE_URL: `http://127.0.0.1:${stubPort}`,
     PERMINISTER_APP_CLIENT_ID: clientId,

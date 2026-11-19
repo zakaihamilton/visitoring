@@ -19,12 +19,12 @@ const mocks = vi.hoisted(() => ({
 }));
 
 vi.mock("@/db", () => ({
-  db: {
+  getDb: async () => ({
     insert: mocks.insert,
     select: mocks.select,
     update: mocks.update,
     delete: mocks.delete,
-  },
+  }),
 }));
 vi.mock("@/lib/auth", () => ({ requireOrganizationAdmin: mocks.requireOrganizationAdmin }));
 vi.mock("@/lib/perminister", () => ({

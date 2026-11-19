@@ -1,13 +1,17 @@
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
+vi.mock("server-only", () => ({}));
 import { and, eq } from "drizzle-orm";
-import { db, pool } from "@/db";
+import { getDatabase } from "@/db";
 import { siteEvents, sites, projects } from "@/db/schema";
 import { createSiteKey, sha256 } from "@/lib/crypto";
 import { getAnalyticsData, getRecentEventsData } from "@/lib/analytics";
 import { POST } from "@/app/api/collect/route";
 import { pruneExpiredData, retentionCutoff } from "@/lib/retention";
 
-const integration = Boolean(process.env.DATABASE_URL);
+type DatabaseHandle = Awaited<ReturnType<typeof getDatabase>>;
+let db!: DatabaseHandle["db"];
+let pool!: DatabaseHandle["pool"];
+const integration = Boolean(process.env.DATABASE_URL || process.env.LOCAL_DATABASE_URL);
 const suite = integration ? describe : describe.skip;
 let projectId = "";
 let otherProjectId = "";
@@ -39,6 +43,7 @@ const payload = {
 
 suite("PostgreSQL collector integration", () => {
   beforeAll(async () => {
+    ({ db, pool } = await getDatabase());
     const [project] = await db
       .insert(projects)
       .values({

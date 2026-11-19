@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import { asc, eq } from "drizzle-orm";
 import { VisitoringDashboardFrame } from "@/app/components/VisitoringDashboardFrame";
-import { db } from "@/db";
+import { getDb } from "@/db";
 import { projects } from "@/db/schema";
 import { requireOrganizationAdmin } from "@/lib/auth";
 import { ProjectManager } from "@/app/projects/ProjectManager";
@@ -10,7 +10,8 @@ import styles from "@/app/projects/projects.module.css";
 
 export const dynamic = "force-dynamic";
 
-function getManagedProjectRows(organizationId: string) {
+async function getManagedProjectRows(organizationId: string) {
+  const db = await getDb();
   return db
     .select({
       id: projects.id,
