@@ -10,7 +10,7 @@ const securityHeaders = [
 
 const nextConfig: NextConfig = {
   poweredByHeader: false,
-  serverExternalPackages: ["ssh2"],
+  serverExternalPackages: ["ssh2", "ws"],
   reactStrictMode: true,
   distDir: process.env.NEXT_DIST_DIR ?? ".next",
   headers() {

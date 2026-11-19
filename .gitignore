@@ -12,6 +12,7 @@ coverage/
 .repnix-baseline.json
 /data/
 *.mmdb
+.neon
 .vercel
 playwright-report/
 test-results/

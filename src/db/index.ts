@@ -23,6 +23,7 @@ type WorkloadCredential = {
   sshPath: string;
   sshUsername: string;
   sshHostKeySha256: string;
+  pooling: "transaction" | "session";
 };
 
 type ConnectionHandle = {
@@ -129,9 +130,14 @@ async function requestCredential(kind: ConnectionKind): Promise<{
     typeof credential.sshPort !== "number" ||
     typeof credential.sshPath !== "string" ||
     typeof credential.sshUsername !== "string" ||
-    typeof credential.sshHostKeySha256 !== "string"
+    typeof credential.sshHostKeySha256 !== "string" ||
+    (credential.pooling !== "transaction" && credential.pooling !== "session")
   ) {
     throw new Error("Nanogres returned invalid workload SSH credentials.");
+  }
+  const expectedPooling = kind === "runtime" ? "transaction" : "session";
+  if (credential.pooling !== expectedPooling) {
+    throw new Error("Nanogres returned an unexpected workload pooling mode.");
   }
   if (
     credential.host !== "127.0.0.1" ||
@@ -187,6 +193,8 @@ async function openWorkloadTunnel(
     ssh.on("close", markClosed);
     ssh.on("end", markClosed);
     ssh.on("error", markClosed);
+    transport.on("close", markClosed);
+    transport.on("error", markClosed);
     try {
       await new Promise<void>((resolve, reject) => {
         const onReady = () => {
@@ -312,16 +320,24 @@ export async function getDatabase(kind: ConnectionKind = "runtime") {
         idleTimeoutMillis: 30_000,
         connectionTimeoutMillis: 10_000,
       });
-      const handle = {
+      let closed = false;
+      const complete: ConnectionHandle = {
         pool,
         db: drizzle(pool, { schema }),
         expiresAt: Number.POSITIVE_INFINITY,
-        isAlive: () => true,
+        isAlive: () => !closed,
+        close: async () => {
+          if (closed) return;
+          closed = true;
+          await pool.end().catch(() => undefined);
+        },
       };
-      const complete: ConnectionHandle = {
-        ...handle,
-        close: () => pool.end(),
+      const invalidateLocal = () => {
+        if (pools.get(kind) !== complete) return;
+        pools.delete(kind);
+        void complete.close();
       };
+      pool.on("error", invalidateLocal);
       pools.set(kind, complete);
       return complete;
     }
@@ -352,10 +368,19 @@ export async function getDatabase(kind: ConnectionKind = "runtime") {
       close: async () => {
         await pool.end().catch(() => undefined);
         tunnel.server.close();
-        tunnel.ssh.end();
-        tunnel.webSocket.close();
+        if (tunnel.isAlive()) tunnel.ssh.end();
+        if (tunnel.webSocket.readyState === WebSocket.OPEN) tunnel.webSocket.close();
       },
     };
+    const invalidate = () => {
+      if (pools.get(kind) !== handle) return;
+      pools.delete(kind);
+      void handle.close();
+    };
+    tunnel.ssh.once("close", invalidate);
+    tunnel.webSocket.once("close", invalidate);
+    tunnel.webSocket.once("error", invalidate);
+    pool.on("error", invalidate);
     pools.set(kind, handle);
     return handle;
   })().finally(() => {

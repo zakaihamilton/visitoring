@@ -1,6 +1,4 @@
 import type { CSSProperties, ReactNode } from "react";
-import { BrandIcon } from "./BrandIcon";
-import topbar from "./topbar.module.css";
 import styles from "./skeleton.module.css";
 
 export function Skeleton({
@@ -28,32 +26,5 @@ export function LoadingStatus({ children }: { children: ReactNode }) {
     <span className={styles.status} role="status">
       {children}
     </span>
-  );
-}
-
-export function TopbarSkeleton() {
-  return (
-    <div className={topbar.header} aria-hidden="true">
-      <div className={topbar.left}>
-        <span className={topbar.brand}>
-          <BrandIcon />
-          <span>Visitoring</span>
-        </span>
-        <span className={topbar.divider} />
-        <Skeleton width={175} height={18} className={styles.project} />
-        <span className={topbar.divider} />
-        <Skeleton width={130} height={32} className={styles.organization} />
-      </div>
-      <div className={topbar.nav}>
-        {["overview", "settings", "admin"].map((item) => (
-          <Skeleton key={item} width={64} height={34} />
-        ))}
-      </div>
-      <div className={topbar.account}>
-        <Skeleton width={28} height={28} round />
-        <Skeleton width={140} className={`${topbar.email} ${styles.accountEmail}`} />
-        <Skeleton width={78} height={34} />
-      </div>
-    </div>
   );
 }

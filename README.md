@@ -14,7 +14,7 @@ Records older than the rolling 24-month window are pruned daily.
 
 ## Run locally
 
-Requirements: Node.js 24.22.1 or later within the 24.x line and pnpm 10.33.0. Local development can connect to Nanogres with Vercel OIDC or use an isolated PostgreSQL server.
+Requirements: Node.js 24.22.1 or later within the 24.x line and pnpm 12.18.0. Local development can connect to Nanogres with Vercel OIDC or use an isolated PostgreSQL server.
 
 ```sh
 cp .env.example .env
@@ -188,7 +188,7 @@ pnpm run retention:prune
 
 Perminister transport failures, timeouts, and server errors are written to deployment logs as JSON events named `perminister_request_failed`. Monitor repeated events to detect authentication-provider problems; these events contain operation, method, failure type, HTTP status when available, and request duration, but no credentials, session tokens, or user data.
 
-Repnix is configured as the repository health gate, with required type, lint, format, test, dead-code, and duplication checks. Greenfield adoption intentionally has no baseline:
+Repnix is configured as the repository health gate, with required type, lint, format, test, dead-code, duplication, accessibility, visual-regression, interaction, and style checks using `.repnix-baseline.json` to fail on new findings:
 
 ```sh
 pnpm run health

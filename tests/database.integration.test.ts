@@ -1,4 +1,5 @@
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
+vi.mock("server-only", () => ({}));
 import { and, eq } from "drizzle-orm";
 import { getDatabase } from "@/db";
 import { siteEvents, sites, projects } from "@/db/schema";
