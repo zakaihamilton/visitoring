@@ -1,7 +1,7 @@
 import { dateLabel } from "@/lib/analytics-period";
+import styles from "../dashboard.module.css";
 import { DataFreshness } from "./DataFreshness";
 import type { DashboardProps } from "./types";
-import styles from "../dashboard.module.css";
 
 type Props = {
   siteName: string;

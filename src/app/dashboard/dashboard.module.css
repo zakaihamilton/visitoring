@@ -5,6 +5,11 @@
   --dashboard-shadow: 0 4px 18px light-dark(rgb(16 42 34 / 4%), rgb(213 239 231 / 4%));
   --dashboard-shadow-raised: 0 8px 24px light-dark(rgb(16 42 34 / 8%), rgb(213 239 231 / 8%));
 }
+
+.main :global(.eyebrow) {
+  color: var(--accent);
+}
+
 .heading {
   display: flex;
   align-items: flex-end;
@@ -12,17 +17,20 @@
   gap: 22px;
   margin-bottom: 25px;
 }
+
 .heading h1 {
   margin: 7px 0 7px;
   font-size: clamp(2rem, 4vw, 3.1rem);
   line-height: 1.04;
   letter-spacing: -0.055em;
 }
+
 .heading p {
   color: var(--muted);
   margin: 0;
   font-size: var(--type-body);
 }
+
 .updated {
   display: flex;
   align-items: center;
@@ -34,997 +42,6 @@
   font-size: var(--type-compact);
   white-space: nowrap;
   background: var(--surface);
-}
-.filters {
-  display: grid;
-  grid-template-columns: minmax(120px, 1.1fr) minmax(130px, 0.8fr) minmax(130px, 0.8fr) minmax(
-      155px,
-      1fr
-    ) minmax(135px, 1fr) auto;
-  align-items: end;
-  gap: 11px;
-  background: var(--surface);
-  border: 1px solid var(--line);
-  border-radius: 16px;
-  padding: 15px;
-  margin-bottom: 18px;
-}
-.filterField {
-  display: grid;
-  gap: 6px;
-  font-size: var(--type-compact);
-  color: var(--muted);
-  font-weight: 600;
-}
-.filterLabel {
-  min-height: 18px;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-.filterLabel label {
-  cursor: default;
-}
-.filters input {
-  width: 100%;
-  min-width: 0;
-  font-size: var(--type-compact);
-  padding: 9px 10px;
-}
-.filters > button {
-  grid-column: -2 / -1;
-  grid-row: 1;
-  align-self: end;
-}
-.metrics {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 14px;
-  margin-bottom: 18px;
-}
-.metric,
-.card,
-.filters,
-.setupGuideCard {
-  box-shadow: var(--dashboard-shadow);
-  transition:
-    border-color 180ms ease,
-    box-shadow 180ms ease,
-    transform 180ms ease;
-}
-.metric {
-  min-height: 130px;
-  padding: 19px 20px;
-  display: flex;
-  flex-direction: column;
-  background: var(--surface);
-  border: 1px solid var(--line);
-  border-radius: 16px;
-  position: relative;
-  overflow: hidden;
-}
-.metricLabel {
-  min-height: 19px;
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  color: var(--muted);
-  font-size: var(--type-compact);
-  font-weight: 600;
-  letter-spacing: 0.01em;
-}
-.metricLabel span {
-  color: inherit;
-}
-.metric strong {
-  margin-top: 13px;
-  font-size: 2.1rem;
-  line-height: 1;
-  letter-spacing: -0.06em;
-  font-variant-numeric: tabular-nums;
-}
-.metric small {
-  margin-top: auto;
-  padding-top: 11px;
-  color: var(--muted);
-  font-size: var(--type-compact);
-  line-height: 1.65;
-}
-.primaryGrid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  margin: 18px 0;
-  gap: 14px;
-  align-items: stretch;
-}
-.card {
-  background: var(--surface);
-  border: 1px solid var(--line);
-  border-radius: 16px;
-  padding: 19px 20px;
-  min-width: 0;
-}
-.cardTitle {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 16px;
-  margin-bottom: 17px;
-}
-.cardTitle h2 {
-  margin: 0;
-  font-size: var(--type-card-title);
-  letter-spacing: -0.02em;
-}
-.cardTitle p {
-  color: var(--muted);
-  margin: 5px 0 0;
-  font-size: var(--type-compact);
-}
-.cardTitle > span {
-  color: var(--muted);
-  font-size: var(--type-compact);
-  white-space: nowrap;
-}
-.chartLegend {
-  display: flex;
-  gap: 20px;
-  padding-top: 13px;
-  color: var(--muted);
-  font-size: var(--type-compact);
-}
-.chartLegend span {
-  display: flex;
-  gap: 7px;
-  align-items: center;
-}
-.chartLegend i {
-  display: inline-block;
-  width: 20px;
-  height: 3px;
-  border-radius: 3px;
-}
-.legendPage {
-  background: var(--accent);
-}
-.breakdown {
-  display: grid;
-  gap: 12px;
-}
-.breakdownRow {
-  min-width: 0;
-  border-radius: 6px;
-  transition: background 160ms ease;
-}
-.breakdownLabel {
-  display: flex;
-  justify-content: space-between;
-  gap: 10px;
-  color: var(--muted);
-  font-size: var(--type-compact);
-  margin-bottom: 6px;
-}
-.breakdownLabel span {
-  overflow-wrap: anywhere;
-  white-space: normal;
-}
-.breakdownLabel .truncatedLabel {
-  display: block;
-  flex: 1 1 auto;
-  min-width: 0;
-}
-.breakdownLabel b {
-  font-weight: 650;
-  white-space: nowrap;
-  color: var(--ink);
-  font-variant-numeric: tabular-nums;
-}
-.track {
-  height: 4px;
-  border-radius: 10px;
-  background: var(--line);
-  overflow: hidden;
-}
-.track span {
-  height: 100%;
-  display: block;
-  border-radius: inherit;
-  background: var(--accent);
-  transform-origin: left;
-  animation: dashboardShareEnter 500ms ease-out both;
-}
-.noData {
-  margin: 18px 0 5px;
-  color: var(--muted);
-  font-size: var(--type-body);
-}
-.breakdownGrid {
-  display: grid;
-  grid-template-columns: repeat(5, minmax(130px, 1fr));
-  gap: 14px;
-  margin: 14px 0;
-}
-.breakdownGrid .card {
-  padding: 16px;
-}
-.breakdownGrid .cardTitle {
-  margin-bottom: 14px;
-}
-.breakdownGrid .breakdown {
-  gap: 10px;
-}
-.eventCard {
-  padding-bottom: 0;
-  margin-top: 2px;
-}
-.tableWrap {
-  overflow: auto;
-  margin: 0 -20px;
-}
-.mobileEvents {
-  display: none;
-}
-.eventCard table {
-  width: 100%;
-  border-collapse: collapse;
-  min-width: 900px;
-  text-align: left;
-}
-.eventCard th {
-  color: var(--muted);
-  font-size: var(--type-compact);
-  font-weight: 650;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  border-bottom: 1px solid var(--line);
-  padding: 11px 15px;
-}
-.eventCard th:first-child,
-.eventCard td:first-child {
-  padding-left: 20px;
-}
-.eventCard td {
-  border-bottom: 1px solid var(--line);
-  padding: 11px 15px;
-  vertical-align: top;
-  color: var(--ink-soft);
-  font-size: var(--type-compact);
-}
-.eventPill {
-  color: var(--accent);
-  background: color-mix(in srgb, var(--accent) 10%, var(--surface));
-  border-radius: 6px;
-  padding: 4px 7px;
-  font-size: var(--type-compact);
-  font-weight: 650;
-  white-space: nowrap;
-}
-.pathCell {
-  color: var(--ink);
-  max-width: 190px;
-  overflow-wrap: anywhere;
-}
-.properties {
-  display: grid;
-  gap: 4px;
-  max-width: 270px;
-}
-.properties span {
-  color: var(--muted);
-  overflow-wrap: anywhere;
-}
-.properties b {
-  color: var(--ink-soft);
-  font-weight: 650;
-}
-.properties .propertyMore {
-  color: var(--ink-soft);
-  font-weight: 650;
-}
-.muted {
-  color: var(--muted);
-}
-.eventCard code {
-  color: var(--ink-soft);
-  font-size: var(--type-compact);
-}
-.timeCell {
-  white-space: nowrap;
-  color: var(--muted);
-  font-size: var(--type-compact);
-}
-.tableEmpty {
-  padding: 32px;
-  text-align: center;
-  color: var(--muted);
-  font-size: var(--type-body);
-}
-@media (max-width: 1080px) {
-  .filters {
-    grid-template-columns: repeat(3, 1fr);
-  }
-  .filters > button {
-    grid-column: 3;
-    grid-row: 2;
-    justify-self: end;
-    align-self: end;
-  }
-  .breakdownGrid {
-    grid-template-columns: repeat(3, 1fr);
-  }
-}
-@media (max-width: 760px) {
-  .main {
-    padding-top: 30px;
-  }
-  .heading {
-    align-items: flex-start;
-    flex-direction: column;
-    margin-bottom: 17px;
-  }
-  .filters {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-  .filters > button {
-    grid-column: 1 / -1;
-    grid-row: auto;
-    justify-self: stretch;
-  }
-  .metrics {
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-  }
-  .metric {
-    min-height: 117px;
-    padding: 15px;
-  }
-  .metric strong {
-    font-size: 1.75rem;
-  }
-  .primaryGrid {
-    grid-template-columns: 1fr;
-  }
-  .breakdownGrid {
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-  }
-  .tableWrap {
-    display: none;
-  }
-  .mobileEvents {
-    display: grid;
-    margin: 0 -4px;
-  }
-  .mobileEvent {
-    min-width: 0;
-    padding: 15px 4px;
-    border-top: 1px solid var(--line);
-  }
-  .mobileEventHeader {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 10px;
-  }
-  .mobileEventHeader .eventPill {
-    min-width: 0;
-    white-space: normal;
-    overflow-wrap: anywhere;
-  }
-  .mobileEventHeader .timeCell {
-    white-space: normal;
-    text-align: right;
-  }
-  .mobileEventDetails {
-    display: grid;
-    gap: 12px;
-    margin: 14px 0 0;
-  }
-  .mobileEventDetails > div {
-    display: grid;
-    gap: 4px;
-    min-width: 0;
-  }
-  .mobileEventDetails dt {
-    color: var(--muted);
-    font-size: var(--type-compact);
-    font-weight: 650;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-  }
-  .mobileEventDetails dd {
-    min-width: 0;
-    margin: 0;
-    color: var(--ink-soft);
-    font-size: var(--type-compact);
-    overflow-wrap: anywhere;
-  }
-  .mobileEventDetails .properties {
-    max-width: none;
-  }
-  .mobileVisitorId {
-    display: block;
-    overflow-wrap: anywhere;
-    word-break: break-all;
-  }
-}
-.setupGuideCard {
-  margin-bottom: 24px;
-  background: var(--surface);
-  border: 1px solid var(--line);
-  border-radius: 16px;
-  padding: 24px 28px;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-.setupGuideHeader {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 16px;
-  flex-wrap: wrap;
-}
-.setupGuideHeading h2 {
-  margin: 4px 0 6px;
-  font-size: var(--type-card-title);
-  letter-spacing: -0.02em;
-}
-.setupGuideHeading p {
-  margin: 0;
-  color: var(--muted);
-  font-size: var(--type-body);
-}
-.setupSnippetBox {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 12px 16px;
-  background: color-mix(in srgb, var(--accent) 8%, var(--surface));
-  border: 1px solid color-mix(in srgb, var(--accent) 22%, var(--line));
-  border-radius: 10px;
-  overflow-x: auto;
-}
-.setupSnippetCode {
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-  font-size: var(--type-compact);
-  color: var(--ink);
-  white-space: nowrap;
-}
-.setupActions {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-
-@media (max-width: 390px) {
-  .breakdownGrid {
-    grid-template-columns: 1fr;
-  }
-  .filters {
-    grid-template-columns: 1fr;
-  }
-}
-
-/* The trend leads the overview; breakdowns use a shared share-of-total scale. */
-.trendCard {
-  margin-top: 18px;
-  padding: 24px;
-}
-.comparisonNote {
-  margin: 10px 0 16px;
-  color: var(--muted);
-  font-size: var(--type-compact);
-  line-height: 1.5;
-}
-.filterSummary {
-  margin-bottom: 14px;
-}
-.dateShortcuts,
-.activeFilters {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  align-items: center;
-}
-.dateShortcuts a,
-.activeFilters span {
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  padding: 8px 12px;
-  font-size: var(--type-compact);
-  background: var(--surface);
-}
-.dateShortcuts a[aria-current] {
-  background: var(--accent);
-  color: var(--surface);
-}
-.activeFilters {
-  margin-top: 10px;
-  overflow-wrap: anywhere;
-}
-.chartSelect {
-  display: grid;
-  gap: 5px;
-  font-size: var(--type-compact);
-  color: var(--muted);
-  width: 164px;
-}
-.plotLayout {
-  display: grid;
-  grid-template-columns: 44px minmax(0, 1fr);
-  gap: 12px;
-  margin-top: 24px;
-}
-.yAxis {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  align-items: flex-end;
-  padding: 5px 0;
-  color: var(--muted);
-  font-size: 0.75rem;
-  font-variant-numeric: tabular-nums;
-}
-.plot {
-  position: relative;
-  height: 280px;
-  min-width: 0;
-}
-.plotBucket {
-  position: relative;
-  flex: 1 1 0;
-  min-width: 0;
-  padding: 0;
-  border: 0;
-  border-radius: 4px;
-  background: transparent;
-  cursor: crosshair;
-  transition: background 160ms ease;
-}
-.plotBucket:hover {
-  background: color-mix(in srgb, var(--accent) 5%, transparent);
-}
-.plotBucket:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: -2px;
-  background: color-mix(in srgb, var(--accent) 5%, transparent);
-}
-.legendPrevious {
-  height: 0;
-  border-top: 2px dashed var(--muted);
-  background: none;
-  border-radius: 0;
-}
-.xAxis {
-  display: flex;
-  justify-content: space-between;
-  margin: 9px 0 0 56px;
-  color: var(--muted);
-  font-size: 0.75rem;
-  gap: 10px;
-}
-.chartReadout {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  margin-top: 22px;
-  border: 1px solid var(--line);
-  background: color-mix(in srgb, var(--accent) 2%, var(--surface));
-  border-radius: 12px;
-  font-size: var(--type-compact);
-  font-variant-numeric: tabular-nums;
-  overflow: hidden;
-}
-.tableToggle {
-  display: inline-flex;
-  text-decoration: none;
-  color: var(--ink);
-  border: 1px solid var(--line);
-  background: var(--surface);
-  border-radius: 8px;
-  padding: 8px 12px;
-  cursor: pointer;
-  font: inherit;
-  font-size: var(--type-compact);
-  font-weight: 600;
-  transition:
-    background 160ms ease,
-    border-color 160ms ease;
-}
-.chartData {
-  overflow-x: auto;
-  margin-top: 12px;
-}
-.chartData table {
-  width: 100%;
-  text-align: left;
-  font-size: var(--type-compact);
-  border-collapse: collapse;
-}
-.chartData th,
-.chartData td {
-  padding: 8px;
-  border-bottom: 1px solid var(--line);
-}
-.breakdownLabel small {
-  color: var(--muted);
-  font-size: inherit;
-  font-weight: 400;
-}
-@media (max-width: 760px) {
-  .primaryGrid {
-    grid-template-columns: 1fr;
-  }
-  .cardTitle {
-    flex-wrap: wrap;
-  }
-  .updated {
-    white-space: normal;
-  }
-  .chartLegend {
-    flex-wrap: wrap;
-    gap: 12px;
-  }
-  .plotLayout {
-    grid-template-columns: 32px minmax(0, 1fr);
-  }
-  .xAxis {
-    margin-left: 40px;
-  }
-}
-
-.metric::before {
-  content: "";
-  position: absolute;
-  inset: 0 auto 0 0;
-  width: 3px;
-  background: var(--accent);
-  opacity: 0;
-  transition: opacity 180ms ease;
-}
-.changeUp {
-  color: var(--trend-up);
-}
-.changeDown {
-  color: var(--trend-down);
-}
-.changeNeutral {
-  color: var(--muted);
-}
-.dateShortcuts a {
-  text-decoration: none;
-  font-weight: 600;
-  transition:
-    background 160ms ease,
-    border-color 160ms ease,
-    box-shadow 160ms ease;
-}
-.dateShortcuts a:hover {
-  border-color: var(--accent);
-  box-shadow: 0 2px 8px light-dark(rgb(16 42 34 / 6%), rgb(213 239 231 / 6%));
-}
-.dateShortcuts a:focus-visible,
-.tableToggle:focus-visible,
-.setupSnippetBox:focus-visible,
-.chartData:focus-visible,
-.tableWrap:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 3px;
-}
-.tableToggle:hover {
-  background: var(--background);
-  border-color: var(--accent);
-}
-.plotBucket[data-active="true"] {
-  background: color-mix(in srgb, var(--accent) 7%, transparent);
-}
-.breakdownRow:hover {
-  background: color-mix(in srgb, var(--accent) 5%, transparent);
-}
-.eventCard tbody tr,
-.mobileEvent {
-  transition: background 160ms ease;
-}
-.eventCard tbody tr:hover,
-.mobileEvent:hover {
-  background: color-mix(in srgb, var(--accent) 4%, transparent);
-}
-@media (hover: hover) and (pointer: fine) {
-  .metric:hover {
-    transform: translateY(-2px);
-    border-color: color-mix(in srgb, var(--accent) 35%, var(--line));
-    box-shadow: var(--dashboard-shadow-raised);
-  }
-  .metric:hover::before {
-    opacity: 1;
-  }
-  .card:hover {
-    border-color: color-mix(in srgb, var(--accent) 20%, var(--line));
-    box-shadow: var(--dashboard-shadow-raised);
-  }
-}
-@keyframes dashboardShareEnter {
-  from {
-    transform: scaleX(0);
-  }
-  to {
-    transform: scaleX(1);
-  }
-}
-@media (prefers-reduced-motion: reduce) {
-  .track span {
-    animation: none;
-  }
-  .metric,
-  .card,
-  .filters,
-  .setupGuideCard,
-  .metric::before,
-  .dateShortcuts a,
-  .tableToggle,
-  .plotBucket,
-  .breakdownRow,
-  .eventCard tbody tr,
-  .mobileEvent {
-    transition: none;
-  }
-  .metric:hover {
-    transform: none;
-  }
-}
-.main :global(.eyebrow) {
-  color: var(--accent);
-}
-.dashboardNavigation {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px 24px;
-  border-bottom: 1px solid var(--line);
-  margin-bottom: 22px;
-}
-.dashboardNavigation a {
-  padding: 12px 0;
-  border-bottom: 2px solid transparent;
-  color: var(--muted);
-  text-decoration: none;
-  font-size: var(--type-compact);
-  font-weight: 650;
-  transition:
-    color 160ms ease,
-    border-color 160ms ease;
-}
-.dashboardNavigation a:hover,
-.dashboardNavigation a[aria-current="page"] {
-  color: var(--accent);
-  border-bottom-color: var(--accent);
-}
-.dashboardNavigation a:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 3px;
-}
-@media (prefers-reduced-motion: reduce) {
-  .dashboardNavigation a {
-    transition: none;
-  }
-}
-.chartMetricForm {
-  display: flex;
-  align-items: end;
-  flex-wrap: wrap;
-  gap: 12px;
-}
-.plotDrawing {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  overflow: visible;
-  pointer-events: none;
-  animation: chartReveal 300ms ease-out;
-}
-.plotGridline {
-  stroke: var(--line);
-  stroke-width: 1;
-  stroke-dasharray: 3 5;
-}
-.currentLine,
-.previousLine {
-  fill: none;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-.currentLine {
-  stroke: var(--accent);
-  stroke-width: 2.5;
-}
-.previousLine {
-  stroke: var(--muted);
-  stroke-width: 1.75;
-  stroke-dasharray: 5 6;
-  opacity: 0.85;
-}
-.plotTargets {
-  position: absolute;
-  inset: 0;
-  display: flex;
-}
-.plotBucket::after {
-  content: "";
-  position: absolute;
-  top: 12px;
-  bottom: 12px;
-  left: 50%;
-  border-left: 1px dashed var(--accent);
-  opacity: 0;
-  pointer-events: none;
-}
-.plotBucket[data-active="true"]::after {
-  opacity: 0.4;
-}
-.plotCurrentPoint,
-.plotPreviousPoint {
-  position: absolute;
-  z-index: 1;
-  width: 10px;
-  height: 10px;
-  border: 2px solid var(--accent);
-  border-radius: 50%;
-  background: var(--surface);
-  transform: translate(-50%, -50%);
-  pointer-events: none;
-}
-.plotCurrentPoint {
-  box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 12%, transparent);
-}
-.plotPreviousPoint {
-  width: 8px;
-  height: 8px;
-  border-color: var(--muted);
-}
-.readoutPeriod {
-  display: grid;
-  gap: 8px;
-  min-width: 0;
-  padding: 16px 20px;
-}
-.readoutPeriod + .readoutPeriod {
-  border-left: 1px solid var(--line);
-}
-.readoutLabel {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  color: var(--muted);
-  font-size: 0.75rem;
-  font-weight: 600;
-}
-.readoutLabel i {
-  width: 18px;
-  height: 3px;
-  border-radius: 3px;
-}
-.readoutLabel .legendPrevious {
-  height: 0;
-  border-radius: 0;
-}
-.readoutPeriod strong {
-  display: flex;
-  align-items: baseline;
-  flex-wrap: wrap;
-  gap: 7px;
-  color: var(--ink);
-  font-size: 1.5rem;
-  line-height: 1.2;
-  letter-spacing: -0.035em;
-}
-.readoutPeriod .readoutCurrent {
-  color: var(--accent);
-}
-.readoutPeriod strong small {
-  color: var(--muted);
-  font-size: 0.75rem;
-  font-weight: 500;
-  letter-spacing: 0;
-}
-.readoutDate {
-  color: var(--muted);
-  font-size: 0.75rem;
-  line-height: 1.5;
-  overflow-wrap: anywhere;
-}
-.chartFooter {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 16px;
-  padding-top: 18px;
-}
-.chartFooter .tableToggle {
-  flex: 0 0 auto;
-}
-@keyframes chartReveal {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-@media (max-width: 760px) {
-  .trendCard {
-    padding: 18px;
-  }
-  .plot {
-    height: 220px;
-  }
-  .plotLayout {
-    gap: 8px;
-  }
-  .optionalTick {
-    display: none;
-  }
-  .readoutPeriod {
-    padding: 14px 12px;
-  }
-  .readoutLabel {
-    font-size: 0.6875rem;
-    gap: 6px;
-  }
-  .readoutLabel i {
-    width: 12px;
-  }
-}
-@media (prefers-reduced-motion: reduce) {
-  .plotDrawing {
-    animation: none;
-  }
-}
-
-.filterToggle {
-  display: none;
-}
-
-.dateError {
-  color: var(--danger, light-dark(#a62b32, #d45960));
-  margin: 0 0 14px;
-}
-
-.eventPagination {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  margin-top: 20px;
-  font-size: 13px;
-  color: var(--muted);
-}
-
-.compactAudience {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-}
-
-@media (width <= 760px) {
-  .filterToggle {
-    display: inline-flex;
-    margin-bottom: 16px;
-  }
-
-  .filterPanelBody[data-expanded="false"] {
-    display: none;
-  }
-
-  .compactAudience {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-@media (width <= 390px) {
-  .compactAudience {
-    grid-template-columns: 1fr;
-  }
 }
 
 .dataFreshness {
@@ -1066,22 +83,6 @@
   animation: refreshSpin 900ms linear infinite;
 }
 
-@keyframes refreshSpin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .refreshButton {
-    transition: none;
-  }
-
-  .refreshSpinning {
-    animation: none;
-  }
-}
-
 .refreshStatus {
   position: absolute;
   width: 1px;
@@ -1089,4 +90,333 @@
   overflow: hidden;
   clip-path: inset(50%);
   white-space: nowrap;
+}
+
+.metrics {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.metric,
+.card {
+  box-shadow: var(--dashboard-shadow);
+  transition:
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    transform 180ms ease;
+}
+
+.metric {
+  min-height: 130px;
+  padding: 19px 20px;
+  display: flex;
+  flex-direction: column;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  position: relative;
+  overflow: hidden;
+}
+
+.metric::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 3px;
+  background: var(--accent);
+  opacity: 0;
+  transition: opacity 180ms ease;
+}
+
+.metricLabel {
+  min-height: 19px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--muted);
+  font-size: var(--type-compact);
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+.metricLabel span {
+  color: inherit;
+}
+
+.metric strong {
+  margin-top: 13px;
+  font-size: 2.1rem;
+  line-height: 1;
+  letter-spacing: -0.06em;
+  font-variant-numeric: tabular-nums;
+}
+
+.metric small {
+  margin-top: auto;
+  padding-top: 11px;
+  color: var(--muted);
+  font-size: var(--type-compact);
+  line-height: 1.65;
+}
+
+.changeUp {
+  color: var(--trend-up);
+}
+
+.changeDown {
+  color: var(--trend-down);
+}
+
+.changeNeutral {
+  color: var(--muted);
+}
+
+.primaryGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin: 18px 0;
+  gap: 14px;
+  align-items: stretch;
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 19px 20px;
+  min-width: 0;
+}
+
+.cardTitle {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 17px;
+}
+
+.cardTitle h2 {
+  margin: 0;
+  font-size: var(--type-card-title);
+  letter-spacing: -0.02em;
+}
+
+.cardTitle p {
+  color: var(--muted);
+  margin: 5px 0 0;
+  font-size: var(--type-compact);
+}
+
+.cardTitle > span {
+  color: var(--muted);
+  font-size: var(--type-compact);
+  white-space: nowrap;
+}
+
+.noData {
+  margin: 18px 0 5px;
+  color: var(--muted);
+  font-size: var(--type-body);
+}
+
+/* The trend leads the overview; breakdowns use a shared share-of-total scale. */
+.comparisonNote {
+  margin: 10px 0 16px;
+  color: var(--muted);
+  font-size: var(--type-compact);
+  line-height: 1.5;
+}
+
+.breakdownGrid {
+  --breakdown-gap: 10px;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(130px, 1fr));
+  gap: 14px;
+  margin: 14px 0;
+}
+
+.compactAudience {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.breakdownGrid .card {
+  padding: 16px;
+}
+
+.breakdownGrid .cardTitle {
+  margin-bottom: 14px;
+}
+
+.dashboardNavigation {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 24px;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 22px;
+}
+
+.dashboardNavigation a {
+  padding: 12px 0;
+  border-bottom: 2px solid transparent;
+  color: var(--muted);
+  text-decoration: none;
+  font-size: var(--type-compact);
+  font-weight: 650;
+  transition:
+    color 160ms ease,
+    border-color 160ms ease;
+}
+
+.dashboardNavigation a:hover,
+.dashboardNavigation a[aria-current="page"] {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+
+.dashboardNavigation a:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.chartMetricForm {
+  display: flex;
+  align-items: end;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.chartData {
+  overflow-x: auto;
+  margin-top: 12px;
+}
+
+.chartData:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.chartData table {
+  width: 100%;
+  text-align: left;
+  font-size: var(--type-compact);
+  border-collapse: collapse;
+}
+
+.chartData th,
+.chartData td {
+  padding: 8px;
+  border-bottom: 1px solid var(--line);
+}
+
+.eventPagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 20px;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+@keyframes refreshSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .metric:hover {
+    transform: translateY(-2px);
+    border-color: color-mix(in srgb, var(--accent) 35%, var(--line));
+    box-shadow: var(--dashboard-shadow-raised);
+  }
+
+  .metric:hover::before {
+    opacity: 1;
+  }
+
+  .card:hover {
+    border-color: color-mix(in srgb, var(--accent) 20%, var(--line));
+    box-shadow: var(--dashboard-shadow-raised);
+  }
+}
+
+@media (max-width: 1080px) {
+  .breakdownGrid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 760px) {
+  .main {
+    padding-top: 30px;
+  }
+
+  .heading {
+    align-items: flex-start;
+    flex-direction: column;
+    margin-bottom: 17px;
+  }
+
+  .updated {
+    white-space: normal;
+  }
+
+  .metrics {
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .metric {
+    min-height: 117px;
+    padding: 15px;
+  }
+
+  .metric strong {
+    font-size: 1.75rem;
+  }
+
+  .primaryGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .cardTitle {
+    flex-wrap: wrap;
+  }
+
+  .breakdownGrid {
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .compactAudience {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 390px) {
+  .breakdownGrid,
+  .compactAudience {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .refreshSpinning {
+    animation: none;
+  }
+
+  .metric,
+  .card,
+  .metric::before,
+  .refreshButton,
+  .dashboardNavigation a {
+    transition: none;
+  }
+
+  .metric:hover {
+    transform: none;
+  }
 }

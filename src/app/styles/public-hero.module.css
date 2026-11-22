@@ -1,0 +1,218 @@
+.page {
+  min-height: 100vh;
+  padding: 0 clamp(16px, 4vw, 48px) 32px;
+  background: var(--background);
+}
+
+.shell {
+  width: min(1240px, 100%);
+  margin: 0 auto;
+}
+
+.hero {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  align-items: center;
+  min-height: var(--public-hero-min-height);
+  overflow: hidden;
+  margin-top: 24px;
+  padding: var(--public-hero-padding);
+  border: 1px solid light-dark(#ffffff12, #00000012);
+  border-radius: var(--public-hero-radius);
+  color: var(--hero-foreground);
+  background: linear-gradient(125deg, var(--hero-background) 18%, var(--hero-background-end) 100%);
+}
+
+.hero::before {
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  content: "";
+}
+
+.hero::after {
+  position: absolute;
+  z-index: -1;
+  width: 680px;
+  height: 680px;
+  border-radius: 50%;
+  content: "";
+  animation: ringDrift 18s ease-in-out infinite alternate;
+}
+
+.heroCopy {
+  position: relative;
+  z-index: 1;
+  animation: riseIn 700ms cubic-bezier(0.2, 0.75, 0.3, 1) both;
+}
+
+.eyebrow {
+  display: flex;
+  align-items: center;
+  color: var(--hero-accent);
+  font-size: var(--type-section-label);
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.eyebrowDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: light-dark(#a3d7c0, #285c45);
+  box-shadow: 0 0 0 5px light-dark(#a3d7c01c, #285c451c);
+  animation: dotPulse 2.8s ease-in-out infinite;
+}
+
+.hero h1 {
+  font-size: var(--public-hero-title-size);
+  font-weight: 650;
+  letter-spacing: -0.075em;
+}
+
+.hero h1 em {
+  color: var(--hero-accent);
+  font-family: Georgia, serif;
+  font-weight: 400;
+}
+
+.heroCopy > p {
+  margin: 0;
+  color: var(--hero-muted);
+  line-height: 1.75;
+}
+
+.heroActions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-top: var(--public-hero-actions-margin);
+}
+
+.heroPrimary {
+  min-height: var(--public-hero-action-min-height);
+  padding: var(--public-hero-action-padding);
+  border-color: light-dark(#a3d7c0, #285c45);
+  color: light-dark(#123434, #cbeded);
+  background: light-dark(#a3d7c0, #285c45);
+  transition:
+    transform 180ms ease,
+    background 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.heroPrimary:hover {
+  transform: translateY(-2px);
+  background: light-dark(#b8e4ce, #1b4731);
+  box-shadow: 0 14px 34px light-dark(#061a1950, #e5f9f850);
+}
+
+.heroSecondary {
+  display: inline-flex;
+  align-items: center;
+  color: var(--hero-foreground);
+  font-size: var(--type-compact);
+  font-weight: 650;
+  text-decoration: none;
+  transition: color 180ms ease;
+}
+
+.heroSecondary:hover {
+  color: var(--hero-accent);
+}
+
+.heroSecondary span {
+  transition: transform 180ms ease;
+}
+
+.heroSecondary:hover span {
+  transform: translate(2px, -2px);
+}
+
+.heroVisual {
+  position: relative;
+  width: 100%;
+  justify-self: end;
+  animation: floatVisual 8s 1s ease-in-out infinite;
+}
+
+@keyframes riseIn {
+  from {
+    opacity: 0;
+    translate: 0 18px;
+  }
+  to {
+    opacity: 1;
+    translate: 0 0;
+  }
+}
+
+@keyframes floatVisual {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+@keyframes ringDrift {
+  from {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  to {
+    transform: translate3d(-35px, -18px, 0) scale(1.04);
+  }
+}
+
+@keyframes dotPulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 5px light-dark(#a3d7c01c, #285c451c);
+  }
+  50% {
+    box-shadow: 0 0 0 8px light-dark(#a3d7c00d, #285c450d);
+  }
+}
+
+@media (max-width: 820px) {
+  .heroCopy {
+    max-width: 650px;
+  }
+
+  .heroVisual {
+    justify-self: center;
+  }
+}
+
+@media (max-width: 520px) {
+  .page {
+    padding: 0 14px 20px;
+  }
+
+  .hero {
+    margin-top: 17px;
+    border-radius: 22px;
+  }
+
+  .heroCopy > p {
+    font-size: var(--type-body);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero::after,
+  .heroCopy,
+  .eyebrowDot,
+  .heroVisual {
+    animation: none;
+  }
+
+  .heroPrimary,
+  .heroSecondary,
+  .heroSecondary span {
+    transition: none;
+  }
+}

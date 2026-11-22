@@ -1,4 +1,4 @@
-import { Skeleton, LoadingStatus } from "@/app/components/Skeleton";
+import { LoadingStatus, Skeleton } from "@/app/components/Skeleton";
 import { VisitoringDashboardFrame } from "@/app/components/VisitoringDashboardFrame";
 import styles from "./projects.module.css";
 

@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useTrafficMetric } from "./TrafficMetric";
 import styles from "../dashboard.module.css";
+import { useTrafficMetric } from "./TrafficMetric";
 
 export function DashboardNavigation({
   siteId,

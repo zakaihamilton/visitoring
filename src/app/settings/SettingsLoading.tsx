@@ -1,7 +1,7 @@
-import { Skeleton, LoadingStatus } from "@/app/components/Skeleton";
+import { LoadingStatus, Skeleton } from "@/app/components/Skeleton";
 import { VisitoringDashboardFrame } from "@/app/components/VisitoringDashboardFrame";
-import page from "./settings-page.module.css";
 import styles from "./loading.module.css";
+import page from "./settings-page.module.css";
 
 const titles = { sites: "Manage your sites", users: "Manage users", setup: "Connect your website" };
 

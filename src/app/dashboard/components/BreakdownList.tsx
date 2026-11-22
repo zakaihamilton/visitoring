@@ -1,5 +1,6 @@
 import { Tooltip } from "@/app/components/Tooltip";
 import styles from "../dashboard.module.css";
+import breakdownStyles from "./BreakdownList.module.css";
 import { formatNumber } from "./types";
 
 export function BreakdownList({
@@ -33,21 +34,21 @@ export function BreakdownList({
         {help ? <Tooltip label={title} content={help} /> : null}
       </div>
       {rows.length ? (
-        <div className={styles.breakdown}>
+        <div className={breakdownStyles.breakdown}>
           {rows.map((row) => (
-            <div className={styles.breakdownRow} key={`${row.label}-${row.count}`}>
-              <div className={styles.breakdownLabel}>
+            <div className={breakdownStyles.breakdownRow} key={`${row.label}-${row.count}`}>
+              <div className={breakdownStyles.breakdownLabel}>
                 {showLabelTooltips ? (
                   <Tooltip
                     label={`${title} value`}
                     content={row.label}
-                    targetClassName={styles.truncatedLabel}
+                    targetClassName={breakdownStyles.truncatedLabel}
                     targetTabIndex={-1}
                   >
                     {row.label}
                   </Tooltip>
                 ) : (
-                  <span className={styles.truncatedLabel}>{row.label}</span>
+                  <span className={breakdownStyles.truncatedLabel}>{row.label}</span>
                 )}
                 <b>
                   {formatNumber(row.count)}{" "}
@@ -62,7 +63,7 @@ export function BreakdownList({
                   </small>
                 </b>
               </div>
-              <div className={styles.track}>
+              <div className={breakdownStyles.track}>
                 <span style={{ width: `${denominator ? (row.count / denominator) * 100 : 0}%` }} />
               </div>
             </div>

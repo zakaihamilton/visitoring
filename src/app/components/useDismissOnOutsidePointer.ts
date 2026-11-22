@@ -1,4 +1,4 @@
-import { useEffect, type Dispatch, type RefObject, type SetStateAction } from "react";
+import { type Dispatch, type RefObject, type SetStateAction, useEffect } from "react";
 
 export function useDismissOnOutsidePointer<T extends HTMLElement>(
   open: boolean,

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { BrandIcon } from "./BrandIcon";
-import { ThemeControl } from "./ThemeControl";
 import styles from "./public-header.module.css";
+import { ThemeControl } from "./ThemeControl";
 
 export function PublicHeader({ page }: { page: "welcome" | "developers" }) {
   const secondaryLink =

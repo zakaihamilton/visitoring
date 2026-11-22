@@ -2,9 +2,9 @@
 
 import { useId, useState } from "react";
 import { dateLabel } from "@/lib/analytics-period";
-import { chartInterval, chartMeasures, type ChartMetric } from "./chart-data";
-import { formatNumber, type DashboardData } from "./types";
-import styles from "../dashboard.module.css";
+import { type ChartMetric, chartInterval, chartMeasures } from "./chart-data";
+import styles from "./TrafficPlot.module.css";
+import { type DashboardData, formatNumber } from "./types";
 
 type Props = {
   buckets: DashboardData["trend"];

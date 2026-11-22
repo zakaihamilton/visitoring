@@ -1,13 +1,13 @@
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
+import { setSessionCookie } from "@/lib/auth";
+import { setInitialVisitoringOrganization } from "@/lib/organization-cookies";
 import {
   exchangePerministerAuthorizationCode,
   perministerClientSecretForSso,
   revokePerministerSession,
   visitoringOrganizations,
 } from "@/lib/perminister";
-import { setSessionCookie } from "@/lib/auth";
-import { setInitialVisitoringOrganization } from "@/lib/organization-cookies";
 import {
   matchesPerministerSsoState,
   perministerSsoCookieName,

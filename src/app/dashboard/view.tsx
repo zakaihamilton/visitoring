@@ -1,12 +1,13 @@
 import Link from "next/link";
-import { chartMetric } from "./components/chart-data";
-import styles from "./dashboard.module.css";
 import { ActivityChart } from "./components/ActivityChart";
 import { BreakdownList } from "./components/BreakdownList";
+import { chartMetric } from "./components/chart-data";
 import { DashboardMetrics } from "./components/DashboardMetrics";
-import type { DashboardProps } from "./components/types";
 import { TrafficPageControls } from "./components/TrafficPageControls";
 import { TrafficPageHeader } from "./components/TrafficPageHeader";
+import type { DashboardProps } from "./components/types";
+import styles from "./dashboard.module.css";
+import setupStyles from "./SetupGuide.module.css";
 
 export function Dashboard({ sites, siteId, data, filters }: DashboardProps) {
   const hasLocation = [...data.countries, ...data.regions].some((row) => row.label !== "Unknown");
@@ -23,9 +24,9 @@ export function Dashboard({ sites, siteId, data, filters }: DashboardProps) {
       />
 
       {!data.hasSiteActivity ? (
-        <section className={styles.setupGuideCard} aria-label="Tracking setup guide">
-          <div className={styles.setupGuideHeader}>
-            <div className={styles.setupGuideHeading}>
+        <section className={setupStyles.setupGuideCard} aria-label="Tracking setup guide">
+          <div className={setupStyles.setupGuideHeader}>
+            <div className={setupStyles.setupGuideHeading}>
               <div className="eyebrow">Awaiting first events</div>
               <h2>Ready to start tracking {currentSite?.name ?? "your site"}?</h2>
               <p>
@@ -33,7 +34,7 @@ export function Dashboard({ sites, siteId, data, filters }: DashboardProps) {
                 example to your website&apos;s HTML &lt;head&gt; tag to start collecting analytics.
               </p>
             </div>
-            <div className={styles.setupActions}>
+            <div className={setupStyles.setupActions}>
               <Link href="/settings/setup" className="button buttonPrimary">
                 Full setup instructions
               </Link>
@@ -43,8 +44,8 @@ export function Dashboard({ sites, siteId, data, filters }: DashboardProps) {
             </div>
           </div>
           {/* biome-ignore lint/a11y/noNoninteractiveTabindex: Scrollable content needs keyboard access. */}
-          <section className={styles.setupSnippetBox} tabIndex={0} aria-label="Tracking snippet">
-            <code className={styles.setupSnippetCode}>
+          <section className={setupStyles.setupSnippetBox} tabIndex={0} aria-label="Tracking snippet">
+            <code className={setupStyles.setupSnippetCode}>
               {`<script defer src="https://visitoring.vercel.app/tracker.js" data-site-key="YOUR_SITE_KEY"></script>`}
             </code>
           </section>
@@ -59,7 +60,7 @@ export function Dashboard({ sites, siteId, data, filters }: DashboardProps) {
         retrievedAt={data.retrievedAt}
       />
       {data.hasSiteActivity && data.total === 0 ? (
-        <div className={styles.setupGuideCard}>
+        <div className={setupStyles.setupGuideCard}>
           <h2>No activity matches these filters</h2>
           <p>Try a wider date range or reset your filters to see recent traffic.</p>
           <Link href={`/dashboard?site=${encodeURIComponent(siteId)}`}>Reset filters</Link>

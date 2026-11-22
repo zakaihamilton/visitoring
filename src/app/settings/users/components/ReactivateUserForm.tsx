@@ -3,9 +3,9 @@
 import { useActionState } from "react";
 import { reactivateUserAction } from "../actions";
 import type { ManagedUser } from "../user-types";
+import styles from "../users.module.css";
 import { ActionFeedback } from "./ActionFeedback";
 import { initialState } from "./initialState";
-import styles from "../users.module.css";
 
 export function ReactivateUserForm({ user }: { user: ManagedUser }) {
   const [state, action, pending] = useActionState(reactivateUserAction, initialState);

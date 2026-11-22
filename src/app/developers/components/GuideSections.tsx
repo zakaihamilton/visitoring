@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Tooltip } from "@/app/components/Tooltip";
-import { eventSnippet, reactEventSnippet } from "./tracker-snippets";
 import styles from "../developers.module.css";
+import { eventSnippet, reactEventSnippet } from "./tracker-snippets";
 
 export function SiteSetupSection() {
   return (

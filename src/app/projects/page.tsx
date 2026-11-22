@@ -1,6 +1,6 @@
+import { VisitoringDashboardFrame } from "@/app/components/VisitoringDashboardFrame";
 import { requireOrganizationProjects } from "@/lib/auth";
 import { PerministerApiError } from "@/lib/perminister";
-import { VisitoringDashboardFrame } from "@/app/components/VisitoringDashboardFrame";
 import { ProjectsView } from "./ProjectsView";
 
 export const dynamic = "force-dynamic";

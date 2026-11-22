@@ -1,13 +1,14 @@
 import Link from "next/link";
+import publicHero from "../styles/public-hero.module.css";
 import { DashboardSignInLink } from "./DashboardSignInLink";
-import styles from "../welcome.module.css";
+import styles from "./WelcomeHero.module.css";
 
 export function WelcomeHero() {
   return (
-    <section className={styles.hero} aria-labelledby="welcome-title">
-      <div className={styles.heroCopy}>
-        <div className={styles.eyebrow}>
-          <span className={styles.eyebrowDot} aria-hidden="true" />
+    <section className={`${publicHero.hero} ${styles.hero}`} aria-labelledby="welcome-title">
+      <div className={`${publicHero.heroCopy} ${styles.heroCopy}`}>
+        <div className={`${publicHero.eyebrow} ${styles.eyebrow}`}>
+          <span className={publicHero.eyebrowDot} aria-hidden="true" />
           Private website analytics
         </div>
         <h1 id="welcome-title">
@@ -19,9 +20,11 @@ export function WelcomeHero() {
           Understand what brings people to your site and what they do next, with clear insights and
           thoughtful data collection.
         </p>
-        <div className={styles.heroActions}>
-          <DashboardSignInLink className={`button buttonPrimary ${styles.heroPrimary}`} />
-          <Link href="/developers" className={styles.heroSecondary}>
+        <div className={`${publicHero.heroActions} ${styles.heroActions}`}>
+          <DashboardSignInLink
+            className={`button buttonPrimary ${publicHero.heroPrimary} ${styles.heroPrimary}`}
+          />
+          <Link href="/developers" className={`${publicHero.heroSecondary} ${styles.heroSecondary}`}>
             See how it works <span aria-hidden="true">↗</span>
           </Link>
         </div>
@@ -41,7 +44,7 @@ export function WelcomeHero() {
         </ul>
       </div>
 
-      <div className={styles.heroVisual} aria-hidden="true">
+      <div className={`${publicHero.heroVisual} ${styles.heroVisual}`} aria-hidden="true">
         <div className={styles.previewGlow} />
         <div className={styles.preview}>
           <div className={styles.previewTop}>

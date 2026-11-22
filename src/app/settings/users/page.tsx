@@ -1,12 +1,12 @@
-import { MembersSkeleton } from "../SettingsLoading";
 import { Suspense } from "react";
 import { VisitoringDashboardFrame } from "@/app/components/VisitoringDashboardFrame";
-import { listPerministerProjectMembers } from "@/lib/perminister";
 import { requireAdmin } from "@/lib/auth";
+import { listPerministerProjectMembers } from "@/lib/perminister";
+import { MembersSkeleton } from "../SettingsLoading";
 import { SettingsPageIntro } from "../SettingsPageIntro";
 import pageStyles from "../settings-page.module.css";
-import { UsersManager } from "./UsersManager";
 import { UserList } from "./components/UserList";
+import { UsersManager } from "./UsersManager";
 import type { ManagedUser } from "./user-types";
 
 export const dynamic = "force-dynamic";

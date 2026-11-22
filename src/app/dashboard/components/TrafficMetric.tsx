@@ -1,7 +1,7 @@
 "use client";
 
-import { createContext, useContext, useState, type ReactNode } from "react";
-import { chartMetric, type ChartMetric } from "./chart-data";
+import { createContext, type ReactNode, useContext, useState } from "react";
+import { type ChartMetric, chartMetric } from "./chart-data";
 
 const MetricContext = createContext<{
   metric: ChartMetric;

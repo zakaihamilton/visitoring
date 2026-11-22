@@ -1,10 +1,9 @@
 "use client";
 
-import { useActionState, useEffect, useId, useRef, useState } from "react";
 import { Dialog } from "panel-frame-ui";
-import type { UserAction } from "../user-types";
-import type { ManagedUser } from "../user-types";
+import { useActionState, useEffect, useId, useRef, useState } from "react";
 import dialogStyles from "../../confirm-dialog.module.css";
+import type { ManagedUser, UserAction } from "../user-types";
 import styles from "../users.module.css";
 import { ActionFeedback } from "./ActionFeedback";
 import { initialState } from "./initialState";

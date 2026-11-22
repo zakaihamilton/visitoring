@@ -1,7 +1,7 @@
-import type { ManagedUser } from "../user-types";
-import { UserRow } from "./UserRow";
 import pageStyles from "../../settings-page.module.css";
+import type { ManagedUser } from "../user-types";
 import styles from "../users.module.css";
+import { UserRow } from "./UserRow";
 
 export function UserList({
   users,

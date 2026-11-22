@@ -1,13 +1,13 @@
 "use client";
 
-import { useActionState, useId, useRef, useState } from "react";
 import { AlertDialog } from "panel-frame-ui";
+import { useActionState, useId, useRef, useState } from "react";
 import { guardConfirmableSubmit } from "@/app/components/confirmable-form";
 import { manageProjectAction } from "../manage-actions";
 import type { ManagedProject } from "../project-types";
-import { ProjectNotice } from "./ProjectNotice";
-import { initialState } from "./initialState";
 import styles from "../projects.module.css";
+import { initialState } from "./initialState";
+import { ProjectNotice } from "./ProjectNotice";
 
 export function ProjectControls({ project }: { project: ManagedProject }) {
   const [state, action, pending] = useActionState(manageProjectAction, initialState);

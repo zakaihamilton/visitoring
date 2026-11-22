@@ -1,5 +1,5 @@
-import Bowser from "bowser";
 import { access } from "node:fs/promises";
+import Bowser from "bowser";
 import maxmind, { type CityResponse, type Reader } from "maxmind";
 
 type Attribution = {

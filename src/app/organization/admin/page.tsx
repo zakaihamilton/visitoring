@@ -1,12 +1,12 @@
-import { Suspense } from "react";
 import { asc, eq } from "drizzle-orm";
+import { Suspense } from "react";
 import { VisitoringDashboardFrame } from "@/app/components/VisitoringDashboardFrame";
-import { getDb } from "@/db";
-import { projects } from "@/db/schema";
-import { requireOrganizationAdmin } from "@/lib/auth";
 import { ProjectManager } from "@/app/projects/ProjectManager";
 import type { ManagedProject } from "@/app/projects/project-types";
 import styles from "@/app/projects/projects.module.css";
+import { getDb } from "@/db";
+import { projects } from "@/db/schema";
+import { requireOrganizationAdmin } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 

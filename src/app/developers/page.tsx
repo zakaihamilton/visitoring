@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { PublicHeader } from "@/app/components/PublicHeader";
-import { DevelopersGuide } from "./components/DevelopersGuide";
+import publicHero from "@/app/styles/public-hero.module.css";
 import { DeveloperHero } from "./components/DeveloperHero";
+import { DevelopersGuide } from "./components/DevelopersGuide";
 import styles from "./developers.module.css";
 
 export const metadata: Metadata = {
@@ -32,8 +33,8 @@ export const metadata: Metadata = {
 
 export default function DevelopersPage() {
   return (
-    <main className={styles.page}>
-      <div className={styles.shell}>
+    <main className={`${publicHero.page} ${styles.page}`}>
+      <div className={publicHero.shell}>
         <PublicHeader page="developers" />
         <DeveloperHero />
         <DevelopersGuide />

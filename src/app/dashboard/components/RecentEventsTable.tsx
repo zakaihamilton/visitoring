@@ -1,19 +1,20 @@
 import styles from "../dashboard.module.css";
+import tableStyles from "./RecentEventsTable.module.css";
 import { formatNumber, type RecentEventsData } from "./types";
 
 export function PropertyText({ properties }: { properties: Record<string, unknown> }) {
   const entries = Object.entries(properties);
-  if (!entries.length) return <span className={styles.muted}>—</span>;
+  if (!entries.length) return <span className={tableStyles.muted}>—</span>;
 
   return (
-    <div className={styles.properties}>
+    <div className={tableStyles.properties}>
       {entries.slice(0, 4).map(([key, value]) => (
         <span key={key}>
           <b>{key}</b>: {formatPropertyValue(value)}
         </span>
       ))}
       {entries.length > 4 ? (
-        <span className={styles.propertyMore}>+{entries.length - 4} more properties</span>
+        <span className={tableStyles.propertyMore}>+{entries.length - 4} more properties</span>
       ) : null}
     </div>
   );
@@ -33,7 +34,7 @@ function EventTime({ createdAt }: { createdAt: string }) {
 
 export function RecentEventsTable({ data }: { data: RecentEventsData }) {
   return (
-    <section className={`${styles.card} ${styles.eventCard}`} data-testid="recent-events">
+    <section className={`${styles.card} ${tableStyles.eventCard}`} data-testid="recent-events">
       <div className={styles.cardTitle}>
         <div>
           <h2>Latest activity</h2>
@@ -49,7 +50,7 @@ export function RecentEventsTable({ data }: { data: RecentEventsData }) {
       {data.events.length ? (
         <>
           <section
-            className={styles.tableWrap}
+            className={tableStyles.tableWrap}
             data-testid="desktop-events-table"
             // biome-ignore lint/a11y/noNoninteractiveTabindex: Scrollable content needs keyboard access.
             tabIndex={0}
@@ -69,16 +70,16 @@ export function RecentEventsTable({ data }: { data: RecentEventsData }) {
                 {data.events.map((event) => (
                   <tr key={event.id}>
                     <td>
-                      <span className={styles.eventPill}>{event.eventName}</span>
+                      <span className={tableStyles.eventPill}>{event.eventName}</span>
                     </td>
-                    <td className={styles.pathCell}>{event.path}</td>
+                    <td className={tableStyles.pathCell}>{event.path}</td>
                     <td>
                       <PropertyText properties={event.properties} />
                     </td>
                     <td>
                       <code title={event.visitorId}>{event.visitorId.slice(0, 12)}…</code>
                     </td>
-                    <td className={styles.timeCell}>
+                    <td className={tableStyles.timeCell}>
                       <EventTime createdAt={event.createdAt} />
                     </td>
                   </tr>
@@ -86,19 +87,19 @@ export function RecentEventsTable({ data }: { data: RecentEventsData }) {
               </tbody>
             </table>
           </section>
-          <div className={styles.mobileEvents} data-testid="mobile-event-cards">
+          <div className={tableStyles.mobileEvents} data-testid="mobile-event-cards">
             {data.events.map((event) => (
-              <article className={styles.mobileEvent} key={event.id}>
-                <div className={styles.mobileEventHeader}>
-                  <span className={styles.eventPill}>{event.eventName}</span>
-                  <time className={styles.timeCell} dateTime={event.createdAt}>
+              <article className={tableStyles.mobileEvent} key={event.id}>
+                <div className={tableStyles.mobileEventHeader}>
+                  <span className={tableStyles.eventPill}>{event.eventName}</span>
+                  <time className={tableStyles.timeCell} dateTime={event.createdAt}>
                     <EventTime createdAt={event.createdAt} />
                   </time>
                 </div>
-                <dl className={styles.mobileEventDetails}>
+                <dl className={tableStyles.mobileEventDetails}>
                   <div>
                     <dt>Page</dt>
-                    <dd className={styles.pathCell}>{event.path}</dd>
+                    <dd className={tableStyles.pathCell}>{event.path}</dd>
                   </div>
                   <div>
                     <dt>Details</dt>
@@ -109,7 +110,7 @@ export function RecentEventsTable({ data }: { data: RecentEventsData }) {
                   <div>
                     <dt>Visitor ID</dt>
                     <dd>
-                      <code className={styles.mobileVisitorId}>{event.visitorId}</code>
+                      <code className={tableStyles.mobileVisitorId}>{event.visitorId}</code>
                     </dd>
                   </div>
                 </dl>
@@ -118,7 +119,7 @@ export function RecentEventsTable({ data }: { data: RecentEventsData }) {
           </div>
         </>
       ) : (
-        <div className={styles.tableEmpty}>No events found. Try changing your filters.</div>
+        <div className={tableStyles.tableEmpty}>No events found. Try changing your filters.</div>
       )}
     </section>
   );

@@ -1,10 +1,10 @@
-import { config as loadEnv } from "dotenv";
 import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { pathToFileURL } from "node:url";
+import { config as loadEnv } from "dotenv";
 import type { PoolClient } from "pg";
+import { applyMigration, type MigrationFile, parseMigrationSql } from "./migration-runner";
 import { createMigrationPool } from "./nanogres-migration-pool";
-import { applyMigration, parseMigrationSql, type MigrationFile } from "./migration-runner";
 
 loadEnv({ path: [".env.local", ".env"] });
 

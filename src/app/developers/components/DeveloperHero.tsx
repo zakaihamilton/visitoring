@@ -1,11 +1,12 @@
-import styles from "../developers.module.css";
+import publicHero from "@/app/styles/public-hero.module.css";
+import styles from "./DeveloperHero.module.css";
 
 export function DeveloperHero() {
   return (
-    <section className={styles.hero} aria-labelledby="developers-title">
-      <div className={styles.heroCopy}>
-        <div className={styles.eyebrow}>
-          <span className={styles.eyebrowDot} aria-hidden="true" />
+    <section className={`${publicHero.hero} ${styles.hero}`} aria-labelledby="developers-title">
+      <div className={`${publicHero.heroCopy} ${styles.heroCopy}`}>
+        <div className={`${publicHero.eyebrow} ${styles.eyebrow}`}>
+          <span className={publicHero.eyebrowDot} aria-hidden="true" />
           Developer guide <span className={styles.eyebrowDivider}>/</span> Quick start
         </div>
         <h1 id="developers-title">
@@ -17,11 +18,14 @@ export function DeveloperHero() {
           Add simple, privacy-minded analytics to your website. Start with page views, then measure
           the actions that matter to you.
         </p>
-        <div className={styles.heroActions}>
-          <a href="#setup" className={`button buttonPrimary ${styles.heroPrimary}`}>
+        <div className={`${publicHero.heroActions} ${styles.heroActions}`}>
+          <a
+            href="#setup"
+            className={`button buttonPrimary ${publicHero.heroPrimary} ${styles.heroPrimary}`}
+          >
             Follow the quick start <span aria-hidden="true">↓</span>
           </a>
-          <a href="#privacy" className={styles.heroSecondary}>
+          <a href="#privacy" className={`${publicHero.heroSecondary} ${styles.heroSecondary}`}>
             How data is handled <span aria-hidden="true">↗</span>
           </a>
         </div>
@@ -35,7 +39,7 @@ export function DeveloperHero() {
         </div>
       </div>
 
-      <div className={styles.heroVisual} aria-hidden="true">
+      <div className={`${publicHero.heroVisual} ${styles.heroVisual}`} aria-hidden="true">
         <div className={styles.editorGlow} />
         <div className={styles.editorCard}>
           <div className={styles.editorTop}>

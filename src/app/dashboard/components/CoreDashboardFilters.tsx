@@ -1,8 +1,8 @@
 import { DropdownSelect } from "@/app/components/DropdownSelect";
 import { EventNameCombobox } from "@/app/components/EventNameCombobox";
+import styles from "./DashboardFilters.module.css";
 import { FilterLabel } from "./FilterLabel";
 import type { DashboardData, DashboardSite } from "./types";
-import styles from "../dashboard.module.css";
 
 export function CoreDashboardFilters({
   sites,

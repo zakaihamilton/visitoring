@@ -1,5 +1,5 @@
 import { Tooltip } from "@/app/components/Tooltip";
-import styles from "../dashboard.module.css";
+import styles from "./DashboardFilters.module.css";
 
 export function FilterLabel({
   label,

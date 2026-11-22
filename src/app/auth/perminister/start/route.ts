@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { perministerAuthorizationUrl, perministerClientSecretForSso } from "@/lib/perminister";
 import { makeVisitoringLastOrganizationCookieAvailable } from "@/lib/organization-cookies";
+import { perministerAuthorizationUrl, perministerClientSecretForSso } from "@/lib/perminister";
 import {
   createPerministerSsoTransaction,
   perministerSsoCookieName,
