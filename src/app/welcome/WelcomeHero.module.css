@@ -79,6 +79,7 @@
 
 .heroVisual {
   max-width: 500px;
+  min-width: 0;
 }
 
 .previewGlow {
@@ -91,6 +92,8 @@
 
 .preview {
   position: relative;
+  width: 100%;
+  min-width: 0;
   overflow: hidden;
   padding: 20px;
   border: 1px solid light-dark(#ffffffb3, #000000b3);
@@ -171,13 +174,14 @@
 
 .previewMetrics {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: 10px;
 }
 
 .previewMetrics > div {
   display: grid;
-  grid-template-columns: 1fr auto;
+  min-width: 0;
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: end;
   gap: 5px 7px;
   padding: 12px;
@@ -470,6 +474,41 @@
   .noteIcon {
     width: 27px;
     height: 27px;
+  }
+}
+
+@media (max-width: 350px) {
+  .hero {
+    padding-right: 16px;
+    padding-left: 16px;
+  }
+
+  .preview {
+    padding: 11px;
+  }
+
+  .previewMetrics {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 6px;
+  }
+
+  .previewMetrics > div {
+    padding: 8px 9px;
+  }
+
+  .previewMetrics strong {
+    font-size: 1rem;
+  }
+
+  .previewMetrics small {
+    font-size: 0.72rem;
+  }
+
+  .floatingNote {
+    right: 4px;
+    bottom: 20px;
+    gap: 8px;
+    padding: 8px 10px 8px 8px;
   }
 }
 
