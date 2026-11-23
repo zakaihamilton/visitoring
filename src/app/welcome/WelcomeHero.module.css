@@ -29,6 +29,7 @@
   --hero-copy-max-width: 490px;
   --hero-copy-size: clamp(var(--type-body), 1.4vw, var(--type-body-large));
   max-width: 640px;
+  min-width: 0;
 }
 
 .eyebrow {
@@ -417,7 +418,7 @@
 
 @media (max-width: 820px) {
   .hero {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
     gap: 45px;
     padding: clamp(30px, 7vw, 58px);
   }
