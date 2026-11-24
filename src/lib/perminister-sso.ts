@@ -5,7 +5,7 @@ import { createHash, createHmac, randomBytes, timingSafeEqual } from "node:crypt
 const COOKIE_PREFIX =
   process.env.NODE_ENV === "production" ? "__Host-visitoring-sso-" : "visitoring_sso-";
 
-export type PerministerSsoTransaction = {
+type PerministerSsoTransaction = {
   state: string;
   verifier: string;
   nonce: string;

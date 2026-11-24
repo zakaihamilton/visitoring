@@ -5,7 +5,7 @@ import { useState } from "react";
 import { CoreDashboardFilters } from "./CoreDashboardFilters";
 import styles from "./DashboardFilters.module.css";
 import { useTrafficMetric } from "./TrafficMetric";
-import type { DashboardData, DashboardSite } from "./types";
+import type { DashboardFilterFormProps } from "./types";
 
 export function DashboardFiltersForm({
   sites,
@@ -13,13 +13,7 @@ export function DashboardFiltersForm({
   data,
   filters,
   dateError,
-}: {
-  dateError?: string;
-  sites: DashboardSite[];
-  siteId: string;
-  data: Pick<DashboardData, "eventNames">;
-  filters: Record<string, string>;
-}) {
+}: DashboardFilterFormProps) {
   const [expanded, setExpanded] = useState(Boolean(dateError));
   const { metric } = useTrafficMetric(filters.metric);
   return (

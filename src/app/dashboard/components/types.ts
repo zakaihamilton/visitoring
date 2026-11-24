@@ -13,6 +13,14 @@ export type DashboardProps = {
   filters: DashboardFilters;
 };
 
+export type DashboardFilterFormProps = {
+  dateError?: string;
+  sites: DashboardSite[];
+  siteId: string;
+  data: Pick<DashboardData, "eventNames">;
+  filters: DashboardFilters;
+};
+
 export function formatNumber(value: number): string {
   return new Intl.NumberFormat("en").format(value);
 }
