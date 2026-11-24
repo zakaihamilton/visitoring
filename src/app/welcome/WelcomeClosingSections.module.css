@@ -220,7 +220,7 @@
 }
 
 .setupSteps li > span {
-  color: light-dark(#44866f, #79bba4);
+  color: light-dark(#2e6b55, #79bba4);
   font-size: var(--type-compact);
   font-weight: 750;
   letter-spacing: 0.1em;

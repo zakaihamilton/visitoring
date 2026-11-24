@@ -1,6 +1,6 @@
 .page {
   min-height: 100vh;
-  padding: 0 clamp(16px, 4vw, 48px) 32px;
+  padding: 0 clamp(16px, 4vw, 48px) 35px;
   background: var(--background);
 }
 
@@ -139,7 +139,7 @@
 
 @keyframes riseIn {
   from {
-    opacity: 0;
+    opacity: 1;
     translate: 0 18px;
   }
   to {

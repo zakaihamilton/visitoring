@@ -5,7 +5,7 @@
 }
 
 .sectionEyebrow {
-  color: light-dark(#40856f, #7abfa9);
+  color: light-dark(#2e6b55, #7abfa9);
   font-size: var(--type-section-label);
   font-weight: 700;
   letter-spacing: 0.15em;
