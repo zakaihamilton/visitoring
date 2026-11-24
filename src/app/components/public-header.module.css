@@ -52,11 +52,30 @@
 
 @media (max-width: 350px) {
   .header {
-    gap: 12px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 10px;
   }
 
   .nav {
-    gap: 4px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    width: 100%;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .nav > :nth-child(1) {
+    justify-self: start;
+  }
+
+  .nav > :nth-child(2) {
+    justify-self: end;
+  }
+
+  .nav > :nth-child(3) {
+    grid-column: 2;
+    justify-self: end;
   }
 
   .nav :global(.button) {

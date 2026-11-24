@@ -1,0 +1,72 @@
+.setupGuideCard {
+  margin-bottom: 24px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 24px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  box-shadow: var(--dashboard-shadow);
+  transition:
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    transform 180ms ease;
+}
+
+.setupGuideHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.setupGuideHeading h2 {
+  margin: 4px 0 6px;
+  font-size: var(--type-card-title);
+  letter-spacing: -0.02em;
+}
+
+.setupGuideHeading p {
+  margin: 0;
+  color: var(--muted);
+  font-size: var(--type-body);
+}
+
+.setupSnippetBox {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 16px;
+  background: color-mix(in srgb, var(--accent) 8%, var(--surface));
+  border: 1px solid color-mix(in srgb, var(--accent) 22%, var(--line));
+  border-radius: 10px;
+  overflow-x: auto;
+}
+
+.setupSnippetBox:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.setupSnippetCode {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: var(--type-compact);
+  color: var(--ink);
+  white-space: nowrap;
+}
+
+.setupActions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .setupGuideCard {
+    transition: none;
+  }
+}

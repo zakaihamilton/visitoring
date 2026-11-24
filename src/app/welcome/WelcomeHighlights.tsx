@@ -1,4 +1,5 @@
-import styles from "../welcome.module.css";
+import welcomeStyles from "../welcome.module.css";
+import styles from "./WelcomeHighlights.module.css";
 
 const highlights = [
   {
@@ -19,7 +20,7 @@ export function BenefitsSection() {
   return (
     <section className={styles.benefits} aria-labelledby="benefits-title">
       <div className={styles.benefitsHeading}>
-        <div className={styles.sectionEyebrow}>Less noise, more clarity</div>
+        <div className={welcomeStyles.sectionEyebrow}>Less noise, more clarity</div>
         <h2 id="benefits-title">The details that help you move forward.</h2>
       </div>
       <div className={styles.highlights}>
@@ -41,8 +42,8 @@ export function BenefitsSection() {
 export function InsightsSection() {
   return (
     <section className={styles.insights} aria-labelledby="insights-title">
-      <div className={styles.sectionIntro}>
-        <div className={styles.sectionEyebrow}>Useful at a glance</div>
+      <div className={welcomeStyles.sectionIntro}>
+        <div className={welcomeStyles.sectionEyebrow}>Useful at a glance</div>
         <h2 id="insights-title">A clearer picture of what happens on your site.</h2>
         <p>
           Follow activity from the first page view to the actions that matter, with the reports you

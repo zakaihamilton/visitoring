@@ -4,9 +4,9 @@ import { useActionState, useEffect, useState } from "react";
 import { DropdownSelect } from "@/app/components/DropdownSelect";
 import { changeUserRoleAction } from "../actions";
 import type { ManagedUser } from "../user-types";
+import styles from "../users.module.css";
 import { ActionFeedback } from "./ActionFeedback";
 import { initialState } from "./initialState";
-import styles from "../users.module.css";
 
 export function UserRoleForm({ user }: { user: ManagedUser }) {
   const [state, action, pending] = useActionState(changeUserRoleAction, initialState);

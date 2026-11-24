@@ -1,5 +1,5 @@
-import { useEffect, useId, useRef, useState } from "react";
 import type { KeyboardEvent } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import type { VisitoringOrganizationChoice } from "@/lib/perminister";
 
 export function useOrganizationSwitcher(

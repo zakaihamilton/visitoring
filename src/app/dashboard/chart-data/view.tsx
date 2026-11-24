@@ -1,15 +1,16 @@
 import Form from "next/form";
 import { DropdownSelect } from "@/app/components/DropdownSelect";
 import {
+  chartInterval,
   chartMeasures,
   chartMetric,
   chartMetricOptions,
-  chartInterval,
 } from "../components/chart-data";
-import { formatNumber, type DashboardProps } from "../components/types";
-import styles from "../dashboard.module.css";
 import { TrafficPageControls } from "../components/TrafficPageControls";
 import { TrafficPageHeader } from "../components/TrafficPageHeader";
+import plotStyles from "../components/TrafficPlot.module.css";
+import { type DashboardProps, formatNumber } from "../components/types";
+import styles from "../dashboard.module.css";
 
 export function ChartDataView({ sites, siteId, data, filters }: DashboardProps) {
   const measure = chartMetric(filters.metric);
@@ -55,7 +56,7 @@ export function ChartDataView({ sites, siteId, data, filters }: DashboardProps) 
             .map(([key, value]) => (
               <input key={key} type="hidden" name={key} value={value} />
             ))}
-          <div className={styles.chartSelect}>
+          <div className={plotStyles.chartSelect}>
             <label htmlFor="table-metric">Metric</label>
             <DropdownSelect
               id="table-metric"

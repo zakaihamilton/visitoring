@@ -1,6 +1,8 @@
-import { Skeleton, LoadingStatus } from "@/app/components/Skeleton";
+import { LoadingStatus, Skeleton } from "@/app/components/Skeleton";
 import { VisitoringDashboardFrame } from "@/app/components/VisitoringDashboardFrame";
 import styles from "../dashboard.module.css";
+import filterStyles from "./DashboardFilters.module.css";
+import plotStyles from "./TrafficPlot.module.css";
 import loading from "./traffic-loading.module.css";
 
 type View = "overview" | "events" | "chart-data";
@@ -22,7 +24,7 @@ function LoadingFilters() {
       <div className={loading.mobileFilter}>
         <Skeleton width={106} height={40} />
       </div>
-      <div className={`${styles.filters} ${loading.filters}`}>
+      <div className={`${filterStyles.filters} ${loading.filters}`}>
         {["Site", "Start date", "End date", "Event type", "Page path"].map((label) => (
           <div className={loading.field} key={label}>
             <span>{label}</span>
@@ -59,7 +61,7 @@ function BreakdownSkeleton({ title }: { title: string }) {
 
 function TrendSkeleton() {
   return (
-    <section className={`${styles.card} ${styles.trendCard}`}>
+    <section className={`${styles.card} ${plotStyles.trendCard}`}>
       <div className={styles.cardTitle}>
         <div>
           <h2>Traffic over time</h2>
@@ -91,16 +93,16 @@ function TrendSkeleton() {
           <Skeleton key={tick} width={46} height={10} />
         ))}
       </div>
-      <div className={styles.chartReadout}>
+      <div className={plotStyles.chartReadout}>
         {["current", "previous"].map((period) => (
-          <div className={styles.readoutPeriod} key={period}>
+          <div className={plotStyles.readoutPeriod} key={period}>
             <Skeleton width={110} height={10} />
             <Skeleton width={72} height={24} />
             <Skeleton width={100} height={11} />
           </div>
         ))}
       </div>
-      <div className={styles.chartFooter}>
+      <div className={plotStyles.chartFooter}>
         <Skeleton width={132} height={36} />
       </div>
     </section>

@@ -2,10 +2,10 @@
 
 import Form from "next/form";
 import { useState } from "react";
-import { useTrafficMetric } from "./TrafficMetric";
 import { CoreDashboardFilters } from "./CoreDashboardFilters";
+import styles from "./DashboardFilters.module.css";
+import { useTrafficMetric } from "./TrafficMetric";
 import type { DashboardData, DashboardSite } from "./types";
-import styles from "../dashboard.module.css";
 
 export function DashboardFiltersForm({
   sites,

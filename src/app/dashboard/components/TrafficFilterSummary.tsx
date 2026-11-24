@@ -1,8 +1,8 @@
 "use client";
 
-import { useTrafficMetric } from "./TrafficMetric";
 import Link from "next/link";
-import styles from "../dashboard.module.css";
+import styles from "./DashboardFilters.module.css";
+import { useTrafficMetric } from "./TrafficMetric";
 
 export function TrafficFilterSummary({
   siteId,

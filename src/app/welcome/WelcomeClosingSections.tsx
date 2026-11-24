@@ -1,13 +1,14 @@
 import Link from "next/link";
 import { Tooltip } from "@/app/components/Tooltip";
+import welcomeStyles from "../welcome.module.css";
 import { DashboardSignInLink } from "./DashboardSignInLink";
-import styles from "../welcome.module.css";
+import styles from "./WelcomeClosingSections.module.css";
 
 export function CustomEventsSection() {
   return (
     <section className={styles.actionsSection} aria-labelledby="actions-title">
       <div className={styles.actionsCopy}>
-        <div className={styles.sectionEyebrow}>Beyond page views</div>
+        <div className={welcomeStyles.sectionEyebrow}>Beyond page views</div>
         <h2 id="actions-title">Measure the moments that move your work forward.</h2>
         <p>
           Track a completed signup or another important action with a custom event. Then use the
@@ -82,8 +83,8 @@ export function PrivacySection() {
 export function SetupSection() {
   return (
     <section className={styles.setupSection} aria-labelledby="setup-title">
-      <div className={styles.sectionIntro}>
-        <div className={styles.sectionEyebrow}>A straightforward start</div>
+      <div className={`${welcomeStyles.sectionIntro} ${styles.setupIntro}`}>
+        <div className={welcomeStyles.sectionEyebrow}>A straightforward start</div>
         <h2 id="setup-title">One small script gets you going.</h2>
         <p>
           Add the deferred tracker to your site. There is no package to install, and custom events

@@ -1,6 +1,6 @@
-import type { ReactNode } from "react";
 import Link from "next/link";
 import { DashboardShell } from "panel-frame-ui";
+import type { ReactNode } from "react";
 import { BrandIcon } from "@/app/components/BrandIcon";
 import { OrganizationSwitcher } from "@/app/components/OrganizationSwitcher";
 import { ProjectSwitcher } from "@/app/components/ProjectSwitcher";

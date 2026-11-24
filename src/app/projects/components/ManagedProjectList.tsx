@@ -1,6 +1,6 @@
 import type { ManagedProject } from "../project-types";
-import { ProjectControls } from "./ProjectControls";
 import styles from "../projects.module.css";
+import { ProjectControls } from "./ProjectControls";
 
 export function ManagedProjectList({
   title,

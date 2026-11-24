@@ -1,0 +1,355 @@
+.trendCard {
+  margin-top: 18px;
+  padding: 24px;
+}
+
+.chartLegend {
+  display: flex;
+  gap: 20px;
+  padding-top: 13px;
+  color: var(--muted);
+  font-size: var(--type-compact);
+}
+
+.chartLegend span {
+  display: flex;
+  gap: 7px;
+  align-items: center;
+}
+
+.chartLegend i {
+  display: inline-block;
+  width: 20px;
+  height: 3px;
+  border-radius: 3px;
+}
+
+.legendPage {
+  background: var(--accent);
+}
+
+.legendPrevious {
+  height: 0;
+  border-top: 2px dashed var(--muted);
+  background: none;
+  border-radius: 0;
+}
+
+.chartSelect {
+  display: grid;
+  gap: 5px;
+  font-size: var(--type-compact);
+  color: var(--muted);
+  width: 164px;
+}
+
+.plotLayout {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr);
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.yAxis {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: flex-end;
+  padding: 5px 0;
+  color: var(--muted);
+  font-size: 0.75rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.plot {
+  position: relative;
+  height: 280px;
+  min-width: 0;
+}
+
+.plotDrawing {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+  animation: chartReveal 300ms ease-out;
+}
+
+.plotGridline {
+  stroke: var(--line);
+  stroke-width: 1;
+  stroke-dasharray: 3 5;
+}
+
+.currentLine,
+.previousLine {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.currentLine {
+  stroke: var(--accent);
+  stroke-width: 2.5;
+}
+
+.previousLine {
+  stroke: var(--muted);
+  stroke-width: 1.75;
+  stroke-dasharray: 5 6;
+  opacity: 0.85;
+}
+
+.plotTargets {
+  position: absolute;
+  inset: 0;
+  display: flex;
+}
+
+.plotBucket {
+  position: relative;
+  flex: 1 1 0;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  cursor: crosshair;
+  transition: background 160ms ease;
+}
+
+.plotBucket:hover {
+  background: color-mix(in srgb, var(--accent) 5%, transparent);
+}
+
+.plotBucket:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+  background: color-mix(in srgb, var(--accent) 5%, transparent);
+}
+
+.plotBucket[data-active="true"] {
+  background: color-mix(in srgb, var(--accent) 7%, transparent);
+}
+
+.plotBucket::after {
+  content: "";
+  position: absolute;
+  top: 12px;
+  bottom: 12px;
+  left: 50%;
+  border-left: 1px dashed var(--accent);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.plotBucket[data-active="true"]::after {
+  opacity: 0.4;
+}
+
+.plotCurrentPoint,
+.plotPreviousPoint {
+  position: absolute;
+  z-index: 1;
+  width: 10px;
+  height: 10px;
+  border: 2px solid var(--accent);
+  border-radius: 50%;
+  background: var(--surface);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+.plotCurrentPoint {
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 12%, transparent);
+}
+
+.plotPreviousPoint {
+  width: 8px;
+  height: 8px;
+  border-color: var(--muted);
+}
+
+.xAxis {
+  display: flex;
+  justify-content: space-between;
+  margin: 9px 0 0 56px;
+  color: var(--muted);
+  font-size: 0.75rem;
+  gap: 10px;
+}
+
+.chartReadout {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-top: 22px;
+  border: 1px solid var(--line);
+  background: color-mix(in srgb, var(--accent) 2%, var(--surface));
+  border-radius: 12px;
+  font-size: var(--type-compact);
+  font-variant-numeric: tabular-nums;
+  overflow: hidden;
+}
+
+.readoutPeriod {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+  padding: 16px 20px;
+}
+
+.readoutPeriod + .readoutPeriod {
+  border-left: 1px solid var(--line);
+}
+
+.readoutLabel {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.readoutLabel i {
+  width: 18px;
+  height: 3px;
+  border-radius: 3px;
+}
+
+.readoutLabel .legendPrevious {
+  height: 0;
+  border-radius: 0;
+}
+
+.readoutPeriod strong {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 7px;
+  color: var(--ink);
+  font-size: 1.5rem;
+  line-height: 1.2;
+  letter-spacing: -0.035em;
+}
+
+.readoutPeriod .readoutCurrent {
+  color: var(--accent);
+}
+
+.readoutPeriod strong small {
+  color: var(--muted);
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0;
+}
+
+.readoutDate {
+  color: var(--muted);
+  font-size: 0.75rem;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.chartFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+  padding-top: 18px;
+}
+
+.tableToggle {
+  display: inline-flex;
+  text-decoration: none;
+  color: var(--ink);
+  border: 1px solid var(--line);
+  background: var(--surface);
+  border-radius: 8px;
+  padding: 8px 12px;
+  cursor: pointer;
+  font: inherit;
+  font-size: var(--type-compact);
+  font-weight: 600;
+  transition:
+    background 160ms ease,
+    border-color 160ms ease;
+}
+
+.tableToggle:hover {
+  background: var(--background);
+  border-color: var(--accent);
+}
+
+.tableToggle:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.chartFooter .tableToggle {
+  flex: 0 0 auto;
+}
+
+@keyframes chartReveal {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@media (max-width: 760px) {
+  .trendCard {
+    padding: 18px;
+  }
+
+  .chartLegend {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .plotLayout {
+    grid-template-columns: 32px minmax(0, 1fr);
+    gap: 8px;
+  }
+
+  .plot {
+    height: 220px;
+  }
+
+  .xAxis {
+    margin-left: 40px;
+  }
+
+  .optionalTick {
+    display: none;
+  }
+
+  .readoutPeriod {
+    padding: 14px 12px;
+  }
+
+  .readoutLabel {
+    font-size: 0.6875rem;
+    gap: 6px;
+  }
+
+  .readoutLabel i {
+    width: 12px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .plotDrawing {
+    animation: none;
+  }
+
+  .plotBucket,
+  .tableToggle {
+    transition: none;
+  }
+}

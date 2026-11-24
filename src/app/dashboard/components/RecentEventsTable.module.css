@@ -1,0 +1,197 @@
+.eventCard {
+  padding-bottom: 0;
+  margin-top: 2px;
+}
+
+.tableWrap {
+  overflow: auto;
+  margin: 0 -20px;
+}
+
+.tableWrap:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.mobileEvents {
+  display: none;
+}
+
+.eventCard table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 900px;
+  text-align: left;
+}
+
+.eventCard th {
+  color: var(--muted);
+  font-size: var(--type-compact);
+  font-weight: 650;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--line);
+  padding: 11px 15px;
+}
+
+.eventCard th:first-child,
+.eventCard td:first-child {
+  padding-left: 20px;
+}
+
+.eventCard td {
+  border-bottom: 1px solid var(--line);
+  padding: 11px 15px;
+  vertical-align: top;
+  color: var(--ink-soft);
+  font-size: var(--type-compact);
+}
+
+.eventPill {
+  color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 10%, var(--surface));
+  border-radius: 6px;
+  padding: 4px 7px;
+  font-size: var(--type-compact);
+  font-weight: 650;
+  white-space: nowrap;
+}
+
+.pathCell {
+  color: var(--ink);
+  max-width: 190px;
+  overflow-wrap: anywhere;
+}
+
+.properties {
+  display: grid;
+  gap: 4px;
+  max-width: 270px;
+}
+
+.properties span {
+  color: var(--muted);
+  overflow-wrap: anywhere;
+}
+
+.properties b {
+  color: var(--ink-soft);
+  font-weight: 650;
+}
+
+.properties .propertyMore {
+  color: var(--ink-soft);
+  font-weight: 650;
+}
+
+.muted {
+  color: var(--muted);
+}
+
+.eventCard code {
+  color: var(--ink-soft);
+  font-size: var(--type-compact);
+}
+
+.timeCell {
+  white-space: nowrap;
+  color: var(--muted);
+  font-size: var(--type-compact);
+}
+
+.tableEmpty {
+  padding: 32px;
+  text-align: center;
+  color: var(--muted);
+  font-size: var(--type-body);
+}
+
+.eventCard tbody tr,
+.mobileEvent {
+  transition: background 160ms ease;
+}
+
+.eventCard tbody tr:hover,
+.mobileEvent:hover {
+  background: color-mix(in srgb, var(--accent) 4%, transparent);
+}
+
+@media (max-width: 760px) {
+  .tableWrap {
+    display: none;
+  }
+
+  .mobileEvents {
+    display: grid;
+    margin: 0 -4px;
+  }
+
+  .mobileEvent {
+    min-width: 0;
+    padding: 15px 4px;
+    border-top: 1px solid var(--line);
+  }
+
+  .mobileEventHeader {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 10px;
+  }
+
+  .mobileEventHeader .eventPill {
+    min-width: 0;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+
+  .mobileEventHeader .timeCell {
+    white-space: normal;
+    text-align: right;
+  }
+
+  .mobileEventDetails {
+    display: grid;
+    gap: 12px;
+    margin: 14px 0 0;
+  }
+
+  .mobileEventDetails > div {
+    display: grid;
+    gap: 4px;
+    min-width: 0;
+  }
+
+  .mobileEventDetails dt {
+    color: var(--muted);
+    font-size: var(--type-compact);
+    font-weight: 650;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .mobileEventDetails dd {
+    min-width: 0;
+    margin: 0;
+    color: var(--ink-soft);
+    font-size: var(--type-compact);
+    overflow-wrap: anywhere;
+  }
+
+  .mobileEventDetails .properties {
+    max-width: none;
+  }
+
+  .mobileVisitorId {
+    display: block;
+    overflow-wrap: anywhere;
+    word-break: break-all;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .eventCard tbody tr,
+  .mobileEvent {
+    transition: none;
+  }
+}

@@ -1,7 +1,7 @@
 import { config as loadEnv } from "dotenv";
 import { eq } from "drizzle-orm";
 import { endDatabasePools, getDb } from "@/db";
-import { sites, projects } from "@/db/schema";
+import { projects, sites } from "@/db/schema";
 import { createSiteKey, sha256 } from "@/lib/crypto";
 import { parseAllowedDomains } from "@/lib/domains";
 import { parseArgs, requiredArg } from "./args";

@@ -3,9 +3,9 @@
 import { useActionState } from "react";
 import { Tooltip } from "@/app/components/Tooltip";
 import { createSiteAction } from "@/app/sites/actions";
+import styles from "../../settings-page.module.css";
 import { ActionNotice } from "./ActionNotice";
 import { initialState } from "./initialState";
-import styles from "../../settings-page.module.css";
 
 export function CreateSiteForm() {
   const [state, action, pending] = useActionState(createSiteAction, initialState);

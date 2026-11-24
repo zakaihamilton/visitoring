@@ -1,7 +1,7 @@
 import { Tooltip } from "@/app/components/Tooltip";
-import { metricChange, dateLabel } from "@/lib/analytics-period";
+import { dateLabel, metricChange } from "@/lib/analytics-period";
 import styles from "../dashboard.module.css";
-import { formatNumber, type DashboardData } from "./types";
+import { type DashboardData, formatNumber } from "./types";
 
 const metrics = [
   {

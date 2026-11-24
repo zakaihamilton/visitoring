@@ -3,8 +3,9 @@
 import Link from "next/link";
 import { type KeyboardEvent, useRef, useState } from "react";
 import { Tooltip } from "@/app/components/Tooltip";
-import styles from "../developers.module.css";
+import guideStyles from "../developers.module.css";
 import { CustomEventsSection } from "./GuideSections";
+import styles from "./TrackerSection.module.css";
 import {
   eventSnippet,
   nextRootSnippet,
@@ -20,7 +21,13 @@ const integrationTabs = [
 
 type IntegrationTab = (typeof integrationTabs)[number]["id"];
 
-function CopyableCode({ code }: { code: string }) {
+function CopyableCode({
+  code,
+  codeBlockClassName = guideStyles.codeBlock,
+}: {
+  code: string;
+  codeBlockClassName?: string;
+}) {
   const [status, setStatus] = useState<"idle" | "copied" | "error">("idle");
   async function copy() {
     try {
@@ -43,7 +50,7 @@ function CopyableCode({ code }: { code: string }) {
             : ""}
       </span>
       {/* biome-ignore lint/a11y/noNoninteractiveTabindex: Keyboard users need to scroll long snippets. */}
-      <pre className={styles.codeBlock} tabIndex={0}>
+      <pre className={codeBlockClassName} tabIndex={0}>
         <code>{code}</code>
       </pre>
     </div>
@@ -70,19 +77,21 @@ export function TrackerSection({ numbered = true }: { numbered?: boolean }) {
     tabRefs.current[nextIndex]?.focus();
   }
 
+  const panelCodeBlock = `${guideStyles.codeBlock} ${styles.integrationCodeBlock}`;
+
   return (
     <>
-      <section id="tracker" className={styles.section} aria-labelledby="tracker-heading">
+      <section id="tracker" className={guideStyles.section} aria-labelledby="tracker-heading">
         <div
           className={
             numbered
-              ? styles.sectionHeading
-              : styles.sectionHeading + " " + styles.sectionHeadingNoNumber
+              ? guideStyles.sectionHeading
+              : `${guideStyles.sectionHeading} ${styles.sectionHeadingNoNumber}`
           }
         >
           {numbered ? <span aria-hidden="true">02</span> : null}
           <div>
-            <div className={styles.sectionTitleRow}>
+            <div className={guideStyles.sectionTitleRow}>
               <h2 id="tracker-heading">
                 {numbered ? "Add the tracker" : "Choose your integration"}
               </h2>
@@ -136,12 +145,12 @@ export function TrackerSection({ numbered = true }: { numbered?: boolean }) {
                   content="The deferred script records page views and exposes the custom event API after it loads."
                 />
               </div>
-              <p className={styles.note}>
+              <p className={guideStyles.note}>
                 Add this snippet to each page you want to measure. Replace the sample key with the
                 tracking key shown in Settings → Sites.
               </p>
-              <CopyableCode code={trackerSnippet} />
-              <p className={styles.note}>
+              <CopyableCode code={trackerSnippet} codeBlockClassName={panelCodeBlock} />
+              <p className={guideStyles.note}>
                 If Visitoring has a custom address, replace <code>visitoring.vercel.app</code> too.
               </p>
             </div>
@@ -154,13 +163,13 @@ export function TrackerSection({ numbered = true }: { numbered?: boolean }) {
                     content="Send a custom event after your app confirms an action such as a signup."
                   />
                 </div>
-                <p className={styles.note}>
+                <p className={guideStyles.note}>
                   Call this from the success handler after your app confirms the action. Do not
                   include personal or sensitive data in the page path or event properties;
                   Visitoring does not automatically redact those values. The deferred tracker must
                   finish loading before this API is called.
                 </p>
-                <CopyableCode code={eventSnippet} />
+                <CopyableCode code={eventSnippet} codeBlockClassName={panelCodeBlock} />
               </div>
             )}
           </div>
@@ -182,7 +191,7 @@ export function TrackerSection({ numbered = true }: { numbered?: boolean }) {
                   content="The package supports React 18 and 19. VisitoringProvider and useVisitoring are its public React APIs."
                 />
               </div>
-              <p className={styles.note}>
+              <p className={guideStyles.note}>
                 The <code>visitoring</code> library supports React 18 and 19.{" "}
                 <code>VisitoringProvider</code> loads the tracker once and buffers up to 100 events
                 while it loads. <code>useVisitoring()</code> exposes a typed <code>track</code>{" "}
@@ -196,33 +205,33 @@ export function TrackerSection({ numbered = true }: { numbered?: boolean }) {
                 </Link>
                 .
               </p>
-              <CopyableCode code="npm install visitoring" />
+              <CopyableCode code="npm install visitoring" codeBlockClassName={panelCodeBlock} />
             </div>
             <div>
               <div className={styles.integrationPanelHeading}>
                 <h3>Wrap your app once</h3>
               </div>
-              <p className={styles.note}>
+              <p className={guideStyles.note}>
                 For Vite or React Router, put the provider above your app or router:
               </p>
-              <CopyableCode code={reactRootSnippet} />
-              <p className={styles.note}>
+              <CopyableCode code={reactRootSnippet} codeBlockClassName={panelCodeBlock} />
+              <p className={guideStyles.note}>
                 For Next.js App Router, put the provider in your root layout and set{" "}
                 <code>NEXT_PUBLIC_VISITORING_SITE_KEY</code> in the environment:
               </p>
-              <CopyableCode code={nextRootSnippet} />
+              <CopyableCode code={nextRootSnippet} codeBlockClassName={panelCodeBlock} />
             </div>
             {!numbered && (
               <div>
                 <div className={styles.integrationPanelHeading}>
                   <h3>Track an action</h3>
                 </div>
-                <p className={styles.note}>
+                <p className={guideStyles.note}>
                   Use the hook from a client component after an action succeeds. Do not include
                   personal or sensitive data in the page path or event properties; Visitoring does
                   not automatically redact those values:
                 </p>
-                <CopyableCode code={reactEventSnippet} />
+                <CopyableCode code={reactEventSnippet} codeBlockClassName={panelCodeBlock} />
               </div>
             )}
           </div>

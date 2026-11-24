@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useRef, useState, type ChangeEvent, type KeyboardEvent } from "react";
-import { useDismissOnOutsidePointer } from "./useDismissOnOutsidePointer";
+import { type ChangeEvent, type KeyboardEvent, useEffect, useRef, useState } from "react";
 import styles from "./dropdown-select.module.css";
 import listboxStyles from "./listbox.module.css";
+import { useDismissOnOutsidePointer } from "./useDismissOnOutsidePointer";
 
 type Props = {
   id: string;

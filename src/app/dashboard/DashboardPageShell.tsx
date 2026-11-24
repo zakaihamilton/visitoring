@@ -1,24 +1,24 @@
+import { desc, eq } from "drizzle-orm";
 import Link from "next/link";
 import { Suspense } from "react";
-import { desc, eq } from "drizzle-orm";
-import { requireUser } from "@/lib/auth";
+import { VisitoringDashboardFrame } from "@/app/components/VisitoringDashboardFrame";
 import { getDb } from "@/db";
 import { sites } from "@/db/schema";
 import { getAnalyticsData, getRecentEventsData } from "@/lib/analytics";
 import { dashboardDates } from "@/lib/analytics-period";
-import { VisitoringDashboardFrame } from "@/app/components/VisitoringDashboardFrame";
-import { Dashboard } from "./view";
-import { DashboardLoading } from "./DashboardLoading";
-import { RecentEventsView } from "./events/view";
+import { requireUser } from "@/lib/auth";
 import { ChartDataView } from "./chart-data/view";
-import { TrafficLoading } from "./components/TrafficLoading";
 import { chartMetric } from "./components/chart-data";
-import { TrafficMetricProvider } from "./components/TrafficMetric";
 import { DashboardFiltersForm } from "./components/DashboardFilters";
 import { DashboardNavigation } from "./components/DashboardNavigation";
 import { TrafficFilterSummary } from "./components/TrafficFilterSummary";
-import styles from "./dashboard.module.css";
+import { TrafficLoading } from "./components/TrafficLoading";
+import { TrafficMetricProvider } from "./components/TrafficMetric";
 import type { DashboardSite } from "./components/types";
+import { DashboardLoading } from "./DashboardLoading";
+import styles from "./dashboard.module.css";
+import { RecentEventsView } from "./events/view";
+import { Dashboard } from "./view";
 
 type Props = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;

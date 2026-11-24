@@ -1,9 +1,9 @@
 import Link from "next/link";
 import { RecentEventsTable } from "../components/RecentEventsTable";
-import type { DashboardProps, RecentEventsData } from "../components/types";
-import styles from "../dashboard.module.css";
 import { TrafficPageControls } from "../components/TrafficPageControls";
 import { TrafficPageHeader } from "../components/TrafficPageHeader";
+import type { DashboardProps, RecentEventsData } from "../components/types";
+import styles from "../dashboard.module.css";
 
 type Props = Omit<DashboardProps, "data"> & { data: RecentEventsData };
 export function RecentEventsView({ sites, siteId, data, filters }: Props) {

@@ -1,9 +1,9 @@
 import { deactivateUserAction, deleteUserAction, resetUserPasswordAction } from "../actions";
 import type { ManagedUser } from "../user-types";
+import styles from "../users.module.css";
 import { ReactivateUserForm } from "./ReactivateUserForm";
 import { UserActionDialog } from "./UserActionDialog";
 import { UserRoleForm } from "./UserRoleForm";
-import styles from "../users.module.css";
 
 export function UserRow({ user, currentUserId }: { user: ManagedUser; currentUserId: string }) {
   const isCurrentUser = user.id === currentUserId;

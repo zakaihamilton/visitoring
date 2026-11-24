@@ -1,7 +1,7 @@
 "use client";
 
-import { useActionState, useRef, useState, type RefObject } from "react";
 import { AlertDialog } from "panel-frame-ui";
+import { type RefObject, useActionState, useRef, useState } from "react";
 import { guardConfirmableSubmit } from "@/app/components/confirmable-form";
 import { Tooltip } from "@/app/components/Tooltip";
 import { deleteSiteAction, rotateSiteKeyAction, updateDomainsAction } from "@/app/sites/actions";

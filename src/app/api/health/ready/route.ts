@@ -1,6 +1,6 @@
 import { getPool } from "@/db";
-import { rateLimitSecretConfigurationError } from "@/lib/crypto";
 import { collectorRateLimitConfigurationError } from "@/lib/collection-policy";
+import { rateLimitSecretConfigurationError } from "@/lib/crypto";
 
 export async function GET(): Promise<Response> {
   if (process.env.NODE_ENV === "production" && process.env.TRUST_PROXY_HEADERS !== "true")

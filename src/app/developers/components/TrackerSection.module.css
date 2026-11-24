@@ -1,0 +1,94 @@
+.sectionHeadingNoNumber {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.integrationTabs {
+  display: inline-flex;
+  gap: 4px;
+  margin: 22px 0 18px;
+  padding: 4px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: light-dark(#f0f5f1, #0a0f0b);
+}
+
+.integrationTab {
+  min-height: 40px;
+  padding: 9px 16px;
+  border: 0;
+  border-radius: 8px;
+  color: light-dark(#526365, #9aabad);
+  background: transparent;
+  font: inherit;
+  font-size: var(--type-body);
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.integrationTab[aria-selected="true"] {
+  color: light-dark(#215e4c, #a1decc);
+  background: light-dark(#fff, #000000);
+  box-shadow: 0 1px 4px light-dark(#10252b15, #d4e9ef15);
+}
+
+.integrationTab:hover {
+  color: light-dark(#215e4c, #a1decc);
+}
+
+.integrationTab:focus-visible,
+.integrationPanel:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.integrationPanel {
+  min-width: 0;
+}
+
+.integrationContent {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 27px;
+  min-width: 0;
+}
+
+.integrationContent > * {
+  min-width: 0;
+}
+
+.integrationPanelHeading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 7px;
+}
+
+.integrationPanelHeading h3 {
+  margin: 0;
+  font-size: var(--type-card-title);
+  letter-spacing: -0.04em;
+}
+
+.integrationCodeBlock {
+  margin-top: 14px;
+}
+
+.integrationBehavior {
+  margin: 20px 0 0;
+  color: var(--muted);
+  font-size: var(--type-body);
+  line-height: 1.65;
+}
+
+@media (max-width: 520px) {
+  .integrationTabs {
+    display: flex;
+    width: 100%;
+  }
+
+  .integrationTab {
+    flex: 1;
+    padding-right: 8px;
+    padding-left: 8px;
+  }
+}
