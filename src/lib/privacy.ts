@@ -29,7 +29,7 @@ export function isValidVisitorId(value: unknown): value is string {
   return typeof value === "string" && visitorIdPattern.test(value);
 }
 
-export function clientIpFromHeaders(headers: Pick<Headers, "get">): string {
+function clientIpFromHeaders(headers: Pick<Headers, "get">): string {
   const trustProxyHeaders =
     process.env.TRUST_PROXY_HEADERS === "true" || process.env.NODE_ENV !== "production";
   if (!trustProxyHeaders) return "unknown";

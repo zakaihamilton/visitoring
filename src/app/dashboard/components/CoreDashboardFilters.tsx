@@ -2,7 +2,7 @@ import { DropdownSelect } from "@/app/components/DropdownSelect";
 import { EventNameCombobox } from "@/app/components/EventNameCombobox";
 import styles from "./DashboardFilters.module.css";
 import { FilterLabel } from "./FilterLabel";
-import type { DashboardData, DashboardSite } from "./types";
+import type { DashboardFilterFormProps } from "./types";
 
 export function CoreDashboardFilters({
   sites,
@@ -10,13 +10,7 @@ export function CoreDashboardFilters({
   data,
   filters,
   dateError,
-}: {
-  dateError?: string;
-  sites: DashboardSite[];
-  siteId: string;
-  data: Pick<DashboardData, "eventNames">;
-  filters: Record<string, string>;
-}) {
+}: DashboardFilterFormProps) {
   return (
     <>
       <div className={styles.filterField}>

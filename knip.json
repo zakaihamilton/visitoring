@@ -1,0 +1,6 @@
+{
+  "entry": [
+    "tests/e2e/support/authenticated-ui-server.ts",
+    "tests/e2e/support/visual-server.ts"
+  ]
+}

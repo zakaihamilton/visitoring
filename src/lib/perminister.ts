@@ -7,7 +7,6 @@ export {
   readPerministerSession,
   requestPerminister,
   revokePerministerSession,
-  type VisitoringRole,
 } from "./perminister-client";
 
 export {

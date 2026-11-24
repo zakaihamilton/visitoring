@@ -374,7 +374,7 @@
 
 @keyframes riseIn {
   from {
-    opacity: 0;
+    opacity: 1;
     translate: 0 18px;
   }
   to {
